@@ -13,6 +13,9 @@ const SignInScreen = () => {
     const navigateToSignUpScreen = () => {
         navigation.navigate("SignUp")
     }
+    const navigateToForgotPasswordScreen = () => {
+        navigation.navigate("ForgotPassword")
+    }
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -35,7 +38,7 @@ const SignInScreen = () => {
                         <Text style={styles.buttonText}>Sign in <Icons name="in" color="#fff" /></Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => { }}>
+                    <TouchableOpacity onPress={navigateToForgotPasswordScreen}>
                         <Text style={styles.textForgot}>Forgot Password?</Text>
                     </TouchableOpacity>
 
@@ -68,7 +71,7 @@ const SignInScreen = () => {
 const styles = StyleSheet.create({
     logo: { alignSelf: "center", marginBottom: 36 },
     textInput: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, backgroundColor: "#d9d9d9", fontSize: 16, fontFamily: font.semiBold },
-    textForgot: { color: "black", fontFamily: font.regular, fontSize: 16, textAlign: "center" },
+    textForgot: { color: "#000", fontFamily: font.medium, fontSize: 16, textAlign: "center" },
     button: { backgroundColor: theme.colors.orange, width: "70%", height: 50, borderRadius: 12, justifyContent: "center", alignSelf: "center" },
     button1: { borderColor: theme.colors.orange1, borderWidth: 2, backgroundColor: "transparent", width: "70%", height: 50, borderRadius: 12, justifyContent: "center", alignSelf: "center" },
     buttonText: { fontFamily: font.semiBold, color: '#fff', fontSize: 18, textAlign: "center" },

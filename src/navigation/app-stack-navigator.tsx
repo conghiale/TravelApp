@@ -10,8 +10,8 @@ const AppStackNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name='Auth' component={AuthStackNavigator} options={{headerShown: false}}/>
       <Stack.Screen name='Root' component={BottomTabNavigator} options={{headerShown: false}}/>
+      {/* <Stack.Screen name='Auth' component={AuthStackNavigator} options={{headerShown: false}}/> */}
     </Stack.Navigator>
   )
 }
