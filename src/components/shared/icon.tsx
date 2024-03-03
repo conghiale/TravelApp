@@ -1,12 +1,12 @@
 import Svg, { Circle, Path } from "react-native-svg"
 
-// type IconProps = {
-//     width?: number
-//     height?: number
-//     color?: string
-// }
+type IconProps = {
+    width?: number
+    height?: number
+    color?: string
+}
 
-// type IconName = "home" | "places" | "loved" | "personal" | "in" | "eye" | "uneye" | "search" | "topPlace" | "star" | "star01" | "star02" | "nearestPlace" | "createDestination" | "list" | "add" | "dropdown" | "newest" | "person" | "setting" | "cancel" | "userList" | "lock" | "unLock" | "back" | "edit" | "sub" | "gmail" | "circleReset"
+type IconName = "home" | "places" | "loved" | "personal" | "in" | "eye" | "uneye" | "search" | "topPlace" | "star" | "star01" | "star02" | "createDestination" | "list" | "add" | "dropdown" | "newest" | "person" | "setting" | "cancel" | "userList" | "lock" | "unLock" | "back" | "edit" | "sub" | "gmail" | "circleReset" | "email" | "password" | "nearestPlace"
 
 const Home = ({ color = "grey", height = 20, width = 20 }: IconProps) => (
     <Svg width={width} height={height} viewBox="0 0 21 17" fill="none">
@@ -211,6 +211,20 @@ const CircleReset = ({ color = "white", height = 20, width = 20 }: IconProps) =>
     </Svg>
 )
 
+const Email = ({ color = "white", height = 20, width = 20 }: IconProps) => (
+    <Svg width={width} height={height} viewBox="0 0 20 18" fill="none">
+        <Path d="M1 0H19C19.5523 0 20 0.44772 20 1V17C20 17.5523 19.5523 18 19 18H1C0.44772 18 0 17.5523 0 17V1C0 0.44772 0.44772 0 1 0ZM18 4.23792L10.0718 11.338L2 4.21594V16H18V4.23792ZM2.51146 2L10.0619 8.662L17.501 2H2.51146Z"
+            fill={color} />
+    </Svg>
+)
+
+const Password = ({ color = "white", height = 20, width = 20 }: IconProps) => (
+    <Svg width={width} height={height} viewBox="0 0 18 20" fill="none">
+        <Path d="M16 8H17C17.5523 8 18 8.4477 18 9V19C18 19.5523 17.5523 20 17 20H1C0.44772 20 0 19.5523 0 19V9C0 8.4477 0.44772 8 1 8H2V7C2 3.13401 5.13401 0 9 0C12.866 0 16 3.13401 16 7V8ZM14 8V7C14 4.23858 11.7614 2 9 2C6.23858 2 4 4.23858 4 7V8H14ZM8 12V16H10V12H8Z"
+            fill={color} />
+    </Svg>
+)
+
 const Icons = ({ name, color, height, width }: IconProps & { name: IconName }) => {
     switch (name) {
         case "home":
@@ -271,6 +285,10 @@ const Icons = ({ name, color, height, width }: IconProps & { name: IconName }) =
             return <Gmail color={color} height={height} width={width} />
         case "circleReset":
             return <CircleReset color={color} height={height} width={width} />
+        case "email":
+            return <Email color={color} height={height} width={width} />
+        case "password":
+            return <Password color={color} height={height} width={width} />
     }
 }
 

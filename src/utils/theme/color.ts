@@ -6,6 +6,7 @@ export const palette = {
     orange1: '#f36e1b',
     grey: '#9db2ce',
     blue: '#386bf6',
+    blue1: '#2f3542',
     brown: '#826969',
 }
 
@@ -17,5 +18,6 @@ export const colors = {
     orange1: palette.orange1,
     grey: palette.grey,
     blue: palette.blue,
+    blue1: palette.blue1,
     brown: palette.brown,
 }

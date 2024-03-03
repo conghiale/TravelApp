@@ -34,8 +34,8 @@ export type CategoriesStackParamList = {
 }
 
 export type AppStackParamList = {
-    Root: NavigatorScreenParams<RootBottomTabParamList>
-    Auth: undefined
+    Root: NavigatorScreenParams<RootBottomTabParamList> | undefined
+    HobbySelect: undefined
 }
 
 export type RootStackParamList = {
@@ -53,5 +53,12 @@ export type AuthScreenNavigationType<
 RouteName extends keyof AuthStackParamList
 > = CompositeNavigationProp<
 NativeStackNavigationProp<AuthStackParamList, RouteName>,
+NativeStackNavigationProp<AppStackParamList, "Root">
+>
+
+export type AppScreenNavigationType<
+RouteName extends keyof AppStackParamList
+> = CompositeNavigationProp<
+NativeStackNavigationProp<AppStackParamList, RouteName>,
 NativeStackNavigationProp<AppStackParamList, "Root">
 >
