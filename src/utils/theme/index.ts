@@ -26,7 +26,12 @@ const theme = createTheme({
         "rounded-5xl": 20,
         "rounded-7xl": 28,
     },
+    placeItemInfo: {
+        PLACE_ITEM_HEIGHT: 260,
+        PLACE_ITEM_WIDTH: 360,
+    },
     textVariants,
+
 })
 
 export type Theme = typeof theme

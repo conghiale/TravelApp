@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity } from "react-native"
-import styles from "./button.style"
+import styles from "./button01.style"
 import theme from "@/utils/theme"
 
 type ButtonProps = {

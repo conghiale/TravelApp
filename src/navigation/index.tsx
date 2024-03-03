@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import AppStackNavigator from './app-stack-navigator'
 import AuthStackNavigator from './auth-stack-navigator'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
+import Tabs from './tabs'
 
 const Navigation = () => {
     const { user, updateUser } = useUserGlobalStore()
@@ -22,6 +23,7 @@ const Navigation = () => {
 
     return (
         <NavigationContainer>
+            {/* {user ? <Tabs /> : <AuthStackNavigator /> } */}
             {user ? <AppStackNavigator /> : <AuthStackNavigator /> }
         </NavigationContainer>
     )

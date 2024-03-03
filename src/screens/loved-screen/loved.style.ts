@@ -1,17 +1,24 @@
-import { StyleSheet } from "react-native"
 import { font } from "@/utils/font"
 import theme from "@/utils/theme"
+import { StyleSheet } from "react-native"
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
+        flex: 1,
         backgroundColor: '#2F3542',
-        paddingHorizontal: '5%',
+        alignItems: 'center',
         paddingVertical: 4,
     },
     title_container: {
         height: 24,
-        marginTop: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    title: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    title_right: {
         flexDirection: 'row',
         alignItems: 'center',
     },

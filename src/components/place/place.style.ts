@@ -4,19 +4,46 @@ import { StyleSheet } from "react-native"
 
 const styles = StyleSheet.create({
     place_container: {
-        height: 250,
+        height: theme.placeItemInfo.PLACE_ITEM_HEIGHT,
+        width: theme.placeItemInfo.PLACE_ITEM_WIDTH,
         padding: 4,
-        marginTop: 16,
         borderRadius: 5,
-        backgroundColor: theme.colors.white,
+        backgroundColor: '#2F3542', //theme.colors.white,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5,
     },
     place_image: {
         height: '40%',
-        width: 'auto',
+        width: 'auto'
+    },
+    place_header: {
+        marginTop: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     place_text_title: {
+        width: '70%',
         fontFamily: font.semiBold,
-    }
+        color: theme.colors.white,
+    },
+    place_text_content: {
+        fontFamily: font.regular,
+        color: theme.colors.white,
+        marginTop: 8,
+    },
+    place_footer: {
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
 })
 
 export default styles
