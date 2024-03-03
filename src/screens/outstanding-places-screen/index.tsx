@@ -11,7 +11,7 @@ import Pagination from '@/components/Pagination'
 import FlatlistHorizontal from '@/components/flatList/flasListPlacesHorizontal/FlatlistPlaceHorizontal'
 import FlatListPlaceVertical from '@/components/flatList/flatListPlaceVertical/FlatListPlaceVertical'
 
-const PlacesScreen = () => {
+const OutstandingPlacesScreen = () => {
 
     return (
         <SafeAreaWrapper>
@@ -44,4 +44,4 @@ const PlacesScreen = () => {
     )
 }
 
-export default PlacesScreen
+export default OutstandingPlacesScreen

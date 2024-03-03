@@ -34,8 +34,16 @@ export type CategoriesStackParamList = {
 }
 
 export type AppStackParamList = {
+    General: undefined
     Root: NavigatorScreenParams<RootBottomTabParamList> | undefined
     HobbySelect: undefined
+    CreatePlace: undefined
+    CreatedPlaces: undefined
+    DetailPlace: undefined
+    ChangePassword: undefined
+    ViewUsers: undefined
+    ReviewUser: undefined
+    ApprovePlaces: undefined
 }
 
 export type RootStackParamList = {

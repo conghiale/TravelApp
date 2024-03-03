@@ -3,8 +3,22 @@ import styles from "./place.style"
 import theme from "@/utils/theme"
 import Button01 from "../button/button01/Button01"
 import { Star1, Star1_5, Star2, Star2_5, Star3, Star3_5, Star4, Star4_5, Star5 } from "../star"
+import { useNavigation } from "@react-navigation/native"
+import { AppScreenNavigationType } from "@/navigation/types"
 
-const Place = ({ destination, content, star } : PlaceProps) => {
+const Place = ({ destination, content, star }: PlaceProps) => {
+
+    const navigation = useNavigation<AppScreenNavigationType<"General">>()
+    const navigateToDetailPlaceScreen = () => {
+        navigation.navigate("DetailPlace")
+    }
+    const navigateToMainScreen = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{name: "Root"}]
+        })
+    }
+
     const handleMapPress = () => {
         Alert.alert('PLACE', 'Button Map pressed', [
             { text: 'OK', onPress: () => console.log('Ok Pressed'), style: 'cancel', },
@@ -18,7 +32,7 @@ const Place = ({ destination, content, star } : PlaceProps) => {
     }
 
     const handeStar = () => {
-        switch(star) {
+        switch (star) {
             case 1: return <Star1 />
             case 1.5: return <Star1_5 />
             case 2: return <Star2 />
@@ -36,15 +50,15 @@ const Place = ({ destination, content, star } : PlaceProps) => {
             <Image style={styles.place_image} source={require('../../assets/images/vinh-ha-long.jpg')} />
             <View style={styles.place_header}>
                 <Text style={[theme.textVariants.textBase, styles.place_text_title]} numberOfLines={1} ellipsizeMode="tail">{destination}</Text>
-                <Button01 label="Map" onPress={handleMapPress} />
+                <Button01 label="Map" onPress={navigateToMainScreen} />
             </View>
             <Text style={[theme.textVariants.textSm, styles.place_text_content]} numberOfLines={3} ellipsizeMode="tail">{content}</Text>
             <View style={styles.place_footer}>
                 {handeStar()}
-                <Button01 label="Detail" onPress={handleDetailPress} />
+                <Button01 label="Detail" onPress={navigateToDetailPlaceScreen} />
             </View>
         </View>
-        
+
     )
 }
 

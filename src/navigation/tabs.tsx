@@ -1,14 +1,13 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "./types";
 import HomeScreen from "@/screens/home-screen";
-import PlacesScreen from '@/screens/places-screen'
+import OutstandingPlacesScreen from "@/screens/outstanding-places-screen";
 import LovedScreen from '@/screens/loved-screen'
 import PersonalScreen from '@/screens/personal-screen'
 import Icons from "@/components/shared/icon";
 import theme from "@/utils/theme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Children } from "react";
-import CreateScreen from "@/screens/create-screen";
+import CreatePlaceScreen from "@/screens/create-place-screen";
 
 const Tab = createBottomTabNavigator<RootBottomTabParamList>()
 
@@ -72,7 +71,7 @@ const Tabs = () => {
             />
             <Tab.Screen
                 name="Places"
-                component={PlacesScreen}
+                component={OutstandingPlacesScreen}
                 options={() => ({
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
@@ -85,7 +84,7 @@ const Tabs = () => {
             />
             <Tab.Screen
                 name="Create"
-                component={CreateScreen}
+                component={CreatePlaceScreen}
                 options={() => ({
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (

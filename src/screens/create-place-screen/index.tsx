@@ -1,11 +1,18 @@
-import { View, Text, SafeAreaView, Image, TextInput } from 'react-native'
+import { View, Text, SafeAreaView, Image, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
 import Icons from '@/components/shared/icon'
 import styles from './createScreen.style'
 import theme from '@/utils/theme'
+import { AppScreenNavigationType } from '@/navigation/types'
+import { useNavigation } from '@react-navigation/native'
 
-const CreateScreen = () => {
+const CreatePlaceScreen = () => {
+    const navigation = useNavigation<AppScreenNavigationType<"CreatePlace">>()
+    const navigateToCreatedPlacesScreen = () => {
+        navigation.navigate("CreatedPlaces")
+    }
+
     return (
         <SafeAreaWrapper>
             <View style={styles.container}>
@@ -14,10 +21,10 @@ const CreateScreen = () => {
                         <Icons name='createDestination' />
                         <Text style={styles.headerText}>Create destination</Text>
                     </View>
-                    <View style={styles.headerItem}>
+                    <TouchableOpacity style={styles.headerItem} onPress={navigateToCreatedPlacesScreen}>
                         <Icons name='list' />
                         <Text style={styles.headerText}>List</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.viewInputDestination}>
@@ -49,4 +56,4 @@ const CreateScreen = () => {
     )
 }
 
-export default CreateScreen
+export default CreatePlaceScreen

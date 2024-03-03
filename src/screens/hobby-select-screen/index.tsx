@@ -15,7 +15,10 @@ const HobbySelectScreen = () => {
     
     const navigation = useNavigation<AppScreenNavigationType<"HobbySelect">>()
     const navigateToMain = () => {
-        navigation.navigate("Root")
+        navigation.reset({
+            index: 0,
+            routes: [{name: "Root"}]
+        })
     }
 
     const [data, setData] = useState<IData[]>([])

@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "./types";
 import HomeScreen from "@/screens/home-screen";
-import PlacesScreen from '@/screens/places-screen'
+import PlacesScreen from '@/screens/outstanding-places-screen'
 import LovedScreen from '@/screens/loved-screen'
 import PersonalScreen from '@/screens/personal-screen'
 import Icons from "@/components/shared/icon";
