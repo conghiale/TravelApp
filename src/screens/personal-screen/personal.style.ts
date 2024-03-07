@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 80,
         borderColor: theme.colors.grey,
-        elevation: 1,
+        // elevation: 1,
     },
     containerCamera: {
         width: 50,
