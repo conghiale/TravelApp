@@ -9,20 +9,32 @@ const actions: Action[] = [
     {
         //   title: 'Take Image',
         type: 'capture',
-        options: {
-            saveToPhotos: true,
+        options1: {
+            saveToPhotos: false,
             mediaType: 'photo',
             includeBase64: false,
+            maxHeight: 2000,
+            maxWidth: 2000,
         },
+        options2: {}
     },
     {
         //   title: 'Select Image',
         type: 'library',
-        options: {
+        options1: {
+            selectionLimit: 1,
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 2000,
+            maxWidth: 2000
+        },
+        options2: {
             selectionLimit: 0,
             mediaType: 'photo',
             includeBase64: false,
-        },
+            maxHeight: 2000,
+            maxWidth: 2000,
+        }
     },
 ]
 
@@ -30,13 +42,13 @@ const DialogChooseImage = ({ visible, onDimissAlert, onHandlerActionCamera, onHa
 
     const handleActionCamera = () => {
         if (onHandlerActionCamera)
-            runOnJS(onHandlerActionCamera)({type: actions[0].type, options: actions[0].options})
+            runOnJS(onHandlerActionCamera)({ type: actions[0].type, options1: actions[0].options1, options2: actions[0].options2 })
         onDimissAlert(false)
     }
 
     const handleActionGallery = () => {
         if (onHandlerActionGallery)
-            runOnJS(onHandlerActionGallery)({type: actions[1].type, options: actions[1].options})
+            runOnJS(onHandlerActionGallery)({ type: actions[1].type, options1: actions[1].options1, options2: actions[1].options2 })
         onDimissAlert(false)
     }
 
@@ -54,7 +66,8 @@ const DialogChooseImage = ({ visible, onDimissAlert, onHandlerActionCamera, onHa
                 transparent={true}
                 onRequestClose={() => onDimissAlert(false)}
             >
-                <View style={styles.container}>
+
+                <View style={styles.container} onTouchEndCapture={() => onDimissAlert(false)}>
                     <View style={styles.containerAlert}>
                         <View style={[styles.header]}>
                             <Text style={[

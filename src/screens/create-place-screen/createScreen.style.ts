@@ -45,13 +45,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingHorizontal: 10,
     },
+    containerFooter: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 32,
+        paddingEnd: 27,
+    },
     btnAdd: { 
         width: 90, 
         height: 90, 
         borderRadius: 10, 
         borderWidth: 1, 
-        backgroundColor: 'white', 
-        marginTop: 30, 
+        backgroundColor: 'white',  
         justifyContent: 'center', 
         alignItems: 'center',
     }

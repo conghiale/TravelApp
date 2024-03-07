@@ -65,9 +65,7 @@ const DialogNotification = ({ status, displayMode, displayMsg, visible, onDimiss
                                 onPress={handleActionOK}
                                 style={[
                                     styles.btnOk, {
-                                        backgroundColor: status === 'success' ? '#05c46b' :
-                                            status === 'warning' ? '#ffd32a' :
-                                                status === 'error' ? '#ff3f34' : '#ffd32a'
+                                        backgroundColor: status === 'success' ? '#05c46b' :'#ff3f34'
                                     }]}
                             >
                                 <Text style={styles.btnText}>OK</Text>

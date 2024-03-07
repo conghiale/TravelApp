@@ -5,7 +5,12 @@ import DialogNotification from '@/components/customAler/dialogNotification/Dialo
 import { Alert, Image, View } from 'react-native'
 import Button01 from '@/components/button/button01/Button01'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
-// import * as ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
+
+// interface imageForm {
+//     path: string,
+//     fileName: string,
+// }
 
 const HomeScreen = () => {
     const URL = 'localhost...'
@@ -26,7 +31,7 @@ const HomeScreen = () => {
 
     }
 
-    const uploadImage = async ({ type, options }: any) => {
+    const uploadImage = async ({ type, options1, options2 }: any) => {
         if (type === 'capture') {
             // await ImagePicker.launchCamera(options, (response) => {
             //     if (response.errorCode) {
@@ -36,14 +41,14 @@ const HomeScreen = () => {
             //     }
             // });
         } else {
-            // await ImagePicker.launchImageLibrary(options, (response) => {
-            //     if (response.errorCode) {
-            //         Alert.alert('Error uploading image: ' + response.errorMessage)
-            //     } else {
-            //         saveImage(response)
-            //         // sendToBackend
-            //     }
-            // });
+            await ImagePicker.launchImageLibrary(options2, (response) => {
+                if (response.errorCode) {
+                    Alert.alert('Error uploading image: ', response.errorMessage)
+                } else {
+                    saveImage(response)
+                    // sendToBackend
+                }
+            });
         }
     }
 

@@ -46,15 +46,15 @@ interface DialogNotificationProps {
     displayMsg: string,
     visible: boolean,
     onDimissAlert: (state: boolean) => void
-    onHandlerActionOK: () => void
+    onHandlerActionOK?: () => void
     onHandlerActionCANCEL?: () => void
 }
 
 interface DialogChooseImageProps {
     visible: boolean
     onDimissAlert: (state: boolean) => void
-    onHandlerActionCamera: ({type, options} : any) => void
-    onHandlerActionGallery: ({type, options} : any) => void
+    onHandlerActionCamera: ({type, options1, options2} : any) => void
+    onHandlerActionGallery: ({type, options1, options2} : any) => void
     onHandlerActionRemove: () => void
 }
 
@@ -81,13 +81,13 @@ interface ImagePickerResponse {
 }
 
 interface Person {
-    email: string;
-    firstName: string;
-    lastName: string;
+    email: string
+    firstName: string
+    lastName: string
     image: any
     hobby: string
-    isEnglish: boolean;
-    isLight: boolean;
+    isEnglish: boolean
+    isLight: boolean
 }
 
 interface InputChangePassword {
@@ -191,7 +191,8 @@ interface CommentProps {
 interface Action {
     // title: string;
     type: 'capture' | 'library';
-    options: ImagePicker.CameraOptions | ImagePicker.ImageLibraryOptions;
+    options1: ImagePicker.CameraOptions | ImagePicker.ImageLibraryOptions;
+    options2: ImagePicker.CameraOptions | ImagePicker.ImageLibraryOptions;
 }
 
 type IconProps = {

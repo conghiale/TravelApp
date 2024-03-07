@@ -2,7 +2,7 @@ import theme, { Box, Text } from '@/utils/theme'
 import React, { useEffect, useState } from 'react'
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
 import CustomAlert from '@/components/customAler/CustomAlert'
-import { Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
 import styles from './personal.style'
 import Icons from '@/components/shared/icon'
 import GroupSettings from '@/components/group_settings'
@@ -10,6 +10,10 @@ import { useNavigation } from '@react-navigation/native'
 import { AppScreenNavigationType, AuthScreenNavigationType } from '@/navigation/types'
 import BorderButton from '@/components/button/borderButton/BorderButton'
 import LabelScreen from '@/components/labelScreen/LabelScreen'
+// import * as ImagePicker from 'react-native-image-picker'
+import * as ImagePicker from 'react-native-image-crop-picker';
+import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
+import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
@@ -28,6 +32,10 @@ const PersonalScreen = () => {
 
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const [showTakeImage, setShowTakeImage] = useState(false)
+    const [response, setResponse] = useState<any>(null)
+    const [image, setImage] = useState<any>('')
+    const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
 
     const navigation = useNavigation<AppScreenNavigationType<"Root">>()
 
@@ -44,6 +52,10 @@ const PersonalScreen = () => {
             [name]: !person[name],
         });
     };
+
+    const hanleButtonOKDialogError = () => {
+        setDialogNotification({ displayMsg: '', isShow: false });
+    }
 
     const navigateToChangePasswordScreen = () => {
         navigation.navigate("ChangePassword")
@@ -77,8 +89,87 @@ const PersonalScreen = () => {
         };
     }, []);
 
+    const uploadImage = async ({ type, options }: any) => {
+        if (type === 'capture') {
+            ImagePicker.openCamera({
+                width: 160,
+                height: 160,
+                cropperCircleOverlay: true,
+                cropping: true,
+            }).then((image) => {
+                setImage(image.path)
+                // send Backend
+            }).catch((error) => {
+                setDialogNotification({ displayMsg: error.message, isShow: true });
+            });
+
+            // await ImagePicker.launchCamera(options, response => {
+            //     if (response.didCancel) {
+            //         setDialogNotification({displayMsg: 'User cancelled camera', isShow: true})
+            //     }   else if (response.errorCode) {
+            //         setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Camera Error', isShow: true})
+            //     }   else {
+            //         console.log(response.assets)
+            //         let imageUri = response.assets?.[0]?.uri;
+            //         setImage(imageUri);
+            //         // sendBackend
+            //     }
+            // })
+        } else {
+            ImagePicker.openPicker({
+                width: 200,
+                height: 200,
+                cropperCircleOverlay: true,
+                cropping: true
+            }).then(image => {
+                setImage(image.path)
+                // send Backend
+            }).catch((error) => {
+                setDialogNotification({ displayMsg: error.message, isShow: true });
+            });
+
+            // await ImagePicker.launchImageLibrary(options, (response) => {
+            //     if (response.didCancel) {
+            //         setDialogNotification({displayMsg: 'User cancelled image picker', isShow: true})
+            //     } else if (response.errorCode) {
+            //         setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Cannot Upload this Image', isShow: true})
+            //     } else {
+            //         let imageUri = response.assets?.[0]?.uri;
+            //         setImage(imageUri);
+            //         // sendBackend
+            //     }
+            // });
+        }
+    }
+
+    // const saveImage = async (response: any) => {
+    //     try {
+    //         setResponse(response)
+    //     } catch (error) {
+    //         throw error
+    //     }
+    // }
+
+    const handleActionRemove = () => {
+        setImage('')
+    }
+
     return (
         <View style={styles.container}>
+            <DialogChooseImage
+                visible={showTakeImage}
+                onDimissAlert={setShowTakeImage}
+                onHandlerActionCamera={uploadImage}
+                onHandlerActionGallery={uploadImage}
+                onHandlerActionRemove={handleActionRemove}
+            />
+            <DialogNotification
+                status='error'
+                displayMode='UPLOAD IMAGE ERROR'
+                displayMsg={dialogNotification.displayMsg}
+                visible={dialogNotification.isShow}
+                onDimissAlert={hanleButtonOKDialogError}
+            />
             <ScrollView
                 style={{ marginBottom: isKeyboardVisible ? 5 : 135 }}
                 showsVerticalScrollIndicator={false} >
@@ -86,11 +177,11 @@ const PersonalScreen = () => {
                     <Text style={[theme.textVariants.textXl, styles.text]}>Your Profile</Text>
                     <View style={styles.containerAvatar}>
                         <Image
-                            source={require(IMAGE)} 
+                            source={image !== '' ? { uri: image } : require(IMAGE)}
                             style={styles.imageAvatar} />
                         <TouchableOpacity
                             activeOpacity={0.85}
-                            // onPress={}
+                            onPress={() => setShowTakeImage(true)}
                         >
                             <View style={styles.containerCamera}>
                                 <Icons name='camera' />
@@ -98,11 +189,11 @@ const PersonalScreen = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.containerHobby}>
-                        <Text 
+                        <Text
                             numberOfLines={2}
                             ellipsizeMode='tail'
-                            style={[theme.textVariants.textBase, styles.text, {textAlign: 'center'}]}>
-                                {person.hobby}
+                            style={[theme.textVariants.textBase, styles.text, { textAlign: 'center' }]}>
+                            {person.hobby}
                         </Text>
                     </View>
                 </View>
