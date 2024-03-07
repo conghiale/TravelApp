@@ -6,15 +6,17 @@ import LovedScreen from '@/screens/loved-screen'
 import PersonalScreen from '@/screens/personal-screen'
 import Icons from "@/components/shared/icon";
 import theme from "@/utils/theme";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Keyboard, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CreatePlaceScreen from "@/screens/create-place-screen";
+import { useEffect, useState } from "react";
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 
 const Tab = createBottomTabNavigator<RootBottomTabParamList>()
 
 const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => {
-
     return (
         <TouchableOpacity
+            activeOpacity={0.9}
             style={{
                 top: -30,
                 justifyContent: 'center',
@@ -36,6 +38,28 @@ const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => {
 }
 
 const Tabs = () => {
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setKeyboardVisible(true);
+            },
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setKeyboardVisible(false);
+            },
+        );
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
     return (
         <Tab.Navigator
             screenOptions={{
@@ -45,11 +69,11 @@ const Tabs = () => {
                 tabBarShowLabel: false,
                 tabBarStyle: {
                     position: 'absolute',
-                    bottom: 25,
+                    bottom: isKeyboardVisible ? -1000 : 25,
                     left: 20,
                     right: 20,
                     backgroundColor: theme.colors.black,
-                    height: 75,
+                    height: 80,
                     borderRadius: 15,
                     ...styles.shadow
                 }

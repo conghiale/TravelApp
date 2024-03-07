@@ -12,7 +12,11 @@ const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data }) => {
                 data={data}
                 renderItem={({ item }) => (
                     <View style={{margin: 8}}>
-                        <Place destination={item.destination} content={item.content} star={item.star} />
+                        <Place 
+                            id={item.id}
+                            destination={item.destination} 
+                            content={item.content} 
+                            star={item.star} />
                     </View>
                 )}
                 pagingEnabled

@@ -1,20 +1,29 @@
 import { Text, TouchableOpacity } from "react-native"
 import styles from "./button01.style"
 import theme from "@/utils/theme"
+import { font } from "@/utils/font"
 
 type ButtonProps = {
+    height?: number
     label: string
+    color?: string
     onPress: () => void
     onLongPress?: () => void
     disabled?: boolean
 }
 
-const Button = ({ label, onPress }: ButtonProps) => {
+const Button01 = ({ height, label, color, onPress }: ButtonProps) => {
     return (
-        <TouchableOpacity style={styles.button} onPress={onPress}>
-            <Text style={[theme.textVariants.textSm, styles.button_label]}>{label}</Text>
+        <TouchableOpacity
+            activeOpacity={0.9}
+            style={[styles.button, {
+                backgroundColor: color ? color : theme.colors.orange,
+                height: height ? height : 38
+            }]}
+            onPress={onPress}>
+            <Text style={[theme.textVariants.textBase, styles.button_label]}>{label}</Text>
         </TouchableOpacity>
     )
 }
 
-export default Button
+export default Button01

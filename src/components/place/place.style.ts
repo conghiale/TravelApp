@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         width: theme.placeItemInfo.PLACE_ITEM_WIDTH,
         padding: 4,
         borderRadius: 5,
-        backgroundColor: '#2F3542', //theme.colors.white,
+        backgroundColor: '#2F3542',
 
         shadowColor: "#000",
         shadowOffset: {
@@ -22,12 +22,14 @@ const styles = StyleSheet.create({
     },
     place_image: {
         height: '40%',
+        // height: 100,
         width: 'auto'
     },
     place_header: {
         marginTop: 4,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
     },
     place_text_title: {
         width: '70%',
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between'
     },
 })
 

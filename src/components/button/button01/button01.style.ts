@@ -4,12 +4,11 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
     button: {
-        height: 38,
-        backgroundColor: theme.colors.orange,
+        width: '100%',
         borderRadius: 10,
         justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        marginStart: 'auto'
     },
     button_label: {
         color: theme.colors.white,

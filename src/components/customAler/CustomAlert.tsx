@@ -3,11 +3,15 @@ import theme from '@/utils/theme'
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import styles from './customAlert.style'
 import { runOnJS } from 'react-native-reanimated'
+import { Rating } from 'react-native-ratings'
+import { useState } from 'react'
 
-const CustomAlert = ({ stateColor, displayMode, displayMsg, visible, onDimissAlert,  onHandlerActionOK, onHandlerActionCANCEL }: CustomAlertProps) => {
+const CustomAlert = ({ stateColor, displayMode, isStar, displayMsg, visible, onDimissAlert,  onHandlerActionOK, onHandlerActionCANCEL }: CustomAlertProps) => {
+    const [rating, setRating] = useState(4.5)
+
     const handleActionOK = () => {
         if (onHandlerActionOK)
-            runOnJS(onHandlerActionOK)()
+            runOnJS(onHandlerActionOK)(rating)
         onDimissAlert(false)
     }
 
@@ -43,6 +47,16 @@ const CustomAlert = ({ stateColor, displayMode, displayMsg, visible, onDimissAle
                             >
                                 {displayMsg}
                             </Text>
+                            {isStar && isStar === true ? (<Rating
+                                                type='star'
+                                                ratingCount={5}
+                                                startingValue={4.5}
+                                                imageSize={25}
+                                                fractions={1}
+                                                jumpValue={0.5}
+                                                showRating={true}
+                                                onFinishRating={setRating}
+                                            />) : null}
                         </View>
                         <View style={styles.footer}>
                             <TouchableOpacity

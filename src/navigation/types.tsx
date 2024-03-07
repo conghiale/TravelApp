@@ -2,17 +2,17 @@ import { CompositeNavigationProp, NavigatorScreenParams } from "@react-navigatio
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 export type AuthStackParamList = {
-    Welcome: undefined
-    SignIn: undefined
-    SignUp: undefined
+    Welcome: any
+    SignIn: any
+    SignUp: any
     ForgotPassword: undefined
 }
 
 export type RootBottomTabParamList = {
     Home: NavigatorScreenParams<HomeStackParamList>
-    Places: undefined
-    Create: undefined
-    Loved: undefined
+    Places: any
+    Create: any
+    Loved: any
     Personal: NavigatorScreenParams<CategoriesStackParamList>
 }
 
@@ -34,16 +34,17 @@ export type CategoriesStackParamList = {
 }
 
 export type AppStackParamList = {
-    General: undefined
+    General: any
     Root: NavigatorScreenParams<RootBottomTabParamList> | undefined
-    HobbySelect: undefined
-    CreatePlace: undefined
-    CreatedPlaces: undefined
-    DetailPlace: undefined
-    ChangePassword: undefined
-    ViewUsers: undefined
-    ReviewUser: undefined
-    ApprovePlaces: undefined
+    HobbySelect: any
+    CreatePlace: any
+    CreatedPlaces: any
+    DetailPlace: any
+    DetailRequestPlace: any
+    ChangePassword: any
+    ViewUsers: any
+    ReviewUser: any
+    ApprovePlaces: any
 }
 
 export type RootStackParamList = {

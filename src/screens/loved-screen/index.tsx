@@ -6,6 +6,7 @@ import Icons from '@/components/shared/icon'
 import { Places } from '@/assets/data'
 import styles from './loved.style'
 import ListPlaceItem from '@/components/listPlaceItem/ListPlaceItem'
+import LabelScreen from '@/components/labelScreen/LabelScreen'
 
 const LovedScreen = () => {
   const [places, setPlaces] = useState(Places)
@@ -19,16 +20,10 @@ const LovedScreen = () => {
   return (
     <SafeAreaWrapper>
       <View style={styles.container}>
-        <ScrollView>
+        <ScrollView style={{marginBottom: 135}} showsVerticalScrollIndicator={false}>
           <View style={styles.title_container}>
-            <View style={styles.title}>
-              <Icons name="loved" color={theme.colors.orange} />
-              <Text style={styles.title_text}>Loved</Text>
-            </View>
-            <View style={styles.title}>
-              <Icons name="newest" color={theme.colors.orange} />
-              <Text style={styles.title_text}>Newest</Text>
-            </View>
+            <LabelScreen nameIcon='loved' title='Loved' />
+            <LabelScreen nameIcon='newest' title='Newest' />
           </View>
           {places.map((place) => <ListPlaceItem key={place.id} placeItem={place} onDismiss={onDimiss} />)}
         </ScrollView>

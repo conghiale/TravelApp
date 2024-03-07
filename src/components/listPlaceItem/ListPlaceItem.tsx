@@ -17,7 +17,7 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
     const marginVertical = useSharedValue(8)
     const opacity = useSharedValue(1)
 
-    const [removeDialog, setRemoveDialog] = useState(false)
+    const [showDialog, setShowDialog] = useState(false)
 
     const onHandlerActionOK = () => {
         translateX.value = withTiming(-SCREEN_WIDTH)
@@ -41,7 +41,7 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
         .onEnd(() => {
             const shouldBeDismissed = translateX.value < TRANSLATE_X_THRESHOLD
             if (shouldBeDismissed) {
-                runOnJS(setRemoveDialog)(true)
+                runOnJS(setShowDialog)(true)
             }
             else
                 translateX.value = withTiming(0)
@@ -72,8 +72,8 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
                 stateColor='red'
                 displayMode='TITlE'
                 displayMsg='LOVED LOVED LOVED LOVED'
-                visible={removeDialog}
-                onDimissAlert={setRemoveDialog}
+                visible={showDialog}
+                onDimissAlert={setShowDialog}
                 onHandlerActionOK={onHandlerActionOK}
                 onHandlerActionCANCEL={onHandlerActionCANCEL}
             />
@@ -84,7 +84,7 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
                 <GestureHandlerRootView>
                     <GestureDetector gesture={panGesture}>
                         <Animated.View style={[rStyle]}>
-                            <Place destination={placeItem.destination} content={placeItem.content} star={placeItem.star} />
+                            <Place id={placeItem.id} destination={placeItem.destination} content={placeItem.content} star={placeItem.star} />
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>

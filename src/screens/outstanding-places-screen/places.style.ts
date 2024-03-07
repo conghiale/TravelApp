@@ -9,17 +9,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: '5%',
         paddingVertical: 4,
     },
+    containerSearch: {
+        marginTop: 8,
+    },
     title_container: {
-        height: 24,
         marginTop: 16,
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    title_text: {
-        fontFamily: font.semiBold,
-        fontSize: 16,
-        color: theme.colors.orange,
-        marginStart: 4,
     },
 })
 
