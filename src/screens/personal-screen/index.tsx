@@ -10,10 +10,13 @@ import { useNavigation } from '@react-navigation/native'
 import { AppScreenNavigationType, AuthScreenNavigationType } from '@/navigation/types'
 import BorderButton from '@/components/button/borderButton/BorderButton'
 import LabelScreen from '@/components/labelScreen/LabelScreen'
-// import * as ImagePicker from 'react-native-image-picker'
-import * as ImagePicker from 'react-native-image-crop-picker';
+import * as ImagePicker from 'react-native-image-picker'
+// import * as ImagePicker from 'react-native-image-crop-picker';
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
+import axiosInstance from '@/services/config'
+import {BASE_URL} from '@/services/config'
+import axios from 'axios'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
@@ -91,7 +94,7 @@ const PersonalScreen = () => {
 
     const uploadImage = async ({ type, options }: any) => {
         if (type === 'capture') {
-            ImagePicker.openCamera({
+            /*ImagePicker.openCamera({
                 width: 160,
                 height: 160,
                 cropperCircleOverlay: true,
@@ -99,24 +102,49 @@ const PersonalScreen = () => {
             }).then((image) => {
                 setImage(image.path)
                 // send Backend
+                console.log(image)
+                const formData = new FormData();
+                formData.append('file', {
+                    uri: image.path,
+                    type: 'image/jpeg',
+                    name: Date.now().toString(),
+                });
             }).catch((error) => {
                 setDialogNotification({ displayMsg: error.message, isShow: true });
-            });
+            });*/
 
-            // await ImagePicker.launchCamera(options, response => {
-            //     if (response.didCancel) {
-            //         setDialogNotification({displayMsg: 'User cancelled camera', isShow: true})
-            //     }   else if (response.errorCode) {
-            //         setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Camera Error', isShow: true})
-            //     }   else {
-            //         console.log(response.assets)
-            //         let imageUri = response.assets?.[0]?.uri;
-            //         setImage(imageUri);
-            //         // sendBackend
-            //     }
-            // })
+            await ImagePicker.launchCamera(options, async (response) => {
+                if (response.didCancel) {
+                    setDialogNotification({displayMsg: 'User cancelled camera', isShow: true})
+                }   else if (response.errorCode) {
+                    setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Camera Error', isShow: true})
+                }   else {
+                    console.log(response.assets)
+                    let imageUri = response.assets?.[0]?.uri;
+                    setImage(imageUri);
+                    // sendBackend
+                    console.log(imageUri)
+                    let formData = new FormData()
+                    formData.append('file', {
+                        uri: imageUri,
+                        type: 'image/jpeg',
+                        name: 'kkkhhh.jpg',
+                    })
+                    try {
+                        axios.post('http://192.168.1.66:1702/user/upload-avatar/65e9d0363e9261d9647632a6', formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        }).then((response) => {
+                            console.log(response.data)
+                        })
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
+            })
         } else {
-            ImagePicker.openPicker({
+            /*ImagePicker.openPicker({
                 width: 200,
                 height: 200,
                 cropperCircleOverlay: true,
@@ -126,19 +154,19 @@ const PersonalScreen = () => {
                 // send Backend
             }).catch((error) => {
                 setDialogNotification({ displayMsg: error.message, isShow: true });
-            });
+            });*/
 
-            // await ImagePicker.launchImageLibrary(options, (response) => {
-            //     if (response.didCancel) {
-            //         setDialogNotification({displayMsg: 'User cancelled image picker', isShow: true})
-            //     } else if (response.errorCode) {
-            //         setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Cannot Upload this Image', isShow: true})
-            //     } else {
-            //         let imageUri = response.assets?.[0]?.uri;
-            //         setImage(imageUri);
-            //         // sendBackend
-            //     }
-            // });
+            await ImagePicker.launchImageLibrary(options, (response) => {
+                if (response.didCancel) {
+                    setDialogNotification({displayMsg: 'User cancelled image picker', isShow: true})
+                } else if (response.errorCode) {
+                    setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Cannot Upload this Image', isShow: true})
+                } else {
+                    let imageUri = response.assets?.[0]?.uri;
+                    setImage(imageUri);
+                    // sendBackend
+                }
+            });
         }
     }
 

@@ -1,17 +1,18 @@
-import { Request, Response } from "express";
+import {Request, Response} from 'express';
+import UserHobbyService from '../services/user-hobby-service';
 
 class UserHobbyController {
-    createHobby = async (req: Request, res: Response) => {
+  private userHobbyService: UserHobbyService;
 
-    };
+  constructor() {
+    this.userHobbyService = new UserHobbyService();
+  }
 
-    updateHobby = async (req: Request, res: Response) => {
+  createHobby = async (req: Request, res: Response) => {};
 
-    };
+  updateHobby = async (req: Request, res: Response) => {};
 
-    deleteHobbyById = async (req: Request, res: Response) => {
-    
-    };
+  deleteHobbyById = async (req: Request, res: Response) => {};
 }
 
-export default UserHobbyController
+export default UserHobbyController;

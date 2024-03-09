@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     buttonText: { ...baseButtonText, color: '#fff' },
     buttonText1: { ...baseButtonText, color: theme.colors.orange1 },
     line: { backgroundColor: "#000", height: 1, width: "36%" },
+    invalid: { fontFamily: font.regular, fontSize: 16, color: "pink", marginTop: 5, paddingStart: 16 }
 })
 
 export default styles

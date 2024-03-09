@@ -6,6 +6,8 @@ import { Alert, Image, View } from 'react-native'
 import Button01 from '@/components/button/button01/Button01'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import * as ImagePicker from 'react-native-image-picker';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
+const BASE_URL_AVATAR = process.env.BASE_URL_AVATAR;
 
 // interface imageForm {
 //     path: string,
@@ -85,75 +87,19 @@ const HomeScreen = () => {
 
     return (
         <SafeAreaWrapper>
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 50, gap: 10 }}>
-                {response?.assets && response?.assets.map(({ uri }: { uri: string }) => (
-                    <View key={uri} style={{ marginVertical: 24, alignItems: 'center' }}>
-                        <Image
-                            style={{ width: 200, height: 200 }}
-                            source={{ uri: response?.assets && response?.assets[0].uri }} />
-                    </View>
-                ))}
-
-                <DialogNotification
-                    status='success'
-                    displayMode='SUCCESS'
-                    displayMsg='Your account has been successfully registered'
-                    visible={showDialogSuccess}
-                    onDimissAlert={setShowDialogSuccess}
-                    onHandlerActionOK={handleActionButtonOK}
+            <MapView style={{ width: '100%', height: '100%' }}
+                initialRegion={{
+                    latitude: 15.0583,
+                    longitude: 106.2772,
+                    latitudeDelta: 10,
+                    longitudeDelta: 10,
+                }}
+                >
+                <Marker
+                    coordinate={{ latitude: 21.03700002, longitude: 105.8354464 }}
+                    title="Quảng trường Ba Đình - Lăng Bác"
                 />
-                <DialogNotification
-                    status='warning'
-                    displayMode='WARNING'
-                    displayMsg='Your account has been successfully registered'
-                    visible={showDialogWarning}
-                    onDimissAlert={setShowDialogWarning}
-                    onHandlerActionOK={handleActionButtonOK}
-                    onHandlerActionCANCEL={handleActionButtonCancel}
-                />
-                <DialogNotification
-                    status='error'
-                    displayMode='ERROR'
-                    displayMsg='Your account has been successfully registered'
-                    visible={showDialogError}
-                    onDimissAlert={setShowDialogError}
-                    onHandlerActionOK={handleActionButtonOK}
-                />
-
-                <DialogChooseImage
-                    visible={showTakeImage}
-                    onDimissAlert={setShowTakeImage}
-                    onHandlerActionCamera={uploadImage}
-                    onHandlerActionGallery={uploadImage}
-                    onHandlerActionRemove={handleActionRemove}
-                />
-
-                <Button01
-                    height={60}
-                    label='Button Success'
-                    color='#05c46b'
-                    onPress={() => setShowDialogSuccess(true)}
-                />
-                <Button01
-                    height={60}
-                    label='Button Warning'
-                    color='#ffd32a'
-                    onPress={() => setShowDialogWarning(true)}
-                />
-                <Button01
-                    height={60}
-                    label='Button Error'
-                    color='#ff3f34'
-                    onPress={() => setShowDialogError(true)}
-                />
-
-                <Button01
-                    height={60}
-                    label='Button Take Image'
-                    color={theme.colors.grey}
-                    onPress={() => setShowTakeImage(true)}
-                />
-            </View>
+            </MapView>
         </SafeAreaWrapper>
     )
 }

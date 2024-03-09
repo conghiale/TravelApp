@@ -13,6 +13,8 @@ class UserController {
     this.userService = new UserService();
   }
 
+  
+
   createUser = async (req: Request, res: Response) => {
     try {
       const {firstName, lastName, email, password}: IUser = req.body;
@@ -152,7 +154,7 @@ class UserController {
   };
 
   uploadAvatar = async (req: Request, res: Response) => {
-    const {id, fileName} = req.params;
+    const {id} = req.params;
     const storedDir = `src/resources/avatar/${id}`;
 
     if (!fs.existsSync(storedDir)) {
@@ -160,7 +162,7 @@ class UserController {
       console.log(`Directory ${storedDir} created.`);
     }
 
-    uploadFile(storedDir, fileName)(req, res, (err: any) => {
+    uploadFile(storedDir)(req, res, (err: any) => {
       if (err) {
         return res.status(400).json({message: err});
       }

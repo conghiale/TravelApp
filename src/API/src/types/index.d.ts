@@ -11,12 +11,19 @@ export interface IUser {
 }
 
 export interface IDestination {
-  name: string
-  description: string
+  id: string
+  nameVi: string
+  nameEn: string
+  descriptionVi: string
+  descriptionEn: string
   latitude: number
   longitude: number
-  type: string
+  types: string[]
   vote: number
+  status: number
+  createdBy: string
+  role: string
+  accepted: boolean
 }
 
 export interface IUserLove {
@@ -25,6 +32,7 @@ export interface IUserLove {
 }
 
 export interface IUserComment {
+  id: string
   userId: string
   destinationId: string
   content: string

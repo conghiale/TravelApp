@@ -5,7 +5,8 @@ export type AuthStackParamList = {
     Welcome: any
     SignIn: any
     SignUp: any
-    ForgotPassword: undefined
+    ForgotPassword: any
+    Validation: { user: IUser }
 }
 
 export type RootBottomTabParamList = {

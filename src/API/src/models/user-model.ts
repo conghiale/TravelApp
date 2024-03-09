@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Destination',
       require: true,
+    },
+    validate: {
+      type: String,
+      default: '000000',
     }
   },
   {

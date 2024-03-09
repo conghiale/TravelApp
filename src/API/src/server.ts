@@ -5,6 +5,7 @@ import path from "path"
 import destinationRoutes from "./routes/destination.routes"
 import userHobbyRoutes from "./routes/user.hobby.routes"
 import userCommentRoutes from "./routes/user.comment.routes"
+import cors from 'cors'
 
 const app = express()
 const PORT = 1702
@@ -12,6 +13,7 @@ const PORT = 1702
 app.use('/resources', express.static(path.join(__dirname, 'resources')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cors());
 
 app.use("/user", userRoutes)
 app.use("/dest", destinationRoutes)

@@ -1,8 +1,6 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { AppStackParamList } from './types'
-import BottomTabNavigator from './bottom-tab-navigator'
-import AuthStackNavigator from './auth-stack-navigator'
 import HobbySelectScreen from '@/screens/hobby-select-screen'
 import Tabs from './tabs'
 import CreateScreen from '@/screens/create-place-screen'

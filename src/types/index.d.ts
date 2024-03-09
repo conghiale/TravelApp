@@ -1,7 +1,22 @@
 interface IUser {
-    email: string
-    name: string
-    password: string
+    email?: string
+    firstName?: string
+    lastName?: string
+    password?: string
+    cfPassword?: string
+}
+
+type ErrorProps = {
+    show: boolean,
+    message: string,
+}
+
+interface IUserError {
+    email: ErrorProps
+    firstName: ErrorProps
+    lastName: ErrorProps
+    password: ErrorProps
+    cfPassword: ErrorProps
 }
 
 interface IAuthenticatedUser {

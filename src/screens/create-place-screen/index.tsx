@@ -98,6 +98,12 @@ const CreatePlaceScreen = () => {
                                 upload.id === idImage ? { ...upload, uri: imageUri } : upload
                             )
                         );
+
+                        // const newData: UploadImages[] = response.assets?.map((asset, index) => {
+                        //     return { id: index, uri: asset.uri ? asset.uri : '' }
+                        // }) || []
+                        // setImageUploads(newData)
+
                         // const newImageUplaods = imageUplaods
                         // newImageUplaods[idImage].uri = imageUri
                         // setImageUplaods(newImageUplaods)
@@ -112,20 +118,26 @@ const CreatePlaceScreen = () => {
                     } else if (response.errorCode) {
                         setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Cannot Upload this Image', isShow: true })
                     } else {
+                        console.log(response.assets?.length)
                         let isFind = false
                         response.assets?.map((asset) => {
                             isFind = false
                             setImageUploads((prevUploads) => {
                                 return (
-                                    prevUploads.map ((upload) => {
+                                    prevUploads.map((upload) => {
                                         if (!isFind && upload.uri === '') {
                                             isFind = true
                                             return { ...upload, uri: asset.uri }
                                         } else
                                             return upload
                                     }
-                                ))
+                                    ))
                             })
+
+                            // const newData: UploadImages[] = response.assets?.map((asset, index) => {
+                            //     return { id: index, uri: asset.uri ? asset.uri : '' }
+                            // }) || []
+                            // setImageUploads(newData)
                         })
                         // sendBackend
                     }
@@ -216,6 +228,17 @@ const CreatePlaceScreen = () => {
                             }}>
                             <Icons name='add' />
                         </TouchableOpacity>
+                        {/* {imageUploads.map((imageUpload, index) => (
+                            <View key={index} style={{ width: 100, height: 100 }}>
+                                <ImageUpload
+                                    image={imageUpload.uri}
+                                    onHandleShowTakeImage={() => {
+                                        setIdImage(index)
+                                        setShowTakeImage(true)
+                                    }}
+                                />
+                            </View>
+                        ))} */}
                         <View style={{ width: 100, height: 100 }}>
                             <ImageUpload
                                 // id={0}
@@ -237,7 +260,6 @@ const CreatePlaceScreen = () => {
                             />
                         </View>
                     </View>
-                    <View style={styles.containerFooter}>
                         <View style={{ width: 100, height: 100 }}>
                             <ImageUpload
                                 // id={2}
@@ -268,7 +290,6 @@ const CreatePlaceScreen = () => {
                                 }}
                             />
                         </View>
-                    </View>
                 </ScrollView>
             </View>
         </SafeAreaWrapper>

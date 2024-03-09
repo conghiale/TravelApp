@@ -7,6 +7,8 @@ const destinationRoutes = express.Router()
 
 destinationRoutes.use(authenticationMiddleware)
 destinationRoutes.route("/create").post(destController.createDestination)
-destinationRoutes.route("/login").put(destController.deleteDestination)
+destinationRoutes.route("/delete").put(destController.deleteDestination)
+destinationRoutes.route("/delete").put(destController.deleteDestination)
+destinationRoutes.route("/approve-reject").post(destController.approveRejectDestination)
 
 export default destinationRoutes
