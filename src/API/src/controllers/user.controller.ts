@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import mongoose, {Types} from 'mongoose';
+import mongoose from 'mongoose';
 import {IUser} from '../types';
 import {sendMail} from '../utils/mailer';
 import {handleUpload, uploadFile} from '../utils/upload';
@@ -13,13 +13,26 @@ class UserController {
     this.userService = new UserService();
   }
 
-  
+  markUserValidation = async (req: Request, res: Response) => {
+    try {
+      const {email} = req.body;
+      if(!email) return res.status(400).send({message: 'Missing parameter(s)'});
+      await this.userService.markUserValidation(email);
+      return res.send({message: 'Create code validation successfully'})
+    } catch (error) {
+      return res.status(500).send({message: 'Internal error in markUserValidation'});
+    }
+  };
 
   createUser = async (req: Request, res: Response) => {
     try {
-      const {firstName, lastName, email, password}: IUser = req.body;
+      const {firstName, lastName, email, password, codeValidation}: IUser = req.body;
       if (!firstName || !lastName || !email || !password) {
         return res.status(400).send({message: 'Missing parameter(s)'});
+      }
+
+      if(!await this.userService.hasCodeValidation(email, codeValidation)) {
+        return res.status(400).send({message: 'Wrong code validation or it has expired'})
       }
 
       const result = await this.userService.createUser(
@@ -30,10 +43,11 @@ class UserController {
       );
 
       if (result.success) {
-        return res.status(201).send({message: result.message});
+        return res.status(201).send({message: result.message, data: result.data});
       }
       return res.status(400).send({message: result.message});
     } catch (error) {
+      console.log(error)
       return res.status(500).send({message: 'Internal error in createUser'});
     }
   };
@@ -41,6 +55,7 @@ class UserController {
   loginUser = async (req: Request, res: Response) => {
     try {
       const {email, password}: IUser = req.body;
+      console.log(email, password)
       const result = await this.userService.loginUser(email, password);
 
       if (result.success) {
@@ -71,10 +86,8 @@ class UserController {
         firstName,
         lastName,
       );
-      if (result) {
-        return res.status(200).send({message: result.message});
-      }
-      return res.status(400).send({message: result.message});
+
+      return res.status(result.success ? 200 : 400).send({message: result.message});
     } catch (error) {
       console.log('Error in updateUser:', error);
       return res.status(500).send({message: 'Internal error in editUserById'});
@@ -106,22 +119,6 @@ class UserController {
       return res
         .status(500)
         .send({message: 'Internal error in toggleLockUser'});
-    }
-  };
-
-  sendEmail = (req: Request, res: Response) => {
-    try {
-      sendMail(
-        'quangnttwin@gmail.com',
-        '[Travel-App] Test send mail',
-        "<a href='google.com'>Go to google</a>",
-      );
-
-      return res.send({
-        message: 'Send email successfully',
-      });
-    } catch (error) {
-      return res.status(500).send({message: 'Internal error in sendEmail'});
     }
   };
 
@@ -168,6 +165,45 @@ class UserController {
       }
       handleUpload(req, res);
     });
+  };
+
+  getLinkResetPassword = async (req: Request, res: Response) => {
+    try {
+      const {email} = req.body;
+      if(!email) return res.status(400).send({message: 'Missing parameter(s)'});
+
+      const hasUser = await this.userService.checkUserByEmail(email);
+      if(!hasUser) return res.status(400).send({message: 'User does not exist'});
+
+      const validationCode = await this.userService.markUserValidation(email);
+      sendMail(
+        email,
+        '[Travel-App] Reset password (DO NOT share this for anyone)',
+        `Your RESET PASSWORD link: <a href='http://localhost:1702/reset-password/${email}/${validationCode}'>${email}</a>`,
+      );
+      return res.send({message: 'Link reset password sent'})
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Internal error in getLinkResetPassword'
+      })
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response) => {
+    try {
+      const {email, newPassword, code} = req.body;
+      if(!email || !newPassword || !code) {
+        return res.status(400).send({
+          message: 'Missing parameter(s)'
+        })
+      }
+      const result = await this.userService.resetPassword(email, newPassword, code);
+      return res.status(result.success ? 200 : 400).send({message: result.message});
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Internal error in resetPassword'
+      })
+    }
   };
 }
 

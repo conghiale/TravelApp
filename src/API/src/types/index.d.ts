@@ -8,6 +8,7 @@ export interface IUser {
   language: string
   lock: boolean
   avatar: string
+  codeValidation: string
 }
 
 export interface IDestination {

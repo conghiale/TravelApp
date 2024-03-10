@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.22.2",
+    "@react-native-google-signin/google-signin": "^11.0.0",
     "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/native": "^6.1.10",
     "@react-navigation/native-stack": "^6.9.18",
     "@shopify/restyle": "^2.4.2",
     "axios": "^1.6.7",
     "babel-plugin-module-resolver": "^5.0.0",
-    "expo-secure-store": "^12.8.1",
     "react": "18.2.0",
     "react-native": "^0.73.3",
     "react-native-dotenv": "^3.4.11",
@@ -38,7 +38,7 @@
     "react-native-screens": "^3.29.0",
     "react-native-svg": "^15.1.0",
     "react-native-switch": "^1.5.1",
-    "swr": "^2.2.5",
+    "rn-secure-storage": "^3.0.1",
     "zustand": "^4.5.1"
   },
   "devDependencies": {

@@ -1,12 +1,14 @@
 import User from '../models/user-model';
 import {Types} from 'mongoose';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 import {
   avatarConstant,
   languageConstant,
   roleConstant,
 } from '../utils/constant';
+import Validation from '../models/validation-model';
+import {sendMail} from '../utils/mailer';
+import {bcryptHash, bcryptCompare} from '../utils/password';
 
 class UserService {
   getUserToken = (_id: string | Types.ObjectId) => {
@@ -14,6 +16,35 @@ class UserService {
       expiresIn: '7d',
     });
     return authenticatedUserToken;
+  };
+
+  generateCodeValidation = () =>
+    Math.floor(100000 + Math.random() * 900000).toString();
+
+  markUserValidation = async (email: string) => {
+    const genCode = this.generateCodeValidation();
+    await Validation.create({
+      email: email,
+      code: genCode,
+    });
+    await sendMail(
+      email,
+      '[Travel-App] Your validation code (DO NOT share this for anyone)',
+      genCode,
+    );
+    return genCode;
+  };
+
+  hasCodeValidation = async (email: string, code: string) => {
+    const exist = await Validation.findOne({email, code});
+    if (exist) {
+      return true;
+    }
+    return false;
+  };
+
+  cleanCodeValidation = async (email: string) => {
+    await Validation.deleteMany({email});
   };
 
   createUser = async (
@@ -31,8 +62,9 @@ class UserService {
       };
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    await User.create({
+    // const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcryptHash(password);
+    const createdUser = await User.create({
       firstName,
       lastName,
       email,
@@ -41,9 +73,28 @@ class UserService {
       language: languageConstant.VI,
       avatar: avatarConstant.DEFAULT,
     });
+
+    await this.cleanCodeValidation(email);
+
     return {
       success: true,
       message: 'User created successfully',
+      data: {
+        token: this.getUserToken(createdUser._id),
+        user: {
+          id: createdUser._id.toString(),
+          email: createdUser.email,
+          name:
+            createdUser.language === 'EN'
+              ? `${createdUser.firstName} ${createdUser.lastName}`
+              : `${createdUser.lastName} ${createdUser.firstName}`,
+          role: createdUser.role,
+          language: createdUser.language,
+          lock: createdUser.lock,
+          avatar: createdUser.avatar,
+          isFirstTime: createdUser.isFirstTime,
+        },
+      },
     };
   };
 
@@ -57,11 +108,9 @@ class UserService {
       };
     }
 
-    const isPasswordIdentical = await bcrypt.compare(
+    const isPasswordIdentical = await bcryptCompare(
       password,
-      (
-        await existingUser
-      ).password,
+      existingUser.password,
     );
 
     if (isPasswordIdentical) {
@@ -72,6 +121,7 @@ class UserService {
         data: {
           token,
           user: {
+            id: existingUser._id.toString(),
             email: existingUser.email,
             name:
               existingUser.language === 'EN'
@@ -81,6 +131,7 @@ class UserService {
             language: existingUser.language,
             lock: existingUser.lock,
             avatar: existingUser.avatar,
+            isFirstTime: existingUser.isFirstTime,
           },
         },
       };
@@ -143,15 +194,16 @@ class UserService {
       };
     }
 
-    if (user.language === languageConstant.EN)
+    if (user.language === languageConstant.EN) {
       user.language = languageConstant.VI;
-    else if (user.language === languageConstant.VI)
+    } else if (user.language === languageConstant.VI) {
       user.language = languageConstant.EN;
-    else
+    } else {
       return {
         success: false,
         message: 'Invalid language of user',
       };
+    }
     user.save();
 
     return {
@@ -192,6 +244,41 @@ class UserService {
       success: false,
       message: 'User does not exist',
     };
+  };
+
+  resetPassword = async (email: string, newPassword: string, code: string) => {
+    const validCode = await this.hasCodeValidation(email, code);
+    if (!validCode) {
+      return {
+        success: false,
+        message: 'Invalid input',
+      };
+    }
+
+    const user = await User.findOne({email});
+    if (!user) {
+      return {
+        success: false,
+        message: 'User does not exist',
+      };
+    }
+
+    user.password = await bcryptHash(newPassword);
+    user.save();
+    await this.cleanCodeValidation(email);
+
+    return {
+      success: true,
+      message: 'Password resetted',
+    };
+  };
+
+  checkUserByEmail = async (email: string) => {
+    const foundUser = await User.findOne({email});
+    if (!foundUser) {
+      return false;
+    }
+    return true;
   };
 }
 

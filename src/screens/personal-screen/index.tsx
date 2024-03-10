@@ -17,6 +17,7 @@ import DialogNotification from '@/components/customAler/dialogNotification/Dialo
 import axiosInstance from '@/services/config'
 import {BASE_URL} from '@/services/config'
 import axios from 'axios'
+import useUserGlobalStore from '@/store/useUserGlobalStore'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
@@ -39,6 +40,7 @@ const PersonalScreen = () => {
     const [response, setResponse] = useState<any>(null)
     const [image, setImage] = useState<any>('')
     const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
+    const {updateUser} = useUserGlobalStore();
 
     const navigation = useNavigation<AppScreenNavigationType<"Root">>()
 
@@ -182,6 +184,10 @@ const PersonalScreen = () => {
         setImage('')
     }
 
+    const logOut = () => {
+        updateUser(null);
+    }
+
     return (
         <View style={styles.container}>
             <DialogChooseImage
@@ -289,6 +295,12 @@ const PersonalScreen = () => {
                             label='Approve creating'
                             nameIcon='advanced'
                             onPress={navigateToApprovePlacesScreen} />
+                       
+                        <BorderButton
+                            height={60}
+                            label='Log out'
+                            nameIcon='remove'
+                            onPress={logOut} />
                     </View>
                 </View>
             </ScrollView>

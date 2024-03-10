@@ -5,20 +5,7 @@ import AuthStackNavigator from './auth-stack-navigator'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
 
 const Navigation = () => {
-    const { user, updateUser } = useUserGlobalStore()
-
-    console.log('user:', JSON.stringify(user, null, 2))
-
-    const usri = {
-        email: "persie@gmail.com",
-        name: "persie",
-    }
-    const usr = null
-    
-    useEffect(() => {
-      updateUser(usr)
-      return () => {}
-    }, [])
+    const { user } = useUserGlobalStore();
 
     return (
         <NavigationContainer>

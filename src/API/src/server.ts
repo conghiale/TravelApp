@@ -15,6 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
+app.get('/reset-password/:email/:code', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, 'reset-password.html'));
+})
+
 app.use("/user", userRoutes)
 app.use("/dest", destinationRoutes)
 app.use("/hobby", userHobbyRoutes)

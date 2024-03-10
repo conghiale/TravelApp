@@ -9,8 +9,26 @@ import { font } from '@/utils/font'
 import Icons from '@/components/shared/icon'
 import styles from './style'
 import GlobalDialog from '@/components/dialogs'
+import { markUserValidation } from '@/services/user-service'
 
 const SignUpScreen = () => {
+    const defaultDialogProps: Dialog = { type: '', message: '' }
+    const [dialog, setDialog] = useState<Dialog>(defaultDialogProps)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+    const [user, setUser] = useState<IUser>({ email: '', firstName: '', lastName: '', password: '', cfPassword: '' })
+    
+    const defaultErrorProps: ErrorProps = {show: false, message: ''}
+    const [userError, setUserError] = useState<IUserError>({
+        email: defaultErrorProps,
+        firstName: defaultErrorProps,
+        lastName: defaultErrorProps,
+        password: defaultErrorProps,
+        cfPassword: defaultErrorProps
+    })
+
+    //navigator
     const navigation = useNavigation<AuthScreenNavigationType<"SignUp">>()
     const navigateToSignInScreen = () => {
         navigation.navigate("SignIn")
@@ -19,6 +37,7 @@ const SignUpScreen = () => {
         navigation.navigate("Validation", { user })
     }
 
+    //handle funcs
     const isEmailValid = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
@@ -36,28 +55,25 @@ const SignUpScreen = () => {
         return false;
     };
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         if (!hasErrorData(userError)) {
-            navigateToValidateUserScreen();
+            markUserValidation(user)
+                .then((r) => {
+                    navigateToValidateUserScreen();
+                })
+                .catch((e) => {
+                    setDialog({
+                        type: 'error',
+                        message: 'Error happned, try again later'
+                    })
+                });
         } else {
-            setDialogType('error')
-            setDialogMessage('Please provide valid input field(s)')
+            setDialog({
+                type: 'error',
+                message: 'Please provide valid input field(s)'
+            })
         }
     }
-
-    const [dialogType, setDialogType] = useState<string>('')
-    const [dialogMessage, setDialogMessage] = useState<string>('')
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-    const [user, setUser] = useState<IUser>({ email: '', firstName: '', lastName: '', password: '', cfPassword: '' })
-    const [userError, setUserError] = useState<IUserError>({
-        email: { show: false, message: '' },
-        firstName: { show: false, message: '' },
-        lastName: { show: false, message: '' },
-        password: { show: false, message: '' },
-        cfPassword: { show: false, message: '' }
-    })
 
     const handleInputText = (key: keyof IUser, text: string) => {
         setUser((prevUser) => ({
@@ -70,10 +86,7 @@ const SignUpScreen = () => {
                 if (!text || text === '') {
                     setUserError((prevUserErr) => ({
                         ...prevUserErr,
-                        email: {
-                            show: false,
-                            message: ''
-                        }
+                        email: defaultErrorProps
                     }))
                 }
                 else {
@@ -88,10 +101,7 @@ const SignUpScreen = () => {
                     } else {
                         setUserError((prevUserErr) => ({
                             ...prevUserErr,
-                            email: {
-                                show: false,
-                                message: ''
-                            }
+                            email: defaultErrorProps
                         }))
                     }
                 }
@@ -108,10 +118,7 @@ const SignUpScreen = () => {
                 } else {
                     setUserError((prevUserErr) => ({
                         ...prevUserErr,
-                        firstName: {
-                            show: false,
-                            message: ''
-                        }
+                        firstName: defaultErrorProps
                     }))
                 }
                 break;
@@ -127,10 +134,7 @@ const SignUpScreen = () => {
                 } else {
                     setUserError((prevUserErr) => ({
                         ...prevUserErr,
-                        lastName: {
-                            show: false,
-                            message: ''
-                        }
+                        lastName: defaultErrorProps
                     }))
                 }
                 break;
@@ -146,10 +150,7 @@ const SignUpScreen = () => {
                 } else {
                     setUserError((prevUserErr) => ({
                         ...prevUserErr,
-                        password: {
-                            show: false,
-                            message: ''
-                        }
+                        password: defaultErrorProps
                     }))
                 }
                 break;
@@ -165,10 +166,7 @@ const SignUpScreen = () => {
                 } else {
                     setUserError((prevUserErr) => ({
                         ...prevUserErr,
-                        cfPassword: {
-                            show: false,
-                            message: ''
-                        }
+                        cfPassword: defaultErrorProps
                     }))
                 }
                 break;
@@ -224,7 +222,7 @@ const SignUpScreen = () => {
                     </View>
                 </View>
             </Box>
-            <GlobalDialog dialogType={dialogType} dialogMessage={dialogMessage} handleOk={() => setDialogType('')} handleClose={() => setDialogType('')} />
+            <GlobalDialog dialog={dialog} handleOk={() => setDialog(defaultDialogProps)} handleClose={() => setDialog(defaultDialogProps)} />
         </SafeAreaWrapper>
     )
 }

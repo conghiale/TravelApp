@@ -1,31 +1,23 @@
 // GlobalDialog.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification';
 
-type DialogProps = {
-    dialogType: string
-    dialogMessage: string
-    handleClose: () => void
-    handleOk: () => void
-}
-
-const GlobalDialog = ({ dialogType, dialogMessage, handleClose, handleOk }: DialogProps) => {
-
+const GlobalDialog = ({ dialog, handleClose, handleOk }: DialogProps) => {
   return (
     <>
       <DialogNotification
         status='success'
         displayMode='SUCCESS'
-        displayMsg={dialogMessage}
-        visible={dialogType === 'success'}
+        displayMsg={dialog.message}
+        visible={dialog.type === 'success'}
         onDimissAlert={handleClose}
         onHandlerActionOK={handleOk}
       />
       <DialogNotification
         status='error'
         displayMode='ERROR'
-        displayMsg={dialogMessage}
-        visible={dialogType === 'error'}
+        displayMsg={dialog.message}
+        visible={dialog.type === 'error'}
         onDimissAlert={handleClose}
         onHandlerActionOK={handleOk}
       />

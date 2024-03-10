@@ -6,7 +6,7 @@ const validationSchema = new mongoose.Schema(
         type: String,
         require: true,
     },
-    validate: {
+    code: {
       type: String,
       default: '000000',
     }

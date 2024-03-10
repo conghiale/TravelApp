@@ -35,16 +35,19 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      default: 'avatar/anonymous.webp',
       require: true,
     },
     viewedPlaces: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'Destination',
+      default: [],
       require: true,
     },
-    validate: {
-      type: String,
-      default: '000000',
+    isFirstTime: {
+      type: Boolean,
+      default: true,
+      require: true,
     }
   },
   {
