@@ -260,6 +260,7 @@ const CreatePlaceScreen = () => {
                             />
                         </View>
                     </View>
+                    <View style={styles.containerFooter}>
                         <View style={{ width: 100, height: 100 }}>
                             <ImageUpload
                                 // id={2}
@@ -290,6 +291,7 @@ const CreatePlaceScreen = () => {
                                 }}
                             />
                         </View>
+                    </View>
                 </ScrollView>
             </View>
         </SafeAreaWrapper>

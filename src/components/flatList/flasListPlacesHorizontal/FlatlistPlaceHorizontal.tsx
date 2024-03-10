@@ -39,7 +39,9 @@ const FlatlistHorizontal: React.FC<ListPlaceProps> = ({ data }) => {
                             id={item.id}
                             destination={item.destination} 
                             content={item.content} 
-                            star={item.star} />
+                            star={item.star}
+                            longitude={item.longitude}
+                            latitude={item.latitude} />
                     </View>
                 )}
                 horizontal

@@ -6,8 +6,16 @@ import { Alert, Image, View } from 'react-native'
 import Button01 from '@/components/button/button01/Button01'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import * as ImagePicker from 'react-native-image-picker';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
+import MapView, { Callout, Marker, PROVIDER_GOOGLE, Point, Region } from 'react-native-maps'
+import { Places } from '@/assets/data'
+import MyCustomMarkerView from '@/components/maps/MyCustomMarkerView'
+import MyCustomCalloutView from '@/components/maps/MyCustomCalloutView'
+import styles from './homeScreen.style'
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
+import { GOOGLE_MAPS_API_KEY } from '@/utils/constant'
+import { useRoute } from '@react-navigation/native'
 const BASE_URL_AVATAR = process.env.BASE_URL_AVATAR;
+
 
 // interface imageForm {
 //     path: string,
@@ -15,90 +23,156 @@ const BASE_URL_AVATAR = process.env.BASE_URL_AVATAR;
 // }
 
 const HomeScreen = () => {
-    const URL = 'localhost...'
-    const [showDialogSuccess, setShowDialogSuccess] = useState(false)
-    const [showDialogWarning, setShowDialogWarning] = useState(false)
-    const [showDialogError, setShowDialogError] = useState(false)
-    const [showTakeImage, setShowTakeImage] = useState(false)
-    const [response, setResponse] = useState<any>(null)
+    // const URL = 'localhost...'
+    // const [showDialogSuccess, setShowDialogSuccess] = useState(false)
+    // const [showDialogWarning, setShowDialogWarning] = useState(false)
+    // const [showDialogError, setShowDialogError] = useState(false)
+    // const [showTakeImage, setShowTakeImage] = useState(false)
+    // const [response, setResponse] = useState<any>(null)
 
-    const handleActionButtonOK = () => {
+    // const handleActionButtonOK = () => {
 
+    // }
+    // const handleActionButtonCancel = () => {
+
+    // }
+
+    // const handleActionRemove = () => {
+
+    // }
+
+    // const uploadImage = async ({ type, options1, options2 }: any) => {
+    //     if (type === 'capture') {
+    //         // await ImagePicker.launchCamera(options, (response) => {
+    //         //     if (response.errorCode) {
+    //         //         Alert.alert('Error uploading image: ' + response.errorMessage)
+    //         //     } else {
+    //         //         saveImage(response)
+    //         //     }
+    //         // });
+    //     } else {
+    //         await ImagePicker.launchImageLibrary(options2, (response) => {
+    //             if (response.errorCode) {
+    //                 Alert.alert('Error uploading image: ', response.errorMessage)
+    //             } else {
+    //                 saveImage(response)
+    //                 // sendToBackend
+    //             }
+    //         });
+    //     }
+    // }
+
+    // const saveImage = async (response: any) => {
+    //     try {
+    //         setResponse(response)
+    //     } catch (error) {
+    //         throw error
+    //     }
+    // }
+
+    // const sendToBackend = async () => {
+
+    //     try {
+    //         const formData = new FormData()
+    //         formData.append('file', response)
+    //         let res = await fetch(
+    //             URL,
+    //             {
+    //                 method: 'POST',
+    //                 body: formData,
+    //                 headers: {
+    //                     'Content-Type': 'multipart/form-data',
+    //                 },
+    //             }
+    //         )
+
+    //         let responseJson = await res.json()
+    //         console.log(responseJson)
+    //     } catch (error) {
+    //         throw error
+    //     }
+    // }
+
+    const routes = useRoute<any>()
+    console.log('id: ' + routes.params ? routes.params : '0')
+
+    const [region, setRegion] = useState<Region>({
+        longitude: 107.35, // kinh độ
+        latitude: 16.27, // vĩ độ
+        latitudeDelta: 1.5,
+        longitudeDelta: 1.5,
+    })
+
+    const [places, setPlaces] = useState(Places)
+    const [markerSelected, setMarketSelected] = useState(false)
+    const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
+
+
+    const onRegionChange = (region: Region) => {
+        setRegion(region)
     }
-    const handleActionButtonCancel = () => {
 
-    }
-
-    const handleActionRemove = () => {
-
-    }
-
-    const uploadImage = async ({ type, options1, options2 }: any) => {
-        if (type === 'capture') {
-            // await ImagePicker.launchCamera(options, (response) => {
-            //     if (response.errorCode) {
-            //         Alert.alert('Error uploading image: ' + response.errorMessage)
-            //     } else {
-            //         saveImage(response)
-            //     }
-            // });
-        } else {
-            await ImagePicker.launchImageLibrary(options2, (response) => {
-                if (response.errorCode) {
-                    Alert.alert('Error uploading image: ', response.errorMessage)
-                } else {
-                    saveImage(response)
-                    // sendToBackend
-                }
-            });
-        }
-    }
-
-    const saveImage = async (response: any) => {
-        try {
-            setResponse(response)
-        } catch (error) {
-            throw error
-        }
-    }
-
-    const sendToBackend = async () => {
-
-        try {
-            const formData = new FormData()
-            formData.append('file', response)
-            let res = await fetch(
-                URL,
-                {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                }
-            )
-
-            let responseJson = await res.json()
-            console.log(responseJson)
-        } catch (error) {
-            throw error
-        }
+    const hanleButtonOKDialogError = () => {
+        setDialogNotification({ displayMsg: '', isShow: false });
     }
 
     return (
         <SafeAreaWrapper>
-            <MapView style={{ width: '100%', height: '100%' }}
-                initialRegion={{
-                    latitude: 15.0583,
-                    longitude: 106.2772,
-                    latitudeDelta: 10,
-                    longitudeDelta: 10,
-                }}
-                >
-                <Marker
-                    coordinate={{ latitude: 21.03700002, longitude: 105.8354464 }}
-                    title="Quảng trường Ba Đình - Lăng Bác"
+            <DialogNotification
+                status='error'
+                displayMode='SEARCH DESTINATION'
+                displayMsg={dialogNotification.displayMsg}
+                visible={dialogNotification.isShow}
+                onDimissAlert={hanleButtonOKDialogError}
+            />
+            {/* <View style={styles.containerSearch}>
+                <GooglePlacesAutocomplete
+                    placeholder='Search'
+                    onPress={(data, details = null) => {
+                        // 'details' is provided when fetchDetails = true
+                        console.log(data, details);
+                    }}
+                    // onFail={error => setDialogNotification({ 
+                    //     displayMsg: error.errorMessage ? error.errorMessage : 'Cannot Find this location', 
+                    //     isShow: true })}
+                    onFail={error => console.log(error)}
+                    
+                    onNotFound={() => setDialogNotification({
+                        displayMsg: 'This location was not found',
+                        isShow: true
+                    })}
+                    query={{
+                        key: GOOGLE_MAPS_API_KEY,
+                        language: 'vi',
+                    }}
+                    currentLocation={true}
                 />
+            </View> */}
+            <MapView provider={PROVIDER_GOOGLE} style={{ width: '100%', height: '100%' }}
+                region={{
+                    latitude: region.latitude,
+                    longitude: region.longitude,
+                    latitudeDelta: region.latitudeDelta,
+                    longitudeDelta: region.longitudeDelta,
+                }}
+
+            // onRegionChange={onRegionChange}
+            >
+                {places.map(place => (
+                    <Marker
+                        key={place.id}
+                        description={place.content}
+                        coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+                        onSelect={() => setMarketSelected(true)}
+
+                    >
+                        <MyCustomMarkerView selected={markerSelected} />
+                        <Callout style={styles.callout}>
+                            <MyCustomCalloutView label={place.destination} />
+                        </Callout>
+                    </Marker>
+                ))}
+
             </MapView>
         </SafeAreaWrapper>
     )

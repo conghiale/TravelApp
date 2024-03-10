@@ -3,35 +3,38 @@ import styles from "./place.style"
 import theme from "@/utils/theme"
 import Button01 from "../button/button01/Button01"
 import { Star1, Star1_5, Star2, Star2_5, Star3, Star3_5, Star4, Star4_5, Star5 } from "../star"
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation, CommonActions } from "@react-navigation/native"
 import { AppScreenNavigationType } from "@/navigation/types"
 import { Status } from "@/utils/constant"
+import { Rating } from "react-native-ratings"
 
 const Place = ({ id, destination, content, star, status }: PlaceProps) => {
     const navigation = useNavigation<AppScreenNavigationType<"General">>()
 
     const navigateToDetailPlaceScreen = () => {
-        // status ? navigation.navigate("DetailRequestPlace", {id}) : navigation.navigate("DetailPlace", {id})
-        navigation.navigate("DetailPlace", {id})
+        status ? navigation.navigate("DetailRequestPlace", { id }) : navigation.navigate("DetailPlace", { id })
+        // navigation.navigate("DetailPlace", {id})
     }
     const navigateToMainScreen = () => {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: "Root" }]
-        })
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [
+                    {
+                        name: "Home",
+                        params: { id: id },
+                    }
+                ]
+            })
+        )
+
+        // navigation.reset({
+        //     index: 0,
+        //     routes: [
+        //         { name: "Root" }
+        //     ]
+        // })
     }
-
-    // const handleMapPress = () => {
-    //     Alert.alert('PLACE', 'Button Map pressed', [
-    //         { text: 'OK', onPress: () => console.log('Ok Pressed'), style: 'cancel', },
-    //     ]);
-    // }
-
-    // const handleDetailPress = () => {
-    //     Alert.alert('PLACE', 'Button Detail pressed', [
-    //         { text: 'OK', onPress: () => console.log('Ok Pressed'), style: 'cancel', },
-    //     ]);
-    // }
 
     const handeStar = () => {
         if (status) {
@@ -42,22 +45,36 @@ const Place = ({ id, destination, content, star, status }: PlaceProps) => {
                         color: status === 1 ?
                             theme.colors.yellow :
                             status === 3 ?
-                                '#20BF6B' : '#FF3F34'}]}>
+                                '#20BF6B' : '#FF3F34'
+                    }]}>
                     {Status[status]}
                 </Text>
             )
         } else {
-            switch (star) {
-                case 1: return <Star1 />
-                case 1.5: return <Star1_5 />
-                case 2: return <Star2 />
-                case 2.5: return <Star2_5 />
-                case 3: return <Star3 />
-                case 3.5: return <Star3_5 />
-                case 4: return <Star4 />
-                case 4.5: return <Star4_5 />
-                default: return <Star5 />
-            }
+            return (
+                <Rating
+                    type='star'
+                    ratingCount={5}
+                    startingValue={star}
+                    readonly
+                    tintColor={theme.colors.blue1}
+                    imageSize={25}
+                    fractions={1}
+                // jumpValue={0.5}
+                // showRating={true}
+                />
+            )
+            // switch (star) {
+            //     case 1: return <Star1 />
+            //     case 1.5: return <Star1_5 />
+            //     case 2: return <Star2 />
+            //     case 2.5: return <Star2_5 />
+            //     case 3: return <Star3 />
+            //     case 3.5: return <Star3_5 />
+            //     case 4: return <Star4 />
+            //     case 4.5: return <Star4_5 />
+            //     default: return <Star5 />
+            // }
         }
     }
 
