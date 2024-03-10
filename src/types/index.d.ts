@@ -54,6 +54,7 @@ interface IAuthenticatedUser {
   lock: boolean;
   role: string;
   avatar: string;
+  isFirstTime?: string;
 }
 
 interface PlaceProps {

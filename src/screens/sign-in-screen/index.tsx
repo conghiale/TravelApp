@@ -1,5 +1,5 @@
 import { Box, Text } from '@/utils/theme'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from "@react-navigation/native"
 import { Image, ImageBackground, TextInput, TouchableOpacity, View } from "react-native"
 import { AuthScreenNavigationType } from '@/navigation/types'
@@ -13,6 +13,8 @@ import { loginUser } from '@/services/user-service'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
 import GlobalDialog from '@/components/dialogs'
 import { TRAVEL_TOKEN_NAME, saveToken } from '@/services/config'
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const SignUpScreen = () => {
     const navigation = useNavigation<AuthScreenNavigationType<"SignIn">>()
@@ -30,6 +32,30 @@ const SignUpScreen = () => {
     const [user, setUser] = useState<IUserLogin>({ email: '', password: '' })
     const defaultErrorProps: IUserLoginErrorProps = { show: false, message: '' }
     const [userError, setUserError] = useState<IUserLoginError>({ email: defaultErrorProps, password: defaultErrorProps })
+
+    useEffect(() => {
+        GoogleSignin.configure({
+            webClientId: '606295247603-pi9htgv2csa8kfb9oscup0hli3loq3nd.apps.googleusercontent.com',
+        });
+    }, [])
+
+    async function onGoogleButtonPress() {
+        try {
+            // Check if your device supports Google Play
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            // Get the users ID token
+            const { idToken, user } = await GoogleSignin.signIn();
+            console.log('user:', user)
+    
+            // Create a Google credential with the token
+            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    
+            // Sign-in the user with the credential
+            return auth().signInWithCredential(googleCredential);
+        } catch(e) {
+            console.log(e)
+        }
+    }
 
     const handleChangeInput = (key: keyof IUserLogin, text: string) => {
         setUser((prevUser) => ({
@@ -159,7 +185,7 @@ const SignUpScreen = () => {
                             source={require('@/assets/images/google.png')}
                             resizeMode='contain'
                         >
-                            <TouchableOpacity style={{ backgroundColor: "transparent" }} onPress={() => { }}>
+                            <TouchableOpacity style={{ backgroundColor: "transparent" }} onPress={onGoogleButtonPress}>
                                 <Text style={styles.buttonText}>Sign in with Google</Text>
                             </TouchableOpacity>
                         </ImageBackground>

@@ -11,10 +11,13 @@ import DetailPlaceScreen from '@/screens/detail-place-screen'
 import ReviewUserScreen from '@/screens/ad-review-user'
 import ViewUsersScreen from '@/screens/ad-view-users-screen'
 import DetailRequestPlaceScreen from '@/screens/detail-request-place-screen'
+import useUserGlobalStore from '@/store/useUserGlobalStore'
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStackNavigator = () => {
+  const {user} = useUserGlobalStore();
+  
   return (
     <Stack.Navigator>
       <Stack.Screen name='HobbySelect' component={HobbySelectScreen} options={{headerShown: false}} />
