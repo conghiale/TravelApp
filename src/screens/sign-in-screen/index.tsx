@@ -13,8 +13,8 @@ import { loginUser } from '@/services/user-service'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
 import GlobalDialog from '@/components/dialogs'
 import { TRAVEL_TOKEN_NAME, saveToken } from '@/services/config'
-import auth from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+// import auth from '@react-native-firebase/auth';
+// import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const SignUpScreen = () => {
     const navigation = useNavigation<AuthScreenNavigationType<"SignIn">>()
@@ -33,7 +33,7 @@ const SignUpScreen = () => {
     const defaultErrorProps: IUserLoginErrorProps = { show: false, message: '' }
     const [userError, setUserError] = useState<IUserLoginError>({ email: defaultErrorProps, password: defaultErrorProps })
 
-    useEffect(() => {
+    /*useEffect(() => {
         GoogleSignin.configure({
             webClientId: '606295247603-pi9htgv2csa8kfb9oscup0hli3loq3nd.apps.googleusercontent.com',
         });
@@ -55,7 +55,7 @@ const SignUpScreen = () => {
         } catch(e) {
             console.log(e)
         }
-    }
+    }*/
 
     const handleChangeInput = (key: keyof IUserLogin, text: string) => {
         setUser((prevUser) => ({
@@ -185,7 +185,7 @@ const SignUpScreen = () => {
                             source={require('@/assets/images/google.png')}
                             resizeMode='contain'
                         >
-                            <TouchableOpacity style={{ backgroundColor: "transparent" }} onPress={onGoogleButtonPress}>
+                            <TouchableOpacity style={{ backgroundColor: "transparent" }} onPress={() => {}}>
                                 <Text style={styles.buttonText}>Sign in with Google</Text>
                             </TouchableOpacity>
                         </ImageBackground>
