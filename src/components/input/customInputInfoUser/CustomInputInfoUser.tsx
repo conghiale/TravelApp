@@ -6,16 +6,16 @@ import { useState } from 'react'
 
 const CustomInputInfoUser = ({ label, nameIcon, value, name, handleChangeValue }: CustomInputInfoUserProps) => {
     const [readOnly, setReadOnly] = useState(true)
-    
+
     const handlePressLabel = () => {
         setReadOnly(!readOnly)
     }
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity 
-                style={{flex:2}} 
-                activeOpacity={0.8} 
+            <TouchableOpacity
+                style={{ flex: 2 }}
+                activeOpacity={0.8}
                 onPress={handlePressLabel}>
                 <View style={styles.containerTitle}>
                     <LabelScreenReverse

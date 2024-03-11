@@ -1,6 +1,6 @@
-export default [
+const Users : CardUserProps[] = [
     {
-      id: 1,
+      id: "1",
       image: "../../assets/images/user.png",
       gmail: "user1@gmail.com",
       firstName: "John",
@@ -9,7 +9,7 @@ export default [
       lock: true
     },
     {
-      id: 2,
+      id: "2",
       image: "../../assets/images/user.png",
       gmail: "user2@gmail.com",
       firstName: "Emily",
@@ -18,7 +18,7 @@ export default [
       lock: false
     },
     {
-      id: 3,
+      id: "3",
       image: "../../assets/images/user.png",
       gmail: "user3@gmail.com",
       firstName: "Alex",
@@ -27,7 +27,7 @@ export default [
       lock: true
     },
     {
-      id: 4,
+      id: "4",
       image: "../../assets/images/user.png",
       gmail: "user4@gmail.com",
       firstName: "Sarah",
@@ -36,7 +36,7 @@ export default [
       lock: true
     },
     {
-      id: 5,
+      id: "5",
       image: "../../assets/images/user.png",
       gmail: "user5@gmail.com",
       firstName: "Michael",
@@ -45,7 +45,7 @@ export default [
       lock: false
     },
     {
-      id: 6,
+      id: "6",
       image: "../../assets/images/user.png",
       gmail: "user6@gmail.com",
       firstName: "Amanda",
@@ -54,7 +54,7 @@ export default [
       lock: false
     },
     {
-      id: 7,
+      id: "7",
       image: "../../assets/images/user.png",
       gmail: "user7@gmail.com",
       firstName: "Kevin",
@@ -63,7 +63,7 @@ export default [
       lock: true
     },
     {
-      id: 8,
+      id: "8",
       image: "../../assets/images/user.png",
       gmail: "user8@gmail.com",
       firstName: "Olivia",
@@ -72,7 +72,7 @@ export default [
       lock: false
     },
     {
-      id: 9,
+      id: "9",
       image: "../../assets/images/user.png",
       gmail: "user9@gmail.com",
       firstName: "Daniel",
@@ -81,7 +81,7 @@ export default [
       lock: true
     },
     {
-      id: 10,
+      id: "10",
       image: "../../assets/images/user.png",
       gmail: "user10@gmail.com",
       firstName: "Sophia",
@@ -90,3 +90,5 @@ export default [
       lock: false
     }
 ];  
+
+export default Users

@@ -12,6 +12,9 @@ import Comment from '@/components/comment/Comment'
 import Comments from '@/assets/data/Comments'
 import Button01 from '@/components/button/button01/Button01'
 import CustomAlert from '@/components/customAler/CustomAlert'
+import FlatlistHorizontal from '@/components/flatList/flasListPlacesHorizontal/FlatlistPlaceHorizontal'
+import { Places } from '@/assets/data'
+import FlatlistImagesHorizontal from '@/components/flatList/flasListImagesHorizontal/FlatlistImagesHorizontal'
 
 const PLACE_IMAGE = '../../assets/images/vinh-ha-long.jpg';
 
@@ -30,8 +33,11 @@ const data = {
 
 const DetailPlaceScreen = () => {
   const navigation = useNavigation<AppScreenNavigationType<"DetailPlace">>()
+  
   const route = useRoute<any>()
-  // get id place
+  const idPlace = route.params ? route.params.id : ''
+  console.log('Detail-Place-screen(35): ')
+  console.log('Detail-Place-screen(36): ' + idPlace)
 
   const [love, setLove] = useState(false)
   const [comment, setComment] = useState('')
@@ -46,7 +52,12 @@ const DetailPlaceScreen = () => {
   const navigateToMainScreen = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: "Root" }]
+      routes: [
+        { 
+          name: "Root",
+          params: {id: idPlace}
+        }
+      ]
     })
   }
 
@@ -59,7 +70,6 @@ const DetailPlaceScreen = () => {
   }
 
   const onHandlerActionOK = (star?: number) => {
-    console.log('Star: ' + star ? star : -1)
     const newNomment = {
       id: comments[comments.length-1].id + 1,
       image: 'user.png',
@@ -102,7 +112,8 @@ const DetailPlaceScreen = () => {
         </View>
         <View style={styles.placeDetail}>
           <View style={styles.imageContainer} >
-            <Image style={styles.image} source={require(PLACE_IMAGE)} />
+            {/* change to data = {places.images} */}
+            <FlatlistImagesHorizontal data={Places}/>
           </View>
           <Text style={[theme.textVariants.textXl, styles.content]}>Hạ Long Bay</Text>
           <View style={styles.ratingContainer}>

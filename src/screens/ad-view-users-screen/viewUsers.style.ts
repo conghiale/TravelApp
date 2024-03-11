@@ -35,8 +35,9 @@ const styles = StyleSheet.create({
         marginTop: 12,
     },
     search: {
-        width: '80%',
-        marginEnd: '5%',
+        width: '100%',
+        // width: '80%',
+        // marginEnd: '5%',
     },
     dropdown: {
         justifyContent: 'center',

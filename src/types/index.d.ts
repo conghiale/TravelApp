@@ -58,11 +58,16 @@ interface IAuthenticatedUser {
 }
 
 interface PlaceProps {
-  id: number;
-  destination: string;
-  content: string;
-  star: number;
-  status?: number;
+  id: String
+  destination: string
+  content: string
+  star: number
+  longitude: number
+  latitude: number
+  status?: number
+  images?: uri[]
+  types?: string[]
+  isEnglish?: boolean
 }
 
 interface PaginationProps {
@@ -72,6 +77,7 @@ interface PaginationProps {
 
 interface ListPlaceProps {
   data: PlaceProps[];
+  onRefresh?: () => void
 }
 
 interface ListPlaceItemProps {
@@ -103,8 +109,8 @@ interface DialogNotificationProps {
 interface DialogChooseImageProps {
   visible: boolean;
   onDimissAlert: (state: boolean) => void;
-  onHandlerActionCamera: ({type, options1, options2}: any) => void;
-  onHandlerActionGallery: ({type, options1, options2}: any) => void;
+  onHandlerActionCamera: ({ type, options1, options2 }: any) => void;
+  onHandlerActionGallery: ({ type, options1, options2 }: any) => void;
   onHandlerActionRemove: () => void;
 }
 
@@ -138,6 +144,16 @@ interface Person {
   hobby: string;
   isEnglish: boolean;
   isLight: boolean;
+}
+
+interface CardUserProps {
+  id: string
+  image: string
+  gmail: string
+  firstName: string
+  lastName: string
+  hobby: string
+  lock: boolean
 }
 
 interface InputChangePassword {
@@ -191,7 +207,7 @@ interface LabelScreenProps {
 
 interface ProfileUserProps {
   image: string;
-  gmail: string;
+  email: string;
   firstName: string;
   LastName: string;
   hobby: string;
@@ -214,6 +230,7 @@ interface CustomInputInfoUserProps {
 }
 
 interface InfoProps {
+  email: string
   firstName: string;
   lastName: string;
   hobby: string;
@@ -227,10 +244,10 @@ interface LoginHistoryItemProps {
 }
 
 interface ApprovalListItemProps {
-  id: number;
+  id: string;
   index: number;
   destination: string;
-  handlePress: (id: number) => void;
+  handlePress: (id: string) => void;
 }
 
 interface CommentProps {
@@ -239,6 +256,15 @@ interface CommentProps {
   nameUser: string;
   star: number;
   content: string;
+}
+
+interface TypesProps {
+  id: string,
+  typeName: string,
+}
+interface TypesFilterProps {
+  type: TypesProps,
+  isChoose: boolean,
 }
 
 interface Action {

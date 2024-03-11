@@ -12,15 +12,7 @@ import FlatlistHorizontal from '@/components/flatList/flasListPlacesHorizontal/F
 import FlatListPlaceVertical from '@/components/flatList/flatListPlaceVertical/FlatListPlaceVertical'
 import LabelScreen from '@/components/labelScreen/LabelScreen'
 import Button01 from '@/components/button/button01/Button01'
-
-interface TypesProps {
-    id: string,
-    typeName: string,
-}
-interface TypesFilterProps {
-    type: TypesProps,
-    isChoose: boolean,
-}
+import { set } from 'mongoose'
 
 const OutstandingPlacesScreen = () => {
     const [searchValue, setSearchValue] = useState('')
@@ -28,6 +20,16 @@ const OutstandingPlacesScreen = () => {
     const [types, setTypes] = useState<TypesFilterProps[]>()
     const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
     const [isShowDialogFilter, setShowDialogFilter] = useState(false)
+
+    // pagination 
+    const [data, setData] = useState<PlaceProps[]>()
+    const [page, setPage] = useState(0)
+
+    useEffect(() => {
+        const maxPlaces = 5 + 5 * page
+        const newData: PlaceProps[] = Places.slice(0, maxPlaces)
+        setData(newData)
+    }, [page])
 
     const handleChangeValueSearch = (value: string) => {
         setSearchValue(value)
@@ -106,7 +108,7 @@ const OutstandingPlacesScreen = () => {
                                     onPress={() => {
                                         setShowDialogFilter(false)
                                         setTypes(typesChoose)
-                                    }}  
+                                    }}
                                 />
                             </View>
                         </View>
@@ -137,13 +139,13 @@ const OutstandingPlacesScreen = () => {
                         {types?.map(type => (
                             type.isChoose ? (
                                 <View key={type.type.id} style={styles.filter}>
-                                    <TouchableOpacity 
-                                        activeOpacity={0.85} 
-                                        style={styles.iconRemove}
+                                    <TouchableOpacity
+                                        activeOpacity={0.85}
+                                        style={styles.iconAdd}
                                         onPress={() => {
-                                            setTypes((prevType) => 
+                                            setTypes((prevType) =>
                                                 prevType?.map(typeSelected => typeSelected.type.id === type.type.id ?
-                                                    {...type, isChoose: !type.isChoose} : typeSelected)
+                                                    { ...type, isChoose: !type.isChoose } : typeSelected)
                                             )
                                         }}
                                     >
@@ -172,7 +174,18 @@ const OutstandingPlacesScreen = () => {
                     <View style={styles.title_container}>
                         <LabelScreen nameIcon='places' title='Places' />
                     </View>
-                    <FlatListPlaceVertical data={Places} />
+                    <FlatListPlaceVertical
+                        data={data ? data : []}
+                        // onRefresh={() => setPage(prePage => prePage + 1)}
+                    />
+
+                    <View style={{marginTop: 32, marginHorizontal: 50}}>
+                        <Button01 
+                            height={60}
+                            label='Show more'
+                            onPress={() => setPage(prePage => prePage + 1)}
+                        />
+                    </View>
                 </ScrollView>
             </View>
         </SafeAreaWrapper>

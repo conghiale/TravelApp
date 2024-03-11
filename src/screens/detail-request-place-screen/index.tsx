@@ -7,6 +7,8 @@ import ButtonArrowLeft from '@/components/button/buttonArrowLeft/ButtonArrowLeft
 import { font } from '@/utils/font'
 import Button01 from '@/components/button/button01/Button01'
 import Button02 from '@/components/button/button02/Button02'
+import { Places } from '@/assets/data'
+import FlatlistImagesHorizontal from '@/components/flatList/flasListImagesHorizontal/FlatlistImagesHorizontal'
 
 const data = {
   gmailUser: 'Conghiale@Gmail.com',
@@ -25,7 +27,7 @@ const DetailRequestPlaceScreen = () => {
   const route = useRoute<any>()
 
   const goBack = () => {
-    console.log("id: " + route.params.id)
+    console.log("DetaileRequestScreen(28): id: " + route.params.id)
     navigation.goBack()
   }
 
@@ -62,9 +64,7 @@ const DetailRequestPlaceScreen = () => {
             </View>
           </View>
           <View style={styles.containerImage}>
-            <Image
-              source={require('../../assets/images/vinh-ha-long.jpg')}
-              style={styles.image} />
+              <FlatlistImagesHorizontal data={Places}/>
           </View>
           <View style={styles.containerDestination}>
             <Text style={[theme.textVariants.textLg, styles.textInfo]}>{data.destination}</Text>
@@ -74,7 +74,7 @@ const DetailRequestPlaceScreen = () => {
                 fontFamily: font.semiBold,
                 color: theme.colors.yellow
               }]}>
-              {data.status == 0 ? 'Waiting' : data.status == 1 ? 'Rejected' : 'Accepted' }
+              {data.status == 0 ? 'Waiting' : data.status == 1 ? 'Rejected' : 'Accepted'}
             </Text>
           </View>
           <Text style={[theme.textVariants.textBase, styles.content]}>{data.content}</Text>
@@ -89,10 +89,10 @@ const DetailRequestPlaceScreen = () => {
             </View>
           </View>
           <View style={styles.footer}>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <Button01 height={60} label='Approve' color='#63D52D' onPress={handlePressApprove} />
             </View>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <Button01 height={60} label='Reject' color='#D52D2D' onPress={handlePressReject} />
             </View>
           </View>

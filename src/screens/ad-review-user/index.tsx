@@ -17,6 +17,7 @@ const ReviewUserScreen = () => {
   const navigation = useNavigation<AppScreenNavigationType<"ReviewUser">>()
 
   const [infoValue, setInfoValue] = useState<InfoProps>({
+    email: '',
     firstName: 'Cong Nghia',
     lastName: 'Le',
     hobby: 'Phiêu lưu, Mạo Hiểm, Thiên nhiên, Văn hoá'
@@ -109,7 +110,9 @@ const ReviewUserScreen = () => {
                 key={place.id}
                 destination={place.destination}
                 content={place.content}
-                star={place.star} />
+                star={place.star}
+                longitude={place.longitude}
+                latitude={place.latitude}/>
             ))}
           </View>
         </View>

@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         width: '100%',
-        height: 300,
+        // height: 300,
         borderRadius: 10,
     },
     image: {

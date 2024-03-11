@@ -9,11 +9,18 @@ import { Search } from '@/components'
 import LabelScreenReverse from '@/components/labelScreen/LabelScreenReverse'
 import { Places } from '@/assets/data'
 import ApprovalListItem from '@/components/approvalListIem/ApprovalListItem'
+import { SelectList } from 'react-native-dropdown-select-list'
+import { font } from '@/utils/font'
 
 const ApprovePlacesScreen = () => {
   const navigation = useNavigation<AppScreenNavigationType<"ApprovePlaces">>()
 
   const [searchValue, setSearchValue] = useState('')
+  const [selected, setSelected] = React.useState('');
+  const dataFilter = [
+    { key: '1', value: 'Recent times' },
+    { key: '2', value: 'Longest time' },
+  ]
 
   const handleChangeValueSearch = (value: string) => {
     setSearchValue(value)
@@ -23,7 +30,7 @@ const ApprovePlacesScreen = () => {
     navigation.goBack()
   }
 
-  const handlePress = (id: number) => {
+  const handlePress = (id: string) => {
     navigation.navigate("DetailRequestPlace", { id })
   }
 
@@ -41,10 +48,24 @@ const ApprovePlacesScreen = () => {
             <View style={styles.search}>
               <Search value={searchValue} handleChangeValueSearch={handleChangeValueSearch} />
             </View>
-            <View style={styles.dropdown}>
-              <LabelScreenReverse nameIcon='dropdown' title='All' />
-            </View>
           </View>
+
+          <View style={{ width: '100%', marginTop: 16 }}>
+            <SelectList
+              setSelected={(val: React.SetStateAction<string>) => setSelected(val)}
+              data={dataFilter}
+              save="value"
+              placeholder='-- Select state --'
+              searchPlaceholder='-- Select state --'
+              defaultOption={dataFilter[0]}
+              fontFamily={font.semiBold}
+              boxStyles={{ borderWidth: 2, borderColor: theme.colors.white }}
+              inputStyles={{ color: theme.colors.orange, fontSize: 16 }}
+              dropdownStyles={{ borderWidth: 2, borderColor: theme.colors.white }}
+              dropdownTextStyles={{ color: theme.colors.white, fontSize: 16 }}
+            />
+          </View>
+
           <View style={styles.containerPlace}>
             {Places.map((place, index) => (
               <ApprovalListItem

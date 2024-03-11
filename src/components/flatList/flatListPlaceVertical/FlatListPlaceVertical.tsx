@@ -4,18 +4,18 @@ import React, { useRef, useState } from "react"
 import Place from "@/components/place/Place"
 import Pagination from "@/components/Pagination"
 
-const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data }) => {
+const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data, onRefresh }) => {
     return (
         <>
             <FlatList
                 scrollEnabled={false}
                 data={data}
                 renderItem={({ item }) => (
-                    <View style={{margin: 8}}>
-                        <Place 
+                    <View style={{ margin: 8 }}>
+                        <Place
                             id={item.id}
-                            destination={item.destination} 
-                            content={item.content} 
+                            destination={item.destination}
+                            content={item.content}
                             star={item.star}
                             longitude={item.longitude}
                             latitude={item.latitude} />
@@ -23,6 +23,7 @@ const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data }) => {
                 )}
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
+                // onEndReached={onRefresh}
             />
         </>
     )

@@ -36,7 +36,7 @@ export type CategoriesStackParamList = {
 
 export type AppStackParamList = {
     General: any
-    Root: NavigatorScreenParams<RootBottomTabParamList> | undefined
+    Root: NavigatorScreenParams<RootBottomTabParamList> | any
     HobbySelect: any
     CreatePlace: any
     CreatedPlaces: any

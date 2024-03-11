@@ -4,7 +4,7 @@ import theme from '@/utils/theme'
 import Button02 from '../button/button02/Button02'
 import { useState } from 'react'
 
-const ProfileUser = ({ image, gmail, firstName, LastName, hobby, lock, handleButtonLock, handleButtonReview }: ProfileUserProps) => {
+const ProfileUser = ({ image, email: gmail, firstName, LastName, hobby, lock, handleButtonLock, handleButtonReview }: ProfileUserProps) => {
     const [isLock, setLock] = useState(lock)
 
     const handleButtonLockPress = () => {
@@ -40,16 +40,16 @@ const ProfileUser = ({ image, gmail, firstName, LastName, hobby, lock, handleBut
             </View>
             <View style={styles.footer}>
                 <View style={styles.buttonLock}>
-                    <Button02 
-                        height={38} 
-                        label={isLock === true ? 'Unlock' : 'Lock'} 
-                        lock={isLock} 
+                    <Button02
+                        height={38}
+                        label={isLock === true ? 'Unlock' : 'Lock'}
+                        lock={isLock}
                         onPress={handleButtonLockPress} />
                 </View>
                 <View style={styles.buttonReview}>
-                    <Button02 
-                        height={38} 
-                        label='Review' 
+                    <Button02
+                        height={38}
+                        label='Review'
                         onPress={handleButtonReviewPress} />
                 </View>
             </View>

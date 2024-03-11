@@ -15,24 +15,27 @@ import * as ImagePicker from 'react-native-image-picker'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
 import axiosInstance from '@/services/config'
-import {BASE_URL} from '@/services/config'
+import { BASE_URL } from '@/services/config'
 import axios from 'axios'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
+import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser'
+import Button01 from '@/components/button/button01/Button01'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
 const PersonalScreen = () => {
     const IMAGE = '../../assets/images/avatarDefault.jpg'
-
-    const [person, setPerson] = useState<Person>({
+    const personInit: Person = {
         hobby: 'Trai nghiem, Kham pha, Thien nhien, Mao hiem',
-        email: '',
-        firstName: '',
-        lastName: '',
+        email: 'legend.mighty28102002@gmail.com',
+        firstName: 'Cong Nghia',
+        lastName: 'Le',
         image: '../../assets/images/avatarDefault.jpg',
         isEnglish: false,
         isLight: false,
-    });
+    }
+
+    const [person, setPerson] = useState<Person>(personInit);
 
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
@@ -40,9 +43,19 @@ const PersonalScreen = () => {
     const [response, setResponse] = useState<any>(null)
     const [image, setImage] = useState<any>('')
     const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
-    const {updateUser} = useUserGlobalStore();
+    const { updateUser } = useUserGlobalStore();
 
     const navigation = useNavigation<AppScreenNavigationType<"Root">>()
+
+    useEffect(() => {
+        personInit.hobby = 'Trai nghiem, Kham pha, Thien nhien, Mao hiem'
+        personInit.email = 'legend.mighty28102002@gmail.com'
+        personInit.firstName = 'Cong Nghia'
+        personInit.lastName = 'Le'
+        personInit.image = '../../assets/images/avatarDefault.jpg'
+        personInit.isEnglish = false
+        personInit.isLight = false
+    }, [])
 
     const handleInputChange = (name: keyof Person, value: string) => {
         setPerson({
@@ -52,11 +65,26 @@ const PersonalScreen = () => {
     };
 
     const handleToggle = (name: keyof Person) => {
+        // const updatedPeople = [...person]
+        // updatedPeople[0] = { ...person[0], [name]: !person[0][name] }
+        // setPerson(updatedPeople)
+
         setPerson({
             ...person,
             [name]: !person[name],
         });
     };
+
+    const handleChangeValue = (name: keyof Person, value: string) => {
+        // const updatedPeople = [...person]
+        // updatedPeople[0] = { ...person[0], [name]: value }
+        // setPerson(updatedPeople)
+
+        setPerson({
+            ...person,
+            [name]: value
+        })
+    }
 
     const hanleButtonOKDialogError = () => {
         setDialogNotification({ displayMsg: '', isShow: false });
@@ -117,15 +145,13 @@ const PersonalScreen = () => {
 
             await ImagePicker.launchCamera(options, async (response) => {
                 if (response.didCancel) {
-                    setDialogNotification({displayMsg: 'User cancelled camera', isShow: true})
-                }   else if (response.errorCode) {
-                    setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Camera Error', isShow: true})
-                }   else {
-                    console.log(response.assets)
+                    setDialogNotification({ displayMsg: 'User cancelled camera', isShow: true })
+                } else if (response.errorCode) {
+                    setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Camera Error', isShow: true })
+                } else {
                     let imageUri = response.assets?.[0]?.uri;
                     setImage(imageUri);
                     // sendBackend
-                    console.log(imageUri)
                     let formData = new FormData()
                     formData.append('file', {
                         uri: imageUri,
@@ -160,9 +186,9 @@ const PersonalScreen = () => {
 
             await ImagePicker.launchImageLibrary(options, (response) => {
                 if (response.didCancel) {
-                    setDialogNotification({displayMsg: 'User cancelled image picker', isShow: true})
+                    setDialogNotification({ displayMsg: 'User cancelled image picker', isShow: true })
                 } else if (response.errorCode) {
-                    setDialogNotification({displayMsg: response.errorMessage? response.errorMessage : 'Cannot Upload this Image', isShow: true})
+                    setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Cannot Upload this Image', isShow: true })
                 } else {
                     let imageUri = response.assets?.[0]?.uri;
                     setImage(imageUri);
@@ -172,20 +198,23 @@ const PersonalScreen = () => {
         }
     }
 
-    // const saveImage = async (response: any) => {
-    //     try {
-    //         setResponse(response)
-    //     } catch (error) {
-    //         throw error
-    //     }
-    // }
-
     const handleActionRemove = () => {
         setImage('')
     }
 
     const logOut = () => {
         updateUser(null);
+    }
+
+    const compareValuesPerson = () => {
+        return (
+            person.hobby === personInit.hobby &&
+            person.email === personInit.email &&
+            person.firstName === personInit.firstName &&
+            person.lastName === personInit.lastName &&
+            person.isEnglish === personInit.isEnglish &&
+            person.isLight === personInit.isLight
+        )
     }
 
     return (
@@ -227,7 +256,7 @@ const PersonalScreen = () => {
                             numberOfLines={2}
                             ellipsizeMode='tail'
                             style={[theme.textVariants.textBase, styles.text, { textAlign: 'center' }]}>
-                            {person.hobby}
+                            {person.email}
                         </Text>
                     </View>
                 </View>
@@ -236,23 +265,26 @@ const PersonalScreen = () => {
                         <View style={styles.heading}>
                             <LabelScreen nameIcon='personal' title='Information' />
                         </View>
-                        <TextInput
-                            style={[theme.textVariants.textBase, styles.input]}
-                            placeholder="abc@gmail.com"
-                            value={person.email}
-                            onChangeText={(value) => handleInputChange('email', value)}
-                        />
-                        <TextInput
-                            style={[theme.textVariants.textBase, styles.input]}
-                            placeholder="First name"
+                        <CustomInputInfoUser
+                            label='First Name'
+                            nameIcon='edit'
                             value={person.firstName}
-                            onChangeText={(value) => handleInputChange('firstName', value)}
+                            name='firstName'
+                            handleChangeValue={handleChangeValue}
                         />
-                        <TextInput
-                            style={[theme.textVariants.textBase, styles.input]}
-                            placeholder="Last name"
+                        <CustomInputInfoUser
+                            label='Last Name'
+                            nameIcon='edit'
                             value={person.lastName}
-                            onChangeText={(value) => handleInputChange('lastName', value)}
+                            name='lastName'
+                            handleChangeValue={handleChangeValue}
+                        />
+                        <CustomInputInfoUser
+                            label='Hobby'
+                            nameIcon='edit'
+                            value={person.hobby}
+                            name='hobby'
+                            handleChangeValue={handleChangeValue}
                         />
                         <TouchableOpacity
                             style={styles.changePassword}
@@ -280,6 +312,21 @@ const PersonalScreen = () => {
                         />
                     </View>
 
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'flex-end',
+                            marginTop: 16
+                        }}
+                        pointerEvents={compareValuesPerson() ? 'none' : 'auto'}>
+                        <Button01
+                            height={60}
+                            label='save'
+                            color={compareValuesPerson() ? theme.colors.grey : theme.colors.orange}
+                            onPress={() => console.log("Button Save pressed")}
+                        />
+                    </View>
+
                     <View style={styles.advanced}>
                         <View style={styles.heading}>
                             <LabelScreen nameIcon='advanced' title='Advanced' />
@@ -295,16 +342,16 @@ const PersonalScreen = () => {
                             label='Approve creating'
                             nameIcon='advanced'
                             onPress={navigateToApprovePlacesScreen} />
-                       
+
                         <BorderButton
                             height={60}
                             label='Log out'
                             nameIcon='remove'
                             onPress={logOut} />
                     </View>
-                </View>
-            </ScrollView>
-        </View>
+                </View >
+            </ScrollView >
+        </View >
     )
 }
 

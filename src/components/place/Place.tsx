@@ -11,29 +11,34 @@ import { Rating } from "react-native-ratings"
 const Place = ({ id, destination, content, star, status }: PlaceProps) => {
     const navigation = useNavigation<AppScreenNavigationType<"General">>()
 
-    const navigateToDetailPlaceScreen = () => {
-        status ? navigation.navigate("DetailRequestPlace", { id }) : navigation.navigate("DetailPlace", { id })
-        // navigation.navigate("DetailPlace", {id})
-    }
-    const navigateToMainScreen = () => {
-        navigation.dispatch(
-            CommonActions.reset({
-                index: 0,
-                routes: [
-                    {
-                        name: "Home",
-                        params: { id: id },
-                    }
-                ]
+    const navigateToEditDetailPlaceScreen = () => {
+        console.log("Place Component (15): ID: " + id)
+        status ? (
+            navigation.navigate('Root', {
+                screen: 'Create',
+                params: { id: id },
             })
-        )
+        ) : navigation.navigate("DetailPlace", { id })
+    }
 
-        // navigation.reset({
-        //     index: 0,
-        //     routes: [
-        //         { name: "Root" }
-        //     ]
-        // })
+    const navigateToMainScreen = () => {
+        // navigation.dispatch(
+        //     CommonActions.reset({
+        //         index: 0,
+        //         routes: [
+        //             {
+        //                 name: "Home",
+        //                 params: { id: id },
+        //             }
+        //         ]
+        //     })
+        // )
+
+        navigation.navigate('Root', {
+            screen: 'Home',
+            // initial: false,
+            params: { id: id },
+        });
     }
 
     const handeStar = () => {
@@ -64,22 +69,12 @@ const Place = ({ id, destination, content, star, status }: PlaceProps) => {
                 // showRating={true}
                 />
             )
-            // switch (star) {
-            //     case 1: return <Star1 />
-            //     case 1.5: return <Star1_5 />
-            //     case 2: return <Star2 />
-            //     case 2.5: return <Star2_5 />
-            //     case 3: return <Star3 />
-            //     case 3.5: return <Star3_5 />
-            //     case 4: return <Star4 />
-            //     case 4.5: return <Star4_5 />
-            //     default: return <Star5 />
-            // }
         }
     }
 
     return (
         <View style={styles.place_container}>
+            {/* thay bằng uri đầu tiên */}
             <Image style={styles.place_image} source={require('../../assets/images/vinh-ha-long.jpg')} />
             <View style={styles.place_header}>
                 <Text style={[theme.textVariants.textBase, styles.place_text_title]} numberOfLines={1} ellipsizeMode="tail">{destination}</Text>
@@ -91,7 +86,7 @@ const Place = ({ id, destination, content, star, status }: PlaceProps) => {
             <View style={styles.place_footer}>
                 {handeStar()}
                 <View>
-                    <Button01 label="Detail" onPress={navigateToDetailPlaceScreen} />
+                    <Button01 label={status ? "Edit" : "Detail"} onPress={navigateToEditDetailPlaceScreen} />
                 </View>
             </View>
         </View>

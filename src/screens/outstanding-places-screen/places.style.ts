@@ -17,18 +17,18 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         flexWrap: 'wrap',
-        columnGap: 10, 
+        columnGap: 10,
         rowGap: 10,
         marginTop: 16
     },
     filter: {
-        borderWidth:2,
+        borderWidth: 2,
         borderColor: theme.colors.grey,
         padding: 8,
         borderRadius: 5,
     },
-    iconRemove: {
-        position: 'absolute', 
+    iconAdd: {
+        position: 'absolute',
         right: -10,
         top: -10,
         zIndex: 1,
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     },
     textTitleModal: {
         fontFamily: font.semiBold,
-        color: theme.colors.orange1, 
-        width: '100%', 
+        color: theme.colors.orange1,
+        width: '100%',
         textAlign: 'center'
     },
     bodyModal: {
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     footerModal: {
         flexDirection: 'row',
         width: '70%',
-        marginTop: 16, 
+        marginTop: 16,
     },
 })
 

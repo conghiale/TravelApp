@@ -11,90 +11,15 @@ import { Places } from '@/assets/data'
 import MyCustomMarkerView from '@/components/maps/MyCustomMarkerView'
 import MyCustomCalloutView from '@/components/maps/MyCustomCalloutView'
 import styles from './homeScreen.style'
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
-import { GOOGLE_MAPS_API_KEY } from '@/utils/constant'
-import { useRoute } from '@react-navigation/native'
+import { PartialRoute, useRoute } from '@react-navigation/native'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { AppStackParamList } from '@/navigation/types'
 const BASE_URL_AVATAR = process.env.BASE_URL_AVATAR;
 
-
-// interface imageForm {
-//     path: string,
-//     fileName: string,
-// }
-
 const HomeScreen = () => {
-    // const URL = 'localhost...'
-    // const [showDialogSuccess, setShowDialogSuccess] = useState(false)
-    // const [showDialogWarning, setShowDialogWarning] = useState(false)
-    // const [showDialogError, setShowDialogError] = useState(false)
-    // const [showTakeImage, setShowTakeImage] = useState(false)
-    // const [response, setResponse] = useState<any>(null)
-
-    // const handleActionButtonOK = () => {
-
-    // }
-    // const handleActionButtonCancel = () => {
-
-    // }
-
-    // const handleActionRemove = () => {
-
-    // }
-
-    // const uploadImage = async ({ type, options1, options2 }: any) => {
-    //     if (type === 'capture') {
-    //         // await ImagePicker.launchCamera(options, (response) => {
-    //         //     if (response.errorCode) {
-    //         //         Alert.alert('Error uploading image: ' + response.errorMessage)
-    //         //     } else {
-    //         //         saveImage(response)
-    //         //     }
-    //         // });
-    //     } else {
-    //         await ImagePicker.launchImageLibrary(options2, (response) => {
-    //             if (response.errorCode) {
-    //                 Alert.alert('Error uploading image: ', response.errorMessage)
-    //             } else {
-    //                 saveImage(response)
-    //                 // sendToBackend
-    //             }
-    //         });
-    //     }
-    // }
-
-    // const saveImage = async (response: any) => {
-    //     try {
-    //         setResponse(response)
-    //     } catch (error) {
-    //         throw error
-    //     }
-    // }
-
-    // const sendToBackend = async () => {
-
-    //     try {
-    //         const formData = new FormData()
-    //         formData.append('file', response)
-    //         let res = await fetch(
-    //             URL,
-    //             {
-    //                 method: 'POST',
-    //                 body: formData,
-    //                 headers: {
-    //                     'Content-Type': 'multipart/form-data',
-    //                 },
-    //             }
-    //         )
-
-    //         let responseJson = await res.json()
-    //         console.log(responseJson)
-    //     } catch (error) {
-    //         throw error
-    //     }
-    // }
 
     const routes = useRoute<any>()
-    console.log('id: ' + routes.params ? routes.params : '0')
+    console.log('Home Screen(20): id: ' + (routes.params ? routes.params.id : '0'))
 
     const [region, setRegion] = useState<Region>({
         longitude: 107.35, // kinh độ
