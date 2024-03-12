@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: 'avatar/anonymous.webp',
+      default: 'anonymous.webp',
       require: true,
     },
     viewedPlaces: {
@@ -48,7 +48,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
       require: true,
-    }
+    },
+    hobby: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'DestinationType',
+      default: [],
+      require: true,
+    },
   },
   {
     timestamps: true,

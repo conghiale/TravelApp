@@ -19,7 +19,7 @@ export interface IDestination {
   descriptionEn: string
   latitude: number
   longitude: number
-  types: string[]
+  types: string
   vote: number
   status: number
   createdBy: string

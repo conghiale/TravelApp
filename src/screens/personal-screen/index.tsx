@@ -15,15 +15,11 @@ import * as ImagePicker from 'react-native-image-picker'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
 import axiosInstance from '@/services/config'
-import { BASE_URL } from '@/services/config'
-import axios from 'axios'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
 import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser'
 import Button01 from '@/components/button/button01/Button01'
 import { DestTypes } from '@/assets/data'
 import { set } from 'mongoose'
-
-const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
 const PersonalScreen = () => {
     const IMAGE = '../../assets/images/avatarDefault.jpg'
@@ -37,8 +33,8 @@ const PersonalScreen = () => {
         isLight: false,
     }
 
+    const { updateUser } = useUserGlobalStore();
     const [person, setPerson] = useState<Person>(personInit);
-
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [showTakeImage, setShowTakeImage] = useState(false)
@@ -51,7 +47,7 @@ const PersonalScreen = () => {
     const [isShowDialogFilter, setShowDialogFilter] = useState(false)
     const [infoChanged, setInfoChanged] = useState(false)
 
-    const { updateUser } = useUserGlobalStore();
+    // const { updateUser } = useUserGlobalStore();
 
     const navigation = useNavigation<AppScreenNavigationType<"Root">>()
 
@@ -186,24 +182,21 @@ const PersonalScreen = () => {
                 } else {
                     let imageUri = response.assets?.[0]?.uri;
                     setImage(imageUri);
-                    // sendBackend
+                    
+                    /*// sendBackend
                     let formData = new FormData()
                     formData.append('file', {
                         uri: imageUri,
                         type: 'image/jpeg',
-                        name: 'kkkhhh.jpg',
+                        name: `${Date.now()}.jpg`,
                     })
                     try {
-                        axios.post('http://192.168.1.66:1702/user/upload-avatar/65e9d0363e9261d9647632a6', formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        }).then((response) => {
+                        axiosInstance.postForm('http://localhost:1702/user/upload-avatar/65ec52026a1b165cc9cd133e', formData).then((response) => {
                             console.log(response.data)
                         })
                     } catch (e) {
                         console.log(e)
-                    }
+                    }*/
                 }
             })
         } else {

@@ -16,6 +16,10 @@ const userCommentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    star: {
+      type: Number,
+      required: true,
+    },
     isDeleted: {
       type: Boolean,
       required: true,

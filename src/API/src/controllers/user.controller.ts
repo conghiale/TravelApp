@@ -6,6 +6,11 @@ import {handleUpload, uploadFile} from '../utils/upload';
 import UserService from '../services/user-service';
 const fs = require('fs');
 
+type InputField = {
+  email: string
+  types: string;
+}
+
 class UserController {
   private userService: UserService;
 
@@ -152,6 +157,7 @@ class UserController {
 
   uploadAvatar = async (req: Request, res: Response) => {
     const {id} = req.params;
+    console.log(req.body)
     const storedDir = `src/resources/avatar/${id}`;
 
     if (!fs.existsSync(storedDir)) {
@@ -163,6 +169,7 @@ class UserController {
       if (err) {
         return res.status(400).json({message: err});
       }
+      console.log('body1:', req.body)
       handleUpload(req, res);
     });
   };
@@ -202,6 +209,29 @@ class UserController {
     } catch (error) {
       return res.status(500).send({
         message: 'Internal error in resetPassword'
+      })
+    }
+  };
+
+  createUpdateUserHobby = async (req: Request, res: Response) => {
+    try {
+      const {email, types}:InputField = req.body;
+
+      if(!email || !types) {
+        return res.status(400).send({message: 'Missing parameter(s)'})
+      }
+
+      const typesArray = types.split(',');
+      const typesObjectIdArray = typesArray.map((typeIdStr) => new mongoose.Types.ObjectId(typeIdStr))
+      const result = await this.userService.createUpdateUserHobby(email, typesObjectIdArray);
+      
+      if(result.success) {
+        return res.send({message: result.message, data: result.data})
+      }
+      return res.status(400).send({message: result.message})
+    } catch (error) {
+      return res.status(500).send({
+        message: 'Internal error in createUpdateUserHobby'
       })
     }
   };

@@ -153,7 +153,7 @@ const SignUpScreen = () => {
 
                     <View>
                         <View style={{ flexDirection: "row", alignItems: "center" }}>
-                            <TextInput onChangeText={(text) => handleChangeInput('password', text)} placeholder="Password" secureTextEntry={showPassword ? true : false} style={{ ...styles.textInput, flex: 1 }} />
+                            <TextInput onChangeText={(text) => handleChangeInput('password', text)} placeholder="Password" secureTextEntry={showPassword ? false : true} style={{ ...styles.textInput, flex: 1 }} />
                             <View style={styles.iconInput}>
                                 <Icons name="password" />
                             </View>

@@ -3,9 +3,9 @@ import tryConnectDB from "./db"
 import userRoutes from "./routes/user.routes"
 import path from "path"
 import destinationRoutes from "./routes/destination.routes"
-import userHobbyRoutes from "./routes/user.hobby.routes"
 import userCommentRoutes from "./routes/user.comment.routes"
 import cors from 'cors'
+import destinationTypeRoutes from "./routes/destination.type.routes"
 
 const app = express()
 const PORT = 1702
@@ -21,8 +21,8 @@ app.get('/reset-password/:email/:code', (req: Request, res: Response) => {
 
 app.use("/user", userRoutes)
 app.use("/dest", destinationRoutes)
-app.use("/hobby", userHobbyRoutes)
 app.use("/comment", userCommentRoutes)
+app.use("/dtype", destinationTypeRoutes)
 
 tryConnectDB().then(() => {
     console.log("- Connect DB successfully")

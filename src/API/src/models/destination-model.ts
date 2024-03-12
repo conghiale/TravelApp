@@ -32,6 +32,7 @@ const destinationSchema = new mongoose.Schema(
     },
     vote: {
       type: Number,
+      default: 0,
       required: true,
     },
     status: {

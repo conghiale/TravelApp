@@ -2,7 +2,7 @@ import theme, { Box, Text } from '@/utils/theme'
 import React, { useState } from 'react'
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
-import { Alert, Image, View } from 'react-native'
+import { Alert, Image, Linking, View } from 'react-native'
 import Button01 from '@/components/button/button01/Button01'
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
 import * as ImagePicker from 'react-native-image-picker';
@@ -39,6 +39,10 @@ const HomeScreen = () => {
 
     const hanleButtonOKDialogError = () => {
         setDialogNotification({ displayMsg: '', isShow: false });
+    }
+
+    const goToGoogleMap = (lat: number, lon: number) => {
+        Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`);
     }
 
     return (
@@ -80,16 +84,14 @@ const HomeScreen = () => {
                     latitudeDelta: region.latitudeDelta,
                     longitudeDelta: region.longitudeDelta,
                 }}
-
             // onRegionChange={onRegionChange}
             >
-                {places.map(place => (
+                {places.map((place, index) => (
                     <Marker
-                        key={place.id}
+                        key={index}
                         description={place.content_VI}
                         coordinate={{ latitude: place.latitude, longitude: place.longitude }}
                         onSelect={() => setMarketSelected(true)}
-
                     >
                         <MyCustomMarkerView selected={markerSelected} />
                         <Callout style={styles.callout}>
