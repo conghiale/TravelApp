@@ -8,31 +8,14 @@ import { AppScreenNavigationType } from "@/navigation/types"
 import { Status } from "@/utils/constant"
 import { Rating } from "react-native-ratings"
 
-const Place = ({ id, destination, content, star, status }: PlaceProps) => {
+const Place = ({ id, destination_VI: destination, content_VI: content, star, status }: PlaceProps) => {
     const navigation = useNavigation<AppScreenNavigationType<"General">>()
 
     const navigateToEditDetailPlaceScreen = () => {
-        console.log("Place Component (15): ID: " + id)
-        status ? (
-            navigation.navigate('Root', {
-                screen: 'Create',
-                params: { id: id },
-            })
-        ) : navigation.navigate("DetailPlace", { id })
+        status ? navigation.navigate("EditPlace", { id }) : navigation.navigate("DetailPlace", { id })
     }
 
     const navigateToMainScreen = () => {
-        // navigation.dispatch(
-        //     CommonActions.reset({
-        //         index: 0,
-        //         routes: [
-        //             {
-        //                 name: "Home",
-        //                 params: { id: id },
-        //             }
-        //         ]
-        //     })
-        // )
 
         navigation.navigate('Root', {
             screen: 'Home',

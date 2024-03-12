@@ -59,15 +59,16 @@ interface IAuthenticatedUser {
 
 interface PlaceProps {
   id: String
-  destination: string
-  content: string
+  destination_VI: string
+  content_VI: string
   star: number
   longitude: number
   latitude: number
+  destination_EN?: string
+  content_EN?: string
   status?: number
   images?: uri[]
   types?: string[]
-  isEnglish?: boolean
 }
 
 interface PaginationProps {
@@ -140,8 +141,8 @@ interface Person {
   email: string;
   firstName: string;
   lastName: string;
-  image: any;
-  hobby: string;
+  image: string;
+  hobby: string[];
   isEnglish: boolean;
   isLight: boolean;
 }
@@ -166,6 +167,8 @@ interface InputChangePassword {
 interface SwitchProps {
   label: string;
   isEnabled: boolean;
+  activeText: string
+  inActiveText: string
   toggleSwitch?: () => void;
 }
 

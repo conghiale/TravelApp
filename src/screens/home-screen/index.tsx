@@ -86,14 +86,14 @@ const HomeScreen = () => {
                 {places.map(place => (
                     <Marker
                         key={place.id}
-                        description={place.content}
+                        description={place.content_VI}
                         coordinate={{ latitude: place.latitude, longitude: place.longitude }}
                         onSelect={() => setMarketSelected(true)}
 
                     >
                         <MyCustomMarkerView selected={markerSelected} />
                         <Callout style={styles.callout}>
-                            <MyCustomCalloutView label={place.destination} />
+                            <MyCustomCalloutView label={place.destination_VI} />
                         </Callout>
                     </Marker>
                 ))}

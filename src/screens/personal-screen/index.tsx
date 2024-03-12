@@ -1,8 +1,8 @@
 import theme, { Box, Text } from '@/utils/theme'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
 import CustomAlert from '@/components/customAler/CustomAlert'
-import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Keyboard, KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
 import styles from './personal.style'
 import Icons from '@/components/shared/icon'
 import GroupSettings from '@/components/group_settings'
@@ -20,13 +20,15 @@ import axios from 'axios'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
 import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser'
 import Button01 from '@/components/button/button01/Button01'
+import { DestTypes } from '@/assets/data'
+import { set } from 'mongoose'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 100
 
 const PersonalScreen = () => {
     const IMAGE = '../../assets/images/avatarDefault.jpg'
     const personInit: Person = {
-        hobby: 'Trai nghiem, Kham pha, Thien nhien, Mao hiem',
+        hobby: ['Du lich xa', 'Du lich gan', 'The thao', 'Thien nhien'],
         email: 'legend.mighty28102002@gmail.com',
         firstName: 'Cong Nghia',
         lastName: 'Le',
@@ -43,26 +45,25 @@ const PersonalScreen = () => {
     const [response, setResponse] = useState<any>(null)
     const [image, setImage] = useState<any>('')
     const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
+
+    const [types, setTypes] = useState<TypesFilterProps[]>()
+    const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
+    const [isShowDialogFilter, setShowDialogFilter] = useState(false)
+    const [infoChanged, setInfoChanged] = useState(false)
+
     const { updateUser } = useUserGlobalStore();
 
     const navigation = useNavigation<AppScreenNavigationType<"Root">>()
 
     useEffect(() => {
-        personInit.hobby = 'Trai nghiem, Kham pha, Thien nhien, Mao hiem'
-        personInit.email = 'legend.mighty28102002@gmail.com'
-        personInit.firstName = 'Cong Nghia'
-        personInit.lastName = 'Le'
-        personInit.image = '../../assets/images/avatarDefault.jpg'
-        personInit.isEnglish = false
-        personInit.isLight = false
+        person.hobby = ['Du lich xa', 'Du lich gan', 'The thao', 'Thien nhien']
+        person.email = 'legend.mighty28102002@gmail.com'
+        person.firstName = 'Cong Nghia'
+        person.lastName = 'Le'
+        person.image = '../../assets/images/avatarDefault.jpg'
+        person.isEnglish = false
+        person.isLight = false
     }, [])
-
-    const handleInputChange = (name: keyof Person, value: string) => {
-        setPerson({
-            ...person,
-            [name]: value,
-        });
-    };
 
     const handleToggle = (name: keyof Person) => {
         // const updatedPeople = [...person]
@@ -76,10 +77,6 @@ const PersonalScreen = () => {
     };
 
     const handleChangeValue = (name: keyof Person, value: string) => {
-        // const updatedPeople = [...person]
-        // updatedPeople[0] = { ...person[0], [name]: value }
-        // setPerson(updatedPeople)
-
         setPerson({
             ...person,
             [name]: value
@@ -121,6 +118,44 @@ const PersonalScreen = () => {
             keyboardDidHideListener.remove();
         };
     }, []);
+
+    // Init Type
+    useEffect(() => {
+        let dataTypes: TypesFilterProps[] = []
+        DestTypes.map((destType) => (
+            dataTypes.push({ type: destType, isChoose: person.hobby.includes(destType.typeName) })
+        ))
+        setTypes(dataTypes)
+        setTypesChoose(dataTypes)
+    }, [])
+
+    // passing types to person.hobby
+    useEffect(() => {
+        const personUpdate = { ...person }
+        types?.forEach(type => {
+            if (type.isChoose && !personUpdate.hobby.includes(type.type.typeName)) {
+                personUpdate.hobby.push(type.type.typeName)
+            }
+            else if (!type.isChoose && personUpdate.hobby.includes(type.type.typeName)) {
+
+                const index = personUpdate.hobby.indexOf(type.type.typeName);
+                if (index !== -1) {
+                    personUpdate.hobby.splice(index, 1);
+                }
+            }
+        })
+        setPerson(personUpdate)
+    }, [types]) 
+
+    // checkChangeInfoUser
+    useEffect(() => {
+        setInfoChanged(
+            compareHobby() &&
+            person.email === personInit.email &&
+            person.firstName === personInit.firstName &&
+            person.lastName === personInit.lastName
+        );
+    }, [person])
 
     const uploadImage = async ({ type, options }: any) => {
         if (type === 'capture') {
@@ -206,15 +241,38 @@ const PersonalScreen = () => {
         updateUser(null);
     }
 
-    const compareValuesPerson = () => {
-        return (
-            person.hobby === personInit.hobby &&
-            person.email === personInit.email &&
-            person.firstName === personInit.firstName &&
-            person.lastName === personInit.lastName &&
-            person.isEnglish === personInit.isEnglish &&
-            person.isLight === personInit.isLight
-        )
+    // compare hobby
+    const compareHobby = () => {
+        let isEqual = true;
+
+        personInit.hobby.forEach((element, index) => {
+            if (element !== person.hobby[index]) {
+                isEqual = false;
+                return; // Thoát khỏi vòng lặp
+            }
+        });
+        return isEqual
+    }
+
+    // so sánh avatar
+    const compareImages = () => {
+        // so sanh avatar co thay doi hay khong
+    }
+
+    const handleActionSave = () => {
+        const infoUserChange: Person =
+        {
+            hobby: person.hobby,
+            email: person.email,
+            firstName: person.firstName,
+            lastName: person.lastName,
+            image: person.image,
+            isEnglish: person.isEnglish,
+            isLight: person.isLight,
+        }
+
+        console.log('Personal-Screen(274): ')
+        console.log(JSON.stringify(infoUserChange))
     }
 
     return (
@@ -233,6 +291,54 @@ const PersonalScreen = () => {
                 visible={dialogNotification.isShow}
                 onDimissAlert={hanleButtonOKDialogError}
             />
+            <Modal
+                visible={isShowDialogFilter}
+                animationType='fade'
+                transparent={true}
+                onRequestClose={() => setShowDialogFilter(false)}
+            >
+                <View style={styles.containerModal}>
+                    <View style={styles.containerModalDialog}>
+                        <Text
+                            style={[theme.textVariants.textXl, styles.textTitleModal
+                            ]}>
+                            Select the type of place you want to search
+                        </Text>
+
+                        <View style={styles.bodyModal}>
+                            {typesChoose?.map(type => (
+                                <TouchableOpacity
+                                    key={type.type.id}
+                                    activeOpacity={0.5}
+                                    style={[
+                                        styles.UpdateTypes,
+                                        { backgroundColor: type.isChoose ? theme.colors.grey : theme.colors.blue1 }
+                                    ]}
+                                    onPress={() => setTypesChoose((types) =>
+                                        types?.map(typeSelected => typeSelected.type.id === type.type.id ?
+                                            { ...type, isChoose: !typeSelected.isChoose } : typeSelected)
+                                    )}
+                                >
+                                    <Text style={[theme.textVariants.textBase, styles.text]}>{type.type.typeName}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <View style={styles.footerModal}>
+                            <Button01
+                                height={60}
+                                label='Choose'
+                                color={theme.colors.orange}
+                                onPress={() => {
+                                    setShowDialogFilter(false)
+                                    setTypes(typesChoose)
+                                }}
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             <ScrollView
                 style={{ marginBottom: isKeyboardVisible ? 5 : 135 }}
                 showsVerticalScrollIndicator={false} >
@@ -279,13 +385,59 @@ const PersonalScreen = () => {
                             name='lastName'
                             handleChangeValue={handleChangeValue}
                         />
-                        <CustomInputInfoUser
-                            label='Hobby'
-                            nameIcon='edit'
-                            value={person.hobby}
-                            name='hobby'
-                            handleChangeValue={handleChangeValue}
-                        />
+
+                        <View style={styles.containerUpdateTypes}>
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                style={[styles.UpdateTypes,
+                                {
+                                    backgroundColor: theme.colors.orange,
+                                    marginStart: 0,
+                                    borderWidth: 0,
+                                }
+                                ]}
+                                onPress={() => {
+                                    setTypesChoose(types)
+                                    setShowDialogFilter(true)
+                                }}
+                            >
+                                <Text style={[theme.textVariants.textBase, styles.text]}>Update Types</Text>
+                            </TouchableOpacity>
+                            {types?.map(type => (
+                                type.isChoose ? (
+                                    <View key={type.type.id} style={styles.UpdateTypes}>
+                                        <TouchableOpacity
+                                            activeOpacity={0.85}
+                                            style={styles.iconAdd}
+                                            onPress={() => {
+                                                setTypes((prevType) =>
+                                                    prevType?.map(typeSelected => typeSelected.type.id === type.type.id ?
+                                                        { ...type, isChoose: !type.isChoose } : typeSelected)
+                                                )
+                                            }}
+                                        >
+                                            <Icons name='cancel' />
+                                        </TouchableOpacity>
+                                        <Text style={[theme.textVariants.textBase, styles.text]}>{type.type.typeName}</Text>
+                                    </View>) : null
+                            ))}
+                        </View>
+
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-end',
+                                marginTop: 16
+                            }}
+                            pointerEvents={infoChanged ? 'none' : 'auto'}>
+                            <Button01
+                                height={60}
+                                label='save'
+                                color={infoChanged ? theme.colors.grey : theme.colors.orange}
+                                onPress={() => handleActionSave()}
+                            />
+                        </View>
+
                         <TouchableOpacity
                             style={styles.changePassword}
                             onPress={navigateToChangePasswordScreen}
@@ -299,31 +451,22 @@ const PersonalScreen = () => {
                             <LabelScreen nameIcon='setting' title='Settings' />
                         </View>
 
+                            {/* false là EN -> true là VI */}
                         <GroupSettings
                             label={'Language (VI/EN)'}
                             isEnabled={person.isEnglish}
+                            activeText='VI'
+                            inActiveText='EN'
                             toggleSwitch={() => handleToggle('isEnglish')}
                         />
-
+                            
+                            {/* false là Light -> true là Dark */}
                         <GroupSettings
                             label={'Theme (Dark/Light)'}
                             isEnabled={person.isLight}
+                            activeText='Dark'
+                            inActiveText='Light'
                             toggleSwitch={() => handleToggle('isLight')}
-                        />
-                    </View>
-
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'flex-end',
-                            marginTop: 16
-                        }}
-                        pointerEvents={compareValuesPerson() ? 'none' : 'auto'}>
-                        <Button01
-                            height={60}
-                            label='save'
-                            color={compareValuesPerson() ? theme.colors.grey : theme.colors.orange}
-                            onPress={() => console.log("Button Save pressed")}
                         />
                     </View>
 

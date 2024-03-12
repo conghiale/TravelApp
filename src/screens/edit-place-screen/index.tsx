@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, Image, TextInput, TouchableOpacity, KeyboardA
 import React, { useEffect, useState } from 'react'
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
 import Icons from '@/components/shared/icon'
-import styles from './createScreen.style'
+import styles from './editScreen.style'
 import theme from '@/utils/theme'
 import { AppScreenNavigationType } from '@/navigation/types'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -13,6 +13,9 @@ import * as ImagePicker from 'react-native-image-picker'
 import Button01 from '@/components/button/button01/Button01'
 import { DestTypes, Places } from '@/assets/data'
 import GroupSettings from '@/components/group_settings'
+import ButtonArrowLeft from '@/components/button/buttonArrowLeft/ButtonArrowLeft'
+import Button02 from '@/components/button/button02/Button02'
+import BorderButton from '@/components/button/borderButton/BorderButton'
 
 const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 500
 
@@ -30,11 +33,15 @@ interface FocusInfoUser {
     longitude: boolean
 }
 
-const CreatePlaceScreen = () => {
-    const navigation = useNavigation<AppScreenNavigationType<"Root">>()
+const EditPlaceScreen = () => {
+    const navigation = useNavigation<AppScreenNavigationType<"EditPlace">>()
 
-    const [newPlace, setNewPlace] = useState<PlaceProps>({
-        id: '-1',
+    const routes = useRoute<any>()
+    const idPlace = routes.params ? routes.params.id : '-1'
+    console.log("EditPlaceScreen(32): idPlace: " + idPlace)
+
+    const [placeUpdate, setPlaceUpdate] = useState<PlaceProps>({
+        id: idPlace,
         destination_VI: '',
         content_VI: '',
         destination_EN: '',
@@ -47,18 +54,6 @@ const CreatePlaceScreen = () => {
         images: [],
     })
 
-    const navigateToCreatedPlacesScreen = () => {
-        navigation.navigate("CreatedPlaces")
-    }
-
-    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const [showTakeImage, setShowTakeImage] = useState(false)
-    const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
-    const [idImage, setIdImage] = useState(-1)
-    const [types, setTypes] = useState<TypesFilterProps[]>()
-    const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
-    const [isShowDialogFilter, setShowDialogFilter] = useState(false)
-
     const [onFocus, setOnFoCus] = useState<FocusInfoUser>({
         name_VI: false,
         name_EN: false,
@@ -68,6 +63,17 @@ const CreatePlaceScreen = () => {
         longitude: false
     })
 
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [showTakeImage, setShowTakeImage] = useState(false)
+    const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
+    const [idImage, setIdImage] = useState(-1)
+    const [types, setTypes] = useState<TypesFilterProps[]>()
+    const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
+    const [isShowDialogFilter, setShowDialogFilter] = useState(false)
+    const [isEnglish, setIsEnglish] = useState(false)
+
+
+
     const [imageUploads, setImageUploads] = useState<UploadImages[]>([
         { id: 0, uri: '' },
         { id: 1, uri: '' },
@@ -75,6 +81,29 @@ const CreatePlaceScreen = () => {
         { id: 3, uri: '' },
         { id: 4, uri: '' },
     ])
+
+    const goBack = () => {
+        navigation.goBack()
+    }
+
+    // Get places by id
+    useEffect(() => {
+        const place = Places.filter(p => p.id === idPlace)
+
+        if (place.length > 0) {
+            setPlaceUpdate(prevPlace => ({
+                ...prevPlace,
+                destination_VI: place[0].destination_VI,
+                content_VI: place[0].content_VI,
+                sta: place[0].star,
+                longitude: place[0].longitude,
+                latitude: place[0].latitude,
+                status: place[0].status,
+                types: place[0].types
+            }))
+        }
+
+    }, [idPlace])
 
     // keyboard 
     useEffect(() => {
@@ -102,8 +131,8 @@ const CreatePlaceScreen = () => {
         let dataTypes: TypesFilterProps[] = []
         DestTypes.map((destType) => {
             let choose = false
-            if (newPlace.types && newPlace.types.length > 0) {
-                newPlace.types.forEach((type) => {
+            if (placeUpdate.types && placeUpdate.types.length > 0) {
+                placeUpdate.types.forEach((type) => {
                     if (type === destType.typeName)
                         choose = true
                 })
@@ -114,12 +143,21 @@ const CreatePlaceScreen = () => {
         setTypesChoose(dataTypes)
 
 
-    }, [])
+    }, [idPlace])
 
     // Set ImageUpload
     useEffect(() => {
         setImageUploads([])
-    }, [])
+        placeUpdate.images?.map((uriImage, index) => {
+            setImageUploads((prevUploads) => {
+                return (
+                    prevUploads.map((upload) => {
+                        return { ...upload, id: index, uri: uriImage }
+                    }
+                    ))
+            })
+        })
+    }, [idPlace])
 
     const getRandomIntInclusive = (min: number, max: number) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -180,9 +218,6 @@ const CreatePlaceScreen = () => {
 
     const handleActionRemove = () => {
         setImageUploads((prevUploads) =>
-            // prevUploads.map((upload) =>
-            //     upload.id === idImage ? { ...upload, uri: '' } : upload
-            // )
             prevUploads.filter((upload) =>
                 upload.id !== idImage
             )
@@ -195,31 +230,31 @@ const CreatePlaceScreen = () => {
     }
 
     const onHandlerChangeInputString = (name: keyof PlaceProps, value: string) => {
-        setNewPlace(prevPlace => ({ ...prevPlace, [name]: value }))
+        setPlaceUpdate(prevPlace => ({ ...prevPlace, [name]: value }))
     }
 
     const onHandleFocusInput = (name : keyof FocusInfoUser, value: boolean) => {
         setOnFoCus(prevOnFocus => ({ ...prevOnFocus, [name]: value}))
     }
 
-    const handleRequestSubmitCreate = () => {
+    const handleRequestSubmitEdit = () => {
         const infoPlaceChange: PlaceProps =
         {
-            id: newPlace.id,
-            destination_VI: newPlace.destination_VI,
-            content_VI: newPlace.content_VI,
-            destination_EN: newPlace.destination_EN,
-            content_EN: newPlace.content_EN,
-            latitude: newPlace.latitude,
-            longitude: newPlace.longitude,
-            star: newPlace.star,
+            id: placeUpdate.id,
+            destination_VI: placeUpdate.destination_VI,
+            content_VI: placeUpdate.content_VI,
+            destination_EN: placeUpdate.destination_EN,
+            content_EN: placeUpdate.content_EN,
+            latitude: placeUpdate.latitude,
+            longitude: placeUpdate.longitude,
+            star: placeUpdate.star,
             images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
-            status: newPlace.status,
+            status: placeUpdate.status,
             types: types?.filter(typeItem => typeItem.isChoose)
                 .map(typeItem => typeItem.type.typeName) || []
         }
 
-        console.log('Create-Screen(228): ')
+        console.log('Edit-Screen(228): ')
         console.log(JSON.stringify(infoPlaceChange))
     }
 
@@ -287,31 +322,21 @@ const CreatePlaceScreen = () => {
                         </View>
                     </View>
                 </Modal>
-                <ScrollView style={{ marginBottom: isKeyboardVisible ? 5 : 135 }} showsVerticalScrollIndicator={false}>
+                <ScrollView style={{ marginBottom: isKeyboardVisible ? 5 : 0 }} showsVerticalScrollIndicator={false}>
                     <View style={styles.headerContainer}>
-                        <TouchableOpacity
-                            activeOpacity={0.85}
-                            style={styles.headerItem}
-                            onPress={handleRequestSubmitCreate} >
-                            <Icons name={'createDestination'} color={theme.colors.orange} />
-                            <Text style={styles.headerText}>{'Create destination'}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.headerItem}
-                            onPress={navigateToCreatedPlacesScreen}
-                            activeOpacity={0.85}>
-                            <Icons name='list' />
-                            <Text style={styles.headerText}>List</Text>
-                        </TouchableOpacity>
+                        <ButtonArrowLeft onPress={goBack} />
+                        <View style={styles.containerTitle}>
+                            <Text style={[theme.textVariants.textLg, styles.headerText]}>Edit Place</Text>
+                        </View>
                     </View>
 
-                    <View 
-                        style={[
-                            styles.viewInputDestination, 
-                            {
-                                borderWidth: onFocus.name_VI ? 2 : 0,
-                                borderColor: onFocus.name_VI ? '#0be881' : theme.colors.white
-                            }]}>
+                    <View style={[
+                        styles.viewInputDestination,
+                        {
+                            borderWidth: onFocus.name_VI ? 2 : 0,
+                            borderColor: onFocus.name_VI ? '#0be881' : theme.colors.white
+                        }
+                    ]}>
                         <Text style={[
                             theme.textVariants.textBase,
                             {
@@ -328,12 +353,12 @@ const CreatePlaceScreen = () => {
                             style={[
                                 theme.textVariants.textBase,
                                 styles.inputDestination]}
-                            value={newPlace.destination_VI}
+                            value={placeUpdate.destination_VI}
                             onChangeText={(value) => onHandlerChangeInputString('destination_VI', value)} />
                     </View>
 
                     <View style={[
-                        styles.viewInputDestination, 
+                        styles.viewInputDestination,
                         {
                             borderWidth: onFocus.name_EN ? 2 : 0,
                             borderColor: onFocus.name_EN ? '#0be881' : theme.colors.white
@@ -355,16 +380,16 @@ const CreatePlaceScreen = () => {
                             style={[
                                 theme.textVariants.textBase,
                                 styles.inputDestination]}
-                            value={newPlace.destination_EN}
+                            value={placeUpdate.destination_EN}
                             onChangeText={(value) => onHandlerChangeInputString('destination_EN', value)} />
                     </View>
 
                     <View style={[
-                        styles.destinationDescription, 
+                        styles.destinationDescription,
                         {
                             borderWidth: onFocus.content_VI ? 2 : 0,
                             borderColor: onFocus.content_VI ? '#0be881' : theme.colors.white
-                        }
+                        }    
                     ]}>
                         <Text style={[
                             theme.textVariants.textBase,
@@ -382,7 +407,7 @@ const CreatePlaceScreen = () => {
                             onBlur={() => onHandleFocusInput('content_VI', false)}
                             multiline={true}
                             numberOfLines={8}
-                            value={newPlace.content_VI}
+                            value={placeUpdate.content_VI}
                             onChangeText={(value) => onHandlerChangeInputString('content_VI', value)}
                         />
                     </View>
@@ -392,7 +417,7 @@ const CreatePlaceScreen = () => {
                         {
                             borderWidth: onFocus.content_EN ? 2 : 0,
                             borderColor: onFocus.content_EN ? '#0be881' : theme.colors.white
-                        }
+                        }    
                     ]}>
                         <Text style={[
                             theme.textVariants.textBase,
@@ -410,7 +435,7 @@ const CreatePlaceScreen = () => {
                             onBlur={() => onHandleFocusInput('content_EN', false)}
                             multiline={true}
                             numberOfLines={8}
-                            value={newPlace.content_EN}
+                            value={placeUpdate.content_EN}
                             onChangeText={(value) => onHandlerChangeInputString('content_EN', value)}
                         />
                     </View>
@@ -420,17 +445,16 @@ const CreatePlaceScreen = () => {
                         {
                             borderWidth: onFocus.latitude ? 2 : 0,
                             borderColor: onFocus.latitude ? '#0be881' : theme.colors.white
-                        }
+                        }    
                     ]}>
                         <TextInput
-                            keyboardType='numeric'
                             placeholder='Latitude'
                             onFocus={() => onHandleFocusInput('latitude', true)}
                             onBlur={() => onHandleFocusInput('latitude', false)}
                             style={[
                                 theme.textVariants.textBase,
                                 styles.inputDestination]}
-                            value={''+newPlace.latitude}
+                            value={''+placeUpdate.latitude}
                             onChangeText={(value) => onHandlerChangeInputString('latitude', value)} />
                     </View>
 
@@ -439,17 +463,16 @@ const CreatePlaceScreen = () => {
                         {
                             borderWidth: onFocus.longitude ? 2 : 0,
                             borderColor: onFocus.longitude ? '#0be881' : theme.colors.white
-                        }
+                        }    
                     ]}>
                         <TextInput
-                            keyboardType='numeric'
                             placeholder='Longitude'
                             onFocus={() => onHandleFocusInput('longitude', true)}
                             onBlur={() => onHandleFocusInput('longitude', false)}
                             style={[
                                 theme.textVariants.textBase,
                                 styles.inputDestination]}
-                            value={'' + newPlace.longitude}
+                            value={'' + placeUpdate.longitude}
                             onChangeText={(value) => onHandlerChangeInputString('longitude', value)} />
                     </View>
 
@@ -515,10 +538,19 @@ const CreatePlaceScreen = () => {
                             </View>
                         )) : null}
                     </View>
+
+                    <View style={styles.containerButtonEdit}>
+                        <BorderButton
+                            height={60}
+                            label='Update'
+                            nameIcon='edit'
+                            onPress={handleRequestSubmitEdit}
+                        />
+                    </View>
                 </ScrollView>
             </View>
         </SafeAreaWrapper>
     )
 }
 
-export default CreatePlaceScreen
+export default EditPlaceScreen

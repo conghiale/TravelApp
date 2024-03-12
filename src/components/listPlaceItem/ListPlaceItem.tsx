@@ -84,10 +84,10 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
                 <GestureHandlerRootView>
                     <GestureDetector gesture={panGesture}>
                         <Animated.View style={[rStyle]}>
-                            <Place 
-                                id={placeItem.id} 
-                                destination={placeItem.destination} 
-                                content={placeItem.content} 
+                            <Place
+                                id={placeItem.id}
+                                destination_VI={placeItem.destination_VI}
+                                content_VI={placeItem.content_VI}
                                 star={placeItem.star}
                                 longitude={placeItem.longitude}
                                 latitude={placeItem.latitude} />

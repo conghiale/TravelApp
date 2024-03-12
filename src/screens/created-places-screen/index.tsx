@@ -23,17 +23,17 @@ const CreatedPlacesScreen = () => {
     { key: '3', value: 'Waiting' },
     { key: '4', value: 'Rejected' },
   ]
-  
+
   const handleChangeValueSearch = (value: string) => {
     setSearchValue(value)
   }
-  
+
   const goBack = () => {
     navigation.goBack()
   }
 
   return (
-    <View style={{flex: 1, backgroundColor : theme.colors.blue1}}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.blue1 }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <View style={styles.containerHeader}>
@@ -66,14 +66,14 @@ const CreatedPlacesScreen = () => {
             />
           </View>
           <View style={styles.containerUser}>
-            {Places.map(place => (
+            {Places.map((place, index) => (
               <View
-                key={place.id}
+                key={index}
                 style={styles.place}>
                 <Place
                   id={place.id}
-                  destination={place.destination}
-                  content={place.content}
+                  destination_VI={place.destination_VI}
+                  content_VI={place.content_VI}
                   star={place.star}
                   status={place.status}
                   longitude={place.longitude}

@@ -12,12 +12,13 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: "row",
-        justifyContent: 'space-between',
         width: '100%',
     },
-    headerItem: {
-        flexDirection: 'row',
-        alignItems: 'center'
+    containerTitle: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        marginStart: -50
     },
     headerText: {
         color: theme.colors.orange,
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
         width: '100%',
         minHeight: 60,
         borderRadius: 10,
-        backgroundColor: theme.colors.white,
+        backgroundColor: 'white',
         marginTop: 20,
     },
     inputDestination: {
@@ -68,6 +69,13 @@ const styles = StyleSheet.create({
     text: {
         fontFamily: font.semiBold,
         color: theme.colors.white
+    },
+    containerButtonEdit: {
+        marginHorizontal: 30,
+        marginTop: 32,
+        marginBottom: 10,
+        alignContent: 'center',
+        justifyContent: 'center',
     },
     containerModal: {
         flex: 1,

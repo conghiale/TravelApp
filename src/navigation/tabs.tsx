@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator<RootBottomTabParamList>()
 const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => {
     return (
         <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={0.95}
             style={{
                 top: -30,
                 justifyContent: 'center',

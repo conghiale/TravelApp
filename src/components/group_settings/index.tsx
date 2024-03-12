@@ -4,14 +4,14 @@ import styles from './settings.style';
 import { Switch } from 'react-native-switch';
 import theme from '@/utils/theme';
 
-const GroupSettings = ({ label, isEnabled, toggleSwitch }: SwitchProps) => {
+const GroupSettings = ({ label, isEnabled, activeText, inActiveText,toggleSwitch }: SwitchProps) => {
 
     return (
         <View style={styles.group}>
             <Text style={[theme.textVariants.textBase, styles.text]}>{label}</Text>
             <Switch
-                // activeText={''}
-                // inActiveText={''}
+                activeText={activeText}
+                inActiveText={inActiveText}
                 backgroundActive={theme.colors.yellow1}
                 backgroundInactive={theme.colors.grey}
                 circleActiveColor={theme.colors.yellow}

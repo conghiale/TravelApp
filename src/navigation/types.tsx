@@ -39,6 +39,7 @@ export type AppStackParamList = {
     Root: NavigatorScreenParams<RootBottomTabParamList> | any
     HobbySelect: any
     CreatePlace: any
+    EditPlace: any
     CreatedPlaces: any
     DetailPlace: any
     DetailRequestPlace: any

@@ -20,6 +20,8 @@ const OutstandingPlacesScreen = () => {
     const [types, setTypes] = useState<TypesFilterProps[]>()
     const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
     const [isShowDialogFilter, setShowDialogFilter] = useState(false)
+    const [isActionShowMore, setIsActionShowMore] = useState(false)
+
 
     // pagination 
     const [data, setData] = useState<PlaceProps[]>()
@@ -30,6 +32,13 @@ const OutstandingPlacesScreen = () => {
         const newData: PlaceProps[] = Places.slice(0, maxPlaces)
         setData(newData)
     }, [page])
+
+    useEffect(() => {
+        if (data?.length === Places.length)
+            setIsActionShowMore(true)
+        else
+            setIsActionShowMore(false)
+    }, [data])
 
     const handleChangeValueSearch = (value: string) => {
         setSearchValue(value)
@@ -176,13 +185,16 @@ const OutstandingPlacesScreen = () => {
                     </View>
                     <FlatListPlaceVertical
                         data={data ? data : []}
-                        // onRefresh={() => setPage(prePage => prePage + 1)}
+                    // onRefresh={() => setPage(prePage => prePage + 1)}
                     />
 
-                    <View style={{marginTop: 32, marginHorizontal: 50}}>
-                        <Button01 
+                    <View
+                        pointerEvents={isActionShowMore ? 'none' : 'auto'}
+                        style={{ marginTop: 32, marginHorizontal: 50 }}>
+                        <Button01
                             height={60}
                             label='Show more'
+                            color={isActionShowMore ? theme.colors.grey : theme.colors.orange}
                             onPress={() => setPage(prePage => prePage + 1)}
                         />
                     </View>

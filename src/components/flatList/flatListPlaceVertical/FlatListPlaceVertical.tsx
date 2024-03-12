@@ -14,8 +14,8 @@ const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data, onRefresh }) =>
                     <View style={{ margin: 8 }}>
                         <Place
                             id={item.id}
-                            destination={item.destination}
-                            content={item.content}
+                            destination_VI={item.destination_VI}
+                            content_VI={item.content_VI}
                             star={item.star}
                             longitude={item.longitude}
                             latitude={item.latitude} />
@@ -23,7 +23,7 @@ const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data, onRefresh }) =>
                 )}
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                // onEndReached={onRefresh}
+            // onEndReached={onRefresh}
             />
         </>
     )

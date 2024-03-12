@@ -72,7 +72,7 @@ const ApprovePlacesScreen = () => {
                 key={place.id}
                 index={index}
                 id={place.id}
-                destination={place.destination}
+                destination={place.destination_VI}
                 handlePress={handlePress} />
             ))}
           </View>

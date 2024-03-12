@@ -12,6 +12,7 @@ import ReviewUserScreen from '@/screens/ad-review-user'
 import ViewUsersScreen from '@/screens/ad-view-users-screen'
 import DetailRequestPlaceScreen from '@/screens/detail-request-place-screen'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
+import EditPlaceScreen from '@/screens/edit-place-screen'
 
 const Stack = createNativeStackNavigator<AppStackParamList>()
 
@@ -25,6 +26,7 @@ const AppStackNavigator = () => {
       <Stack.Screen name='DetailPlace' component={DetailPlaceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='DetailRequestPlace' component={DetailRequestPlaceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='CreatePlace' component={CreateScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='EditPlace' component={EditPlaceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='CreatedPlaces' component={CreatedPlacesScreen} options={{headerShown: false}}/>
       <Stack.Screen name='ChangePassword' component={ChangePasswordScreen} options={{headerShown: false}}/>
       <Stack.Screen name='ApprovePlaces' component={ApprovePlacesScreen} options={{headerShown: false}}/>
