@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 
 const destinationTypeSchema = new mongoose.Schema(
   {
-    typeVi: {
+    labelVi: {
       type: String,
       required: true,
     },
-    typeEn: {
+    labelEn: {
       type: String,
       required: true,
     },

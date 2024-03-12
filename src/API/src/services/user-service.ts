@@ -1,5 +1,5 @@
 import User from '../models/user-model';
-import {Types} from 'mongoose';
+import mongoose, {Types} from 'mongoose';
 import jwt from 'jsonwebtoken';
 import {
   avatarConstant,
@@ -9,6 +9,7 @@ import {
 import Validation from '../models/validation-model';
 import {sendMail} from '../utils/mailer';
 import {bcryptHash, bcryptCompare} from '../utils/password';
+import DestinationType from '../models/destination-type-model';
 
 class UserService {
   getUserToken = (_id: string | Types.ObjectId) => {
@@ -279,6 +280,41 @@ class UserService {
       return false;
     }
     return true;
+  };
+
+  createUpdateUserHobby = async (
+    email: string,
+    destinationTypeIds: mongoose.Types.ObjectId[],
+  ) => {
+    const user = await User.findOne({email});
+    if (!user) {
+      return {
+        success: false,
+        message: 'User does not exist',
+      };
+    }
+
+    for(let i = 0; i < destinationTypeIds.length; ++i) {
+      const foundDestType = await DestinationType.findById(destinationTypeIds[i]);
+      if(!foundDestType) {
+        return {
+          success: false,
+          message: 'At least having one invalid destination type'
+        }
+      }
+    }
+
+    user.hobby = destinationTypeIds;
+    user.save();
+
+    return {
+      success: true,
+      message: 'Create user hobby successfully',
+      data: {
+        email: user.email,
+        hobby: await DestinationType.find({ _id: { $in: user.hobby } }),
+      },
+    };
   };
 }
 

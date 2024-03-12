@@ -5,6 +5,8 @@ import { Text, TouchableOpacity, View } from 'react-native'
 import styles from './style'
 import { AppScreenNavigationType, AuthScreenNavigationType } from '@/navigation/types'
 import { useNavigation } from '@react-navigation/native'
+import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 interface IData {
     name: string
@@ -12,7 +14,7 @@ interface IData {
 }
 
 const HobbySelectScreen = () => {
-    
+    const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation<AppScreenNavigationType<"HobbySelect">>()
     const navigateToMain = () => {
         navigation.reset({
@@ -24,6 +26,9 @@ const HobbySelectScreen = () => {
     const [data, setData] = useState<IData[]>([])
 
     useEffect(() => {
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000);
         setData([
             { name: "Du lich xa", check: false },
             { name: "Du lich gan", check: false },
@@ -49,24 +54,32 @@ const HobbySelectScreen = () => {
     }
 
     return (
-        <View style={{ backgroundColor: theme.colors.blue1, flex: 1, justifyContent: "center" }}>
-            <Text style={styles.title}>Which is your favorite kinds of travel?</Text>
-            <View style={{flexDirection: "row", flexWrap: 'wrap', columnGap: 30, rowGap: 30, justifyContent: "center", marginVertical: 32 }}>
-                {data.map((choice, index:number) => {
-                    return (
-                        <TouchableOpacity key={index} onPress={() => changeData(index)}>
-                            <View style={choice.check ? styles.checked : styles.unchecked}>
-                                <Text style={choice.check ? styles.textChecked : styles.textUnchecked}>{choice.name}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )
-                })}
-            </View>
+        <SafeAreaWrapper>
+            <Spinner
+                size={'large'}
+                visible={loading}
+                color={theme.colors.orange1}
+                animation={'fade'}
+            />
+            <View style={{ backgroundColor: theme.colors.blue1, flex: 1, justifyContent: "center" }}>
+                <Text style={styles.title}>Which is your favorite kinds of travel?</Text>
+                <View style={{flexDirection: "row", flexWrap: 'wrap', columnGap: 30, rowGap: 30, justifyContent: "center", marginVertical: 32 }}>
+                    {data.map((choice, index:number) => {
+                        return (
+                            <TouchableOpacity key={index} onPress={() => changeData(index)}>
+                                <View style={choice.check ? styles.checked : styles.unchecked}>
+                                    <Text style={choice.check ? styles.textChecked : styles.textUnchecked}>{choice.name}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    })}
+                </View>
 
-            <TouchableOpacity style={{alignItems: "center"}} onPress={navigateToMain}>
-                <Text style={styles.textContinue}>Continue</Text>
-            </TouchableOpacity>
-        </View>
+                <TouchableOpacity style={{alignItems: "center"}} onPress={navigateToMain}>
+                    <Text style={styles.textContinue}>Continue</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaWrapper>
     )
 }
 

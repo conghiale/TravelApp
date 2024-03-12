@@ -2,12 +2,18 @@ import { TextInput, TouchableOpacity, View } from 'react-native'
 import styles from './customInputInfoUser.style'
 import theme from '@/utils/theme'
 import LabelScreenReverse from '@/components/labelScreen/LabelScreenReverse'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 const CustomInputInfoUser = ({ label, nameIcon, value, name, handleChangeValue }: CustomInputInfoUserProps) => {
-    const [readOnly, setReadOnly] = useState(true)
+    const [readOnly, setReadOnly] = useState(true);
+    // const textInputRef = useRef<TextInput>(null);
 
     const handlePressLabel = () => {
+        // if(readOnly) {
+        //     if (textInputRef.current) {
+        //       textInputRef.current.focus();
+        //     }
+        // }
         setReadOnly(!readOnly)
     }
 
@@ -26,6 +32,7 @@ const CustomInputInfoUser = ({ label, nameIcon, value, name, handleChangeValue }
             </TouchableOpacity>
             <View style={styles.containerInput}>
                 <TextInput
+                    // ref={textInputRef}
                     numberOfLines={2}
                     multiline={true}
                     readOnly={readOnly}
