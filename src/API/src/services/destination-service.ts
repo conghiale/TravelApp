@@ -44,6 +44,7 @@ class DestinationService {
       message: 'Get destination by id successfully',
       data: {
         ...dest.toObject(),
+        createdBy: (await User.findById(dest.createdBy).lean()).email,
         images: await this.getImagesByDestinationId(dest._id),
       },
     };
@@ -91,7 +92,7 @@ class DestinationService {
     id: mongoose.Types.ObjectId,
     accepted: boolean,
   ) => {
-    const dest = await Destination.findById(id, {__v:0});
+    const dest = await Destination.findById(id, {__v: 0});
     if (accepted) dest.status = statusDestinationConstant.ACCEPTED;
     else dest.status = statusDestinationConstant.REJECTED;
   };
@@ -150,10 +151,24 @@ class DestinationService {
     const promises = (
       await Destination.find(
         {status: statusDestinationConstant.ACCEPTED},
-        {createdAt: 0, updatedAt: 0, __v: 0},
+        {updatedAt: 0, __v: 0},
       )
     ).map(async d => ({
       ...d.toObject(),
+      images: await this.getImagesByDestinationId(d._id),
+    }));
+    return await Promise.all(promises);
+  };
+
+  getWaitingDestination = async () => {
+    const promises = (
+      await Destination.find(
+        {status: statusDestinationConstant.WAITING},
+        {updatedAt: 0, __v: 0},
+      )
+    ).map(async d => ({
+      ...d.toObject(),
+      createdBy: (await User.findById(d.createdBy).lean()).email,
       images: await this.getImagesByDestinationId(d._id),
     }));
     return await Promise.all(promises);

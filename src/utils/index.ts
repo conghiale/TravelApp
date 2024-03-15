@@ -54,3 +54,24 @@ export const defaultDialog: DialogHandleEvent = {
   message: '',
   handleOk: () => {},
 };
+
+export const parseTimestamp = (timestamp: string) => {
+  const parsedDate = new Date(timestamp);
+  console.log(parsedDate)
+
+  const day = parsedDate.getDate();
+  const month = parsedDate.getMonth() + 1;
+  const year = parsedDate.getFullYear();
+
+  const hours = parsedDate.getHours();
+  const minutes = parsedDate.getMinutes();
+  const seconds = parsedDate.getSeconds();
+
+  const paddedDay = day < 10 ? "0" + day : day;
+  const paddedMonth = month < 10 ? "0" + month : month;
+  const paddedHours = hours < 10 ? "0" + hours : hours;
+  const paddedMinutes = minutes < 10 ? "0" + minutes : minutes;
+  const paddedSeconds = seconds < 10 ? "0" + seconds : seconds;
+
+  return `${paddedDay}/${paddedMonth}/${year} ${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+}

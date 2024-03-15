@@ -210,7 +210,6 @@ const ReviewUserScreen = () => {
             <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
               {bilingual.REVIEW_USER.SELECT_TYPES}
             </Text>
-
             <View style={styles.bodyModal}>
               {typesModal?.map(type => (
                 <TouchableOpacity

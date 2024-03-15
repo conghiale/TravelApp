@@ -10,7 +10,6 @@ const styles = StyleSheet.create({
     },
     place: {
         width: '100%',
-        height: 65,
         marginVertical: 8,
         borderRadius: 10,
         paddingHorizontal: 8,

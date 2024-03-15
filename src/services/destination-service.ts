@@ -35,6 +35,6 @@ export const getNearDestination = (latitude: number, longitude: number) => {
   return axiosInstance.get(`/dest/nearest/${latitude}/${longitude}`);
 };
 
-export const getRecommendDestination = () => {
-  return axiosInstance.get(`/dest/recommend`);
+export const getWaitingDestination = () => {
+  return axiosInstance.get(`/dest/waiting`);
 };

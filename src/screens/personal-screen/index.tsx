@@ -525,9 +525,9 @@ const PersonalScreen = () => {
                   {bilingual.PERSONAL.SET_HOBBY}
                 </Text>
               </TouchableOpacity>
-              {types?.map(type =>
+              {types?.map((type, index) =>
                 type.isChoose ? (
-                  <View key={type.dest.id} style={styles.UpdateTypes}>
+                  <View key={index} style={styles.UpdateTypes}>
                     <TouchableOpacity
                       activeOpacity={0.85}
                       style={styles.iconAdd}

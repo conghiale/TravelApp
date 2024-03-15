@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react"
 import Place from "@/components/place/Place"
 import Pagination from "@/components/Pagination"
 
-const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data, onRefresh }) => {
+const FlatListPlaceVertical: React.FC<ListPlacePropsOutstanding> = ({ data, onRefresh }) => {
     return (
         <>
             <FlatList

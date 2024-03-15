@@ -89,14 +89,25 @@ interface PlaceProps {
   images: string[];
   typesString?: string;
   types: string[];
+  createdAt?: string;
 }
 
 interface PaginationProps {
+  data: string[];
+  scrollX: any;
+}
+
+interface PaginationPropsOutstanding {
   data: IPlace[];
   scrollX: any;
 }
 
 interface ListPlaceProps {
+  data: string[];
+  onRefresh?: () => void;
+}
+
+interface ListPlacePropsOutstanding {
   data: IPlace[];
   onRefresh?: () => void;
 }
@@ -278,7 +289,9 @@ interface LoginHistoryItemProps {
 interface ApprovalListItemProps {
   id: string;
   index: number;
-  destination: string;
+  nameVi: string;
+  nameEn: string;
+  createdAt: string;
   handlePress: (id: string) => void;
 }
 
@@ -351,6 +364,8 @@ type ApiReturnDestination = {
   types: string[];
   images: string[];
   destination?: number;
+  createdAt?: string;
+  createdBy?: string;
 };
 
 type ApiReturnDestType = {

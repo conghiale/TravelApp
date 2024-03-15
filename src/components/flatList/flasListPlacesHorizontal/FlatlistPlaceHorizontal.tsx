@@ -5,7 +5,7 @@ import Place from "@/components/place/Place"
 import Pagination from "@/components/Pagination"
 import styles from "@/components/search/search.style"
 
-const FlatlistHorizontal: React.FC<ListPlaceProps> = ({ data }) => {
+const FlatlistHorizontal: React.FC<ListPlacePropsOutstanding> = ({ data }) => {
     const scrollX = useRef(new Animated.Value(0)).current
 
     const handelOnScroll = (event: any) => {

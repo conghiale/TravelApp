@@ -377,6 +377,18 @@ class DestinationController {
       });
     }
   };
+
+  getWaitingDestination = async (req: Request, res: Response) => {
+    try {
+      const data = await this.destService.getWaitingDestination();
+      return res.send({
+        message: 'Get all waiting destination successfully',
+        data,
+      })
+    } catch(error) {
+      return res.status(500).send({message: 'Internal error in getWaitingDestination'})
+    }
+  }
 }
 
 export default DestinationController;

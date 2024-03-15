@@ -262,9 +262,9 @@ const OutstandingPlacesScreen = () => {
                 {bilingual.OUTSTANDING.FILTER_BTN}
               </Text>
             </TouchableOpacity>
-            {types?.map(type =>
+            {types?.map((type, index) =>
               type.isChoose ? (
-                <View key={type.dest.id} style={styles.filter}>
+                <View key={index} style={styles.filter}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconAdd}
@@ -305,7 +305,7 @@ const OutstandingPlacesScreen = () => {
               title={bilingual.OUTSTANDING.NEAREST_PLACE}
             />
           </View>
-          <FlatlistHorizontal data={nearPlaces} />
+          <FlatlistHorizontal data={nearPlaces}/>
 
           {/* Places */}
           <View style={styles.title_container}>

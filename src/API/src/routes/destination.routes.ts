@@ -14,6 +14,7 @@ destinationRoutes
   .get(destController.getNearestPlaces);
 destinationRoutes.route('/get-all').get(destController.getAllPlacesOnMap);
 destinationRoutes.route('/top').get(destController.getTopPlaces);
+destinationRoutes.route('/waiting').get(destController.getWaitingDestination);
 
 destinationRoutes.route('/uploads').post(destController.uploadMulti);
 destinationRoutes.route('/get/:id').get(destController.getDestinationById);
