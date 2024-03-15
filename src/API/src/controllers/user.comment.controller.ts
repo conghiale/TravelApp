@@ -40,7 +40,7 @@ class UserCommentController {
       const cmts = await UserComment.find({
         destinationId: destinationId,
         isDeleted: false,
-      }).sort({updatedAt: -1});
+      }, {__v: 0}).sort({updatedAt: -1});
 
       if (cmts && cmts.length > 0) {
         return res.send({
@@ -65,7 +65,7 @@ class UserCommentController {
     try {
       const {id}: IUserComment = req.body;
       const cmtId = new mongoose.Types.ObjectId(id);
-      const cmt = await UserComment.findById(cmtId);
+      const cmt = await UserComment.findById(cmtId, {__v: 0});
       cmt.isDeleted = true;
       cmt.save();
     } catch (error) {

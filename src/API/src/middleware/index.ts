@@ -17,7 +17,7 @@ export const authenticationMiddleware = async(req: AuthRequest, res: Response, n
 
         const token = authorization
         const { _id } = jwt.verify(token, "express")
-        const existingUser = await User.findOne({ _id })
+        const existingUser = await User.findOne({ _id }, {__v: 0})
         if(existingUser) {
             req.user = existingUser.id
         }

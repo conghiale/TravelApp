@@ -86,9 +86,12 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
                         <Animated.View style={[rStyle]}>
                             <Place
                                 id={placeItem.id}
-                                destination_VI={placeItem.destination_VI}
-                                content_VI={placeItem.content_VI}
-                                star={placeItem.star}
+                                name={placeItem.name}
+                                description={placeItem.description}
+                                vote={placeItem.vote}
+                                types={placeItem.types}
+                                images={placeItem.images}
+                                status={placeItem.status}
                                 longitude={placeItem.longitude}
                                 latitude={placeItem.latitude} />
                         </Animated.View>

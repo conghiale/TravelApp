@@ -14,9 +14,11 @@ const FlatListPlaceVertical: React.FC<ListPlaceProps> = ({ data, onRefresh }) =>
                     <View style={{ margin: 8 }}>
                         <Place
                             id={item.id}
-                            destination_VI={item.destination_VI}
-                            content_VI={item.content_VI}
-                            star={item.star}
+                            types={item.types}
+                            images={item.images}
+                            description={item.description}
+                            name={item.name}
+                            vote={item.vote}
                             longitude={item.longitude}
                             latitude={item.latitude} />
                     </View>

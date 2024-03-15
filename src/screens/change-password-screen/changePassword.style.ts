@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: theme.colors.blue1,
+        paddingVertical: 20,
     },
     containerArrowLeft: {
         width: '100%',
@@ -34,6 +35,11 @@ const styles = StyleSheet.create({
     },
     customInput: {
         // ma
+    },
+    inputError: {
+        color: theme.colors.red,
+        fontFamily: font.regular,
+        fontSize: 16,
     }
 })
 

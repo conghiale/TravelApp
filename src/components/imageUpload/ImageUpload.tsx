@@ -24,7 +24,7 @@ const ImageUpload = ({image, onHandleShowTakeImage} : ImageUpload) => {
             onPress={() => onHandleShowTakeImage()}
         >
             <View style={styles.containerCamera}>
-                <Icons name={'add'} width={20} height={20} />
+                <Icons name={'edit'} width={18} height={20} />
                 {/* <Icons name={image === '' ? 'add' : 'cancel'} width={20} height={20} /> */}
             </View>
         </TouchableOpacity>

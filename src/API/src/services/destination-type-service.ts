@@ -3,7 +3,7 @@ import DestinationType from "../models/destination-type-model";
 
 class DestinationTypeService {
   getAllDestinationType = async () => {
-    return await DestinationType.find({});
+    return await DestinationType.find({}, {__v: 0, createdAt: 0, updatedAt: 0});
   };
 
   createDestinationType = async (labelVi: string, labelEn: string) => {
@@ -14,7 +14,7 @@ class DestinationTypeService {
   };
 
   updateDestinationTypeById = async (id: mongoose.Types.ObjectId, labelVi: string, labelEn: string) => {
-    const dType = await DestinationType.findById(id);
+    const dType = await DestinationType.findById(id, {__v: 0});
     if (!dType) {
       return {
         success: false,
@@ -34,7 +34,7 @@ class DestinationTypeService {
   };
 
   deleteDestinationTypeById = async (id: mongoose.Types.ObjectId) => {
-    await DestinationType.findByIdAndDelete(id);
+    await DestinationType.findByIdAndDelete(id, {__v: 0});
   };
 }
 

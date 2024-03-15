@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     },
     inputDestination: {
         flex: 1,
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         fontFamily: font.regular
     },
     destinationDescription: {
@@ -107,10 +107,11 @@ const styles = StyleSheet.create({
         width: '100%',
         flexWrap: 'wrap',
         flexDirection: 'row',
-        alignItems: 'center',
+        // alignItems: 'center',
         rowGap: 16,
         marginTop: 16,
-        justifyContent: 'space-around',
+        justifyContent: 'center',
+        gap: 12,
     },
     footerModal: {
         flexDirection: 'row',

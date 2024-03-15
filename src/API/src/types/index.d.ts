@@ -9,6 +9,7 @@ export interface IUser {
   lock: boolean
   avatar: string
   codeValidation: string
+  typesString: string
 }
 
 export interface IDestination {
@@ -19,12 +20,12 @@ export interface IDestination {
   descriptionEn: string
   latitude: number
   longitude: number
-  types: string
+  typesString: string
   vote: number
   status: number
   createdBy: string
-  role: string
-  accepted: boolean
+  role?: string
+  accepted?: boolean
 }
 
 export interface IUserLove {
@@ -43,4 +44,7 @@ export interface IUserHobby {}
 
 export interface IDestinationImage {}
 
-export interface IDestinationType {}
+export interface IDestinationType {
+  id: string
+  label: string
+}

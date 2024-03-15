@@ -8,18 +8,18 @@ interface IUser {
 }
 
 interface IUserLogin {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 type IUserLoginErrorProps = {
-  show: boolean,
-  message: string
-}
+  show: boolean;
+  message: string;
+};
 
 interface IUserLoginError {
-  email: IUserLoginErrorProps,
-  password: IUserLoginErrorProps
+  email: IUserLoginErrorProps;
+  password: IUserLoginErrorProps;
 }
 
 interface Dialog {
@@ -47,43 +47,63 @@ interface IUserError {
 }
 
 interface IAuthenticatedUser {
-  id: string,
-  email: string;
-  name: string;
-  language: string;
-  lock: boolean;
-  role: string;
-  avatar: string;
+  id?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  language?: string;
+  theme?: string;
+  lock?: boolean;
+  role?: string;
+  avatar?: string;
   isFirstTime?: string;
+  latitude?: number;
+  longitude?: number;
+  hobby?: string[];
+}
+
+interface IPlace {
+  id: string;
+  name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  vote: number;
+  types: string[];
+  status?: number;
+  images: string[];
 }
 
 interface PlaceProps {
-  id: String
-  destination_VI: string
-  content_VI: string
-  star: number
-  longitude: number
-  latitude: number
-  destination_EN?: string
-  content_EN?: string
-  status?: number
-  images?: uri[]
-  types?: string[]
+  id?: string;
+  nameVi: string;
+  nameEn: string;
+  descriptionVi: string;
+  descriptionEn: string;
+  longitude: number;
+  latitude: number;
+  createdBy?: string;
+  role?: string;
+  vote: number;
+  status?: number;
+  images: string[];
+  typesString?: string;
+  types: string[];
 }
 
 interface PaginationProps {
-  data: PlaceProps[];
+  data: IPlace[];
   scrollX: any;
 }
 
 interface ListPlaceProps {
-  data: PlaceProps[];
-  onRefresh?: () => void
+  data: IPlace[];
+  onRefresh?: () => void;
 }
 
 interface ListPlaceItemProps {
-  placeItem: PlaceProps;
-  onDismiss?: (placeItem: PlaceProps) => void;
+  placeItem: IPlace;
+  onDismiss?: (placeItem: IPlace) => void;
 }
 
 interface CustomAlertProps {
@@ -95,6 +115,14 @@ interface CustomAlertProps {
   onDimissAlert: (state: boolean) => void;
   onHandlerActionOK?: (star?: number) => void;
   onHandlerActionCANCEL?: () => void;
+}
+
+interface DialogHandleEvent {
+  visible: boolean;
+  type: 'success' | 'error' | 'warning';
+  message: string;
+  handleOk: () => void;
+  handleCancel?: () => void;
 }
 
 interface DialogNotificationProps {
@@ -110,8 +138,8 @@ interface DialogNotificationProps {
 interface DialogChooseImageProps {
   visible: boolean;
   onDimissAlert: (state: boolean) => void;
-  onHandlerActionCamera: ({ type, options1, options2 }: any) => void;
-  onHandlerActionGallery: ({ type, options1, options2 }: any) => void;
+  onHandlerActionCamera: ({type, options1, options2}: any) => void;
+  onHandlerActionGallery: ({type, options1, options2}: any) => void;
   onHandlerActionRemove: () => void;
 }
 
@@ -138,27 +166,26 @@ interface ImagePickerResponse {
 }
 
 interface Person {
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
-  image: string;
+  avatar: string;
   hobby: string[];
-  isEnglish: boolean;
-  isLight: boolean;
 }
 
 interface CardUserProps {
-  id: string
-  image: string
-  gmail: string
-  firstName: string
-  lastName: string
-  hobby: string
-  lock: boolean
+  id: string;
+  avatar: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  lock: boolean;
+  hobby: string[];
+  viewPlaces?: string[];
 }
 
 interface InputChangePassword {
-  notValue: '';
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
@@ -167,8 +194,8 @@ interface InputChangePassword {
 interface SwitchProps {
   label: string;
   isEnabled: boolean;
-  activeText: string
-  inActiveText: string
+  activeText: string;
+  inActiveText: string;
   toggleSwitch?: () => void;
 }
 
@@ -186,6 +213,7 @@ interface CustomInputProps {
     value: string,
   ) => void | null;
   handleInputChange?: (value: string) => void | null;
+  secure?: boolean;
 }
 
 interface BorderButtonProps {
@@ -213,7 +241,7 @@ interface ProfileUserProps {
   email: string;
   firstName: string;
   LastName: string;
-  hobby: string;
+  hobby: string[];
   lock?: boolean;
   handleButtonLock: () => void;
   handleButtonReview: () => void;
@@ -222,6 +250,7 @@ interface ProfileUserProps {
 interface InputSearchProps {
   value: string;
   handleChangeValueSearch: (value) => void;
+  placeholderLabel?: string;
 }
 
 interface CustomInputInfoUserProps {
@@ -233,7 +262,7 @@ interface CustomInputInfoUserProps {
 }
 
 interface InfoProps {
-  email: string
+  email: string;
   firstName: string;
   lastName: string;
   hobby: string;
@@ -262,12 +291,8 @@ interface CommentProps {
 }
 
 interface TypesProps {
-  id: string,
-  typeName: string,
-}
-interface TypesFilterProps {
-  type: TypesProps,
-  isChoose: boolean,
+  id: string;
+  typeName: string;
 }
 
 interface Action {
@@ -283,41 +308,76 @@ type IconProps = {
   color?: string;
 };
 
-type IconName =
-  | 'home'
-  | 'places'
-  | 'loved'
-  | 'personal'
-  | 'in'
-  | 'eye'
-  | 'uneye'
-  | 'search'
-  | 'topPlace'
-  | 'star'
-  | 'star01'
-  | 'star02'
-  | 'nearestPlace'
-  | 'createDestination'
-  | 'list'
-  | 'add'
-  | 'dropdown'
-  | 'newest'
-  | 'person'
-  | 'setting'
-  | 'cancel'
-  | 'userList'
-  | 'lock'
-  | 'unLock'
-  | 'back'
-  | 'edit'
-  | 'sub'
-  | 'gmail'
-  | 'circleReset'
-  | 'email'
-  | 'password'
-  | 'arrowLeft'
-  | 'advanced'
-  | 'send'
-  | 'camera'
-  | 'remove'
-  | 'gallery';
+// create destination screen
+interface UploadImages {
+  id: number;
+  uri: any;
+}
+
+interface FocusInfoUser {
+  nameVi: boolean;
+  nameEn: boolean;
+  descriptionVi: boolean;
+  descriptionEn: boolean;
+  latitude: boolean;
+  longitude: boolean;
+}
+
+interface DialogNotiProps {
+  isShow: boolean;
+  displayMsg: string;
+}
+
+type DestCustom = {
+  id: string;
+  label: string;
+};
+
+interface TypesFilterProps {
+  dest: DestCustom;
+  isChoose: boolean;
+}
+
+type ApiReturnDestination = {
+  _id: string;
+  nameVi: string;
+  nameEn: string;
+  descriptionVi: string;
+  descriptionEn: string;
+  latitude: number;
+  longitude: number;
+  vote: number;
+  status: number;
+  types: string[];
+  images: string[];
+  destination?: number;
+};
+
+type ApiReturnDestType = {
+  _id: string;
+  labelVi: string;
+  labelEn: string;
+};
+
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+interface Position {
+  coords: Coordinates;
+}
+
+interface GeolocationError {
+  code: number;
+  message: string;
+}
+
+interface ApiReturnPerson {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  hobby: [];
+};

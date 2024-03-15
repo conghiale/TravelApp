@@ -59,11 +59,14 @@ const ValidateUserScreen = (props: NativeStackScreenProps<AuthStackParamList, 'V
                 updateUser({
                     id: r.data.data.user.id,
                     email: r.data.data.user.email,
-                    name: r.data.data.user.name,
+                    firstName: r.data.data.user.firstName,
+                    lastName: r.data.data.user.lastName,
                     avatar: r.data.data.user.avatar,
                     language: r.data.data.user.language,
                     lock: r.data.data.user.lock,
                     role: r.data.data.user.role,
+                    hobby: r.data.data.user.hobby,
+                    isFirstTime: r.data.data.user.isFirstTime,
                 });
             })
             .catch((e) => {

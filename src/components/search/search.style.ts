@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#D9D9D9',
         borderRadius: 12,
-        paddingHorizontal: 8,
+        paddingHorizontal: 20,
         fontFamily: font.semiBold,
     },
     btn_search: {

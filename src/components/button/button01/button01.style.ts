@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
     button_label: {
         color: theme.colors.white,
         fontFamily: font.semiBold,
+        fontSize: 18,
     }
 })
 

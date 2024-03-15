@@ -18,10 +18,11 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStackNavigator = () => {
   const {user} = useUserGlobalStore();
+  console.log(user)
   
   return (
     <Stack.Navigator>
-      <Stack.Screen name='HobbySelect' component={HobbySelectScreen} options={{headerShown: false}} />
+      {user?.isFirstTime ? <Stack.Screen name='HobbySelect' component={HobbySelectScreen} options={{headerShown: false}} /> : <></>}
       <Stack.Screen name='Root' component={Tabs} options={{headerShown: false}}/>
       <Stack.Screen name='DetailPlace' component={DetailPlaceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='DetailRequestPlace' component={DetailRequestPlaceScreen} options={{headerShown: false}}/>

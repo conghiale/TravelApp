@@ -1,524 +1,747 @@
-import { View, Text, SafeAreaView, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Keyboard, Modal } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import SafeAreaWrapper from '@/components/shared/safe-area-wrapper'
-import Icons from '@/components/shared/icon'
-import styles from './createScreen.style'
-import theme from '@/utils/theme'
-import { AppScreenNavigationType } from '@/navigation/types'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import ImageUpload from '@/components/imageUpload/ImageUpload'
-import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage'
-import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
-import * as ImagePicker from 'react-native-image-picker'
-import Button01 from '@/components/button/button01/Button01'
-import { DestTypes, Places } from '@/assets/data'
-import GroupSettings from '@/components/group_settings'
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Keyboard,
+  Modal,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
+import Icons from '@/components/shared/icon';
+import styles from './createScreen.style';
+import theme from '@/utils/theme';
+import {AppScreenNavigationType} from '@/navigation/types';
+import {useNavigation} from '@react-navigation/native';
+import ImageUpload from '@/components/imageUpload/ImageUpload';
+import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
+import * as ImagePicker from 'react-native-image-picker';
+import Button01 from '@/components/button/button01/Button01';
+import useUserGlobalStore from '@/store/useUserGlobalStore';
+import {labelVi, labelEn} from '@/utils/label';
+import {
+  createDestination,
+  getDestinationTypes,
+} from '@/services/destination-service';
+import {defaultDialog, getRandomIntInclusive, randomNumberString} from '@/utils';
+import Dialog from '@/components/dialog-handle-event';
+import Spinner from 'react-native-loading-spinner-overlay';
 
-const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 500
-
-interface UploadImages {
-    id: number
-    uri: any
-}
-
-interface FocusInfoUser {
-    name_VI: boolean
-    name_EN: boolean
-    content_VI: boolean
-    content_EN: boolean
-    latitude: boolean
-    longitude: boolean
-}
+type ApiReturnType = {
+  _id: string;
+  labelVi: string;
+  labelEn: string;
+};
 
 const CreatePlaceScreen = () => {
-    const navigation = useNavigation<AppScreenNavigationType<"Root">>()
+  const {user} = useUserGlobalStore();
+  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const [loading, setLoading] = useState<boolean>(true);
+  const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
-    const [newPlace, setNewPlace] = useState<PlaceProps>({
-        id: '-1',
-        destination_VI: '',
-        content_VI: '',
-        destination_EN: '',
-        content_EN: '',
-        star: -1,
-        longitude: 0,
-        latitude: 0,
-        status: -1,
-        types: [],
-        images: [],
-    })
+  const navigation = useNavigation<AppScreenNavigationType<'Root'>>();
+  const navigateToCreatedPlacesScreen = () => {
+    navigation.navigate('CreatedPlaces');
+  };
 
-    const navigateToCreatedPlacesScreen = () => {
-        navigation.navigate("CreatedPlaces")
+  const [newPlace, setNewPlace] = useState<PlaceProps>({
+    nameVi: '',
+    nameEn: '',
+    descriptionVi: '',
+    descriptionEn: '',
+    longitude: 0,
+    latitude: 0,
+    types: [],
+    images: [],
+    vote: 0,
+  });
+
+  const [types, setTypes] = useState<TypesFilterProps[]>([]);
+  const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]); //render afterward
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [showTakeImage, setShowTakeImage] = useState(false);
+  const [idImage, setIdImage] = useState(-1);
+  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
+  const [onFocus, setOnFoCus] = useState<FocusInfoUser>({
+    nameVi: false,
+    nameEn: false,
+    descriptionVi: false,
+    descriptionEn: false,
+    latitude: false,
+    longitude: false,
+  });
+
+  const [imageUploads, setImageUploads] = useState<UploadImages[]>([]);
+
+  //dataAPI
+  useEffect(() => {
+    getDestinationTypes()
+      .then(r => {
+        const dataChosen: TypesFilterProps[] = r.data.data.map(
+          (d: ApiReturnType) => ({
+            dest: {
+              id: d._id,
+              label: user?.language === 'VI' ? d.labelVi : d.labelEn,
+            },
+            isChoose: false,
+          }),
+        );
+        setTypes(dataChosen);
+      })
+      .catch(e => {
+        console.log(e);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // keyboard
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  const uploadImage = async ({type, options1, options2}: any) => {
+    if (type === 'capture') {
+      await ImagePicker.launchCamera(options1, response => {
+        if (response.didCancel) {
+          setDialog({
+            type: 'warning',
+            visible: true,
+            message: bilingual.CREATE_EDIT_DEST.CAMERA_CANCELED,
+            handleOk: () => setDialog(defaultDialog),
+          });
+        } else if (response.errorCode) {
+          setDialog({
+            type: 'error',
+            visible: true,
+            message: response.errorMessage
+              ? response.errorMessage
+              : bilingual.CREATE_EDIT_DEST.CAMERA_ERROR,
+            handleOk: () => setDialog(defaultDialog),
+          });
+        } else {
+          let imageUri = response.assets?.[0]?.uri;
+          setImageUploads(prevUploads => [
+            ...prevUploads,
+            {id: getRandomIntInclusive(5, 100), uri: imageUri},
+          ]);
+          // sendBackend
+        }
+      });
+    } else {
+      if (idImage !== -1) {
+        await ImagePicker.launchImageLibrary(options1, response => {
+          if (response.didCancel) {
+            setDialog({
+              message: bilingual.CREATE_EDIT_DEST.PICKER_CANCELED,
+              visible: true,
+              type: 'warning',
+              handleOk: () => setDialog(defaultDialog),
+            });
+          } else if (response.errorCode) {
+            setDialog({
+              message: response.errorMessage
+                ? response.errorMessage
+                : bilingual.CREATE_EDIT_DEST.PICKER_ERROR,
+              visible: true,
+              type: 'error',
+              handleOk: () => setDialog(defaultDialog),
+            });
+          } else {
+            let imageUri = response.assets?.[0]?.uri;
+            setImageUploads(prevUploads =>
+              prevUploads.map(upload =>
+                upload.id === idImage ? {...upload, uri: imageUri} : upload,
+              ),
+            );
+            // sendBackend
+          }
+        });
+      } else {
+        await ImagePicker.launchImageLibrary(options2, response => {
+          if (response.didCancel) {
+            setDialog({
+              visible: true,
+              type: 'warning',
+              message: bilingual.CREATE_EDIT_DEST.PICKER_CANCELED,
+              handleOk: () => setDialog(defaultDialog),
+            });
+          } else if (response.errorCode) {
+            setDialog({
+              visible: true,
+              type: 'error',
+              message: response.errorMessage
+                ? response.errorMessage
+                : bilingual.CREATE_EDIT_DEST.PICKER_ERROR,
+              handleOk: () => setDialog(defaultDialog),
+            });
+          } else {
+            response.assets?.map(asset => {
+              setImageUploads(prevUploads => [
+                ...prevUploads,
+                {id: getRandomIntInclusive(5, 20), uri: asset.uri},
+              ]);
+            });
+            // sendBackend
+          }
+        });
+      }
     }
+  };
 
-    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const [showTakeImage, setShowTakeImage] = useState(false)
-    const [dialogNotification, setDialogNotification] = useState<{ displayMsg: string, isShow: boolean }>({ displayMsg: '', isShow: false })
-    const [idImage, setIdImage] = useState(-1)
-    const [types, setTypes] = useState<TypesFilterProps[]>()
-    const [typesChoose, setTypesChoose] = useState<TypesFilterProps[]>()
-    const [isShowDialogFilter, setShowDialogFilter] = useState(false)
+  const handleActionRemove = () => {
+    setImageUploads(prevUploads =>
+      prevUploads.filter(upload => upload.id !== idImage),
+    );
+  };
 
-    const [onFocus, setOnFoCus] = useState<FocusInfoUser>({
-        name_VI: false,
-        name_EN: false,
-        content_VI: false,
-        content_EN: false,
-        latitude: false,
-        longitude: false
-    })
+  const onHandlerChangeInputString = (
+    name: keyof PlaceProps,
+    value: string,
+  ) => {
+    setNewPlace(prevPlace => ({...prevPlace, [name]: value}));
+  };
 
-    const [imageUploads, setImageUploads] = useState<UploadImages[]>([
-        { id: 0, uri: '' },
-        { id: 1, uri: '' },
-        { id: 2, uri: '' },
-        { id: 3, uri: '' },
-        { id: 4, uri: '' },
-    ])
+  const onHandleFocusInput = (name: keyof FocusInfoUser, value: boolean) => {
+    setOnFoCus(prevOnFocus => ({...prevOnFocus, [name]: value}));
+  };
 
-    // keyboard 
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            () => {
-                setKeyboardVisible(true);
-            },
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                setKeyboardVisible(false);
-            },
-        );
-
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
-
-    // Set Type
-    useEffect(() => {
-        let dataTypes: TypesFilterProps[] = []
-        DestTypes.map((destType) => {
-            let choose = false
-            if (newPlace.types && newPlace.types.length > 0) {
-                newPlace.types.forEach((type) => {
-                    if (type === destType.typeName)
-                        choose = true
-                })
-            }
-            dataTypes.push({ type: destType, isChoose: choose })
-        })
-        setTypes(dataTypes)
-        setTypesChoose(dataTypes)
-
-
-    }, [])
-
-    // Set ImageUpload
-    useEffect(() => {
-        setImageUploads([])
-    }, [])
-
-    const getRandomIntInclusive = (min: number, max: number) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+  const handleRequestSubmitCreate = () => {
+    const infoPlaceChange: PlaceProps = {
+      nameVi: newPlace.nameVi,
+      nameEn: newPlace.nameEn,
+      descriptionVi: newPlace.descriptionVi,
+      descriptionEn: newPlace.descriptionEn,
+      latitude: newPlace.latitude,
+      longitude: newPlace.longitude,
+      images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
+      createdBy: user?.id,
+      role: user?.role,
+      typesString: types
+        ?.filter(type => type.isChoose)
+        .map(type => type.dest.id)
+        .join(','),
+      vote: 0,
+      types: []
     };
 
-    const uploadImage = async ({ type, options1, options2 }: any) => {
-        if (type === 'capture') {
-            await ImagePicker.launchCamera(options1, response => {
-                if (response.didCancel) {
-                    setDialogNotification({ displayMsg: 'User cancelled camera', isShow: true })
-                } else if (response.errorCode) {
-                    setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Camera Error', isShow: true })
-                } else {
-                    let imageUri = response.assets?.[0]?.uri;
-                    setImageUploads((prevUploads) =>
-                        [...prevUploads,
-                        { id: getRandomIntInclusive(5, 100), uri: imageUri }
-                        ])
-                    // sendBackend
-                }
-            })
-        } else {
-            if (idImage !== -1) {
-                await ImagePicker.launchImageLibrary(options1, (response) => {
-                    if (response.didCancel) {
-                        setDialogNotification({ displayMsg: 'User cancelled image picker', isShow: true })
-                    } else if (response.errorCode) {
-                        setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Cannot Upload this Image', isShow: true })
-                    } else {
-                        let imageUri = response.assets?.[0]?.uri;
-                        setImageUploads((prevUploads) =>
-                            prevUploads.map((upload) =>
-                                upload.id === idImage ? { ...upload, uri: imageUri } : upload
-                            )
-                        );
-                        // sendBackend
-                    }
-                });
-            } else {
-                await ImagePicker.launchImageLibrary(options2, (response) => {
-                    if (response.didCancel) {
-                        setDialogNotification({ displayMsg: 'User cancelled image picker', isShow: true })
-                    } else if (response.errorCode) {
-                        setDialogNotification({ displayMsg: response.errorMessage ? response.errorMessage : 'Cannot Upload this Image', isShow: true })
-                    } else {
-                        response.assets?.map((asset) => {
-                            setImageUploads((prevUploads) =>
-                                [...prevUploads,
-                                { id: getRandomIntInclusive(5, 20), uri: asset.uri }
-                                ])
-                        })
-                        // sendBackend
-                    }
-                });
-            }
-        }
+    console.log('Create-Screen(228): ');
+    console.log(JSON.stringify(infoPlaceChange));
+
+    //create
+    let invalidMsg = '';
+    newPlace.latitude = parseFloat(newPlace.latitude.toString());
+    newPlace.longitude = parseFloat(newPlace.longitude.toString());
+    console.log(typeof newPlace.latitude);
+    console.log(types);
+    console.log(typesModal);
+
+    if (!newPlace.nameVi) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_DEST_NAME_VI;
+    } else if (!newPlace.nameEn) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_DEST_NAME_EN;
+    } else if (!newPlace.descriptionVi) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_DEST_DESC_VI;
+    } else if (!newPlace.descriptionEn) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_DEST_DESC_EN;
+    } else if (!newPlace.latitude) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_LAT;
+    } else if (typeof newPlace.latitude !== 'number') {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.LAT_NUMBER;
+    } else if (!newPlace.longitude) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_LON;
+    } else if (typeof newPlace.longitude !== 'number') {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.LON_NUMBER;
+    } else if (types.length === 0 || typesModal.length === 0) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_TYPES;
+    } else if (imageUploads.length === 0) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_IMAGE;
     }
 
-    const handleActionRemove = () => {
-        setImageUploads((prevUploads) =>
-            // prevUploads.map((upload) =>
-            //     upload.id === idImage ? { ...upload, uri: '' } : upload
-            // )
-            prevUploads.filter((upload) =>
-                upload.id !== idImage
-            )
-        );
-        // setImage('')
+    if (invalidMsg.length !== 0) {
+      setDialog({
+        visible: true,
+        type: 'error',
+        message: invalidMsg,
+        handleOk: () => setDialog(defaultDialog),
+      });
+    } else {
+      const formData = new FormData();
+      imageUploads.forEach(img => {
+        formData.append('files', {
+          uri: img.uri,
+          type: 'image/jpeg',
+          name: `${Date.now()}${randomNumberString()}.jpg`,
+        });
+      });
+
+      formData.append('nameVi', newPlace.nameVi);
+      formData.append('nameEn', newPlace.nameEn);
+      formData.append('descriptionVi', newPlace.descriptionVi);
+      formData.append('descriptionEn', newPlace.descriptionEn);
+      formData.append('latitude', newPlace.latitude);
+      formData.append('longitude', newPlace.longitude);
+      formData.append(
+        'typesString',
+        types
+          .filter(type => type.isChoose)
+          .map(type => type.dest.id)
+          .join(','),
+      );
+      formData.append('createdBy', user?.id);
+      formData.append('role', user?.role);
+
+      setLoading(true);
+      createDestination(formData)
+        .then(r => {
+          setNewPlace({
+            nameVi: '',
+            nameEn: '',
+            descriptionVi: '',
+            descriptionEn: '',
+            longitude: 0,
+            latitude: 0,
+            images: [],
+            types: [],
+            vote: 0,
+          });
+          setTypes([]);
+          setImageUploads([]);
+          setDialog({
+            visible: true,
+            type: 'success',
+            message: bilingual.CREATE_EDIT_DEST.SUCCESS.CREATE_DEST,
+            handleOk: () => setDialog(defaultDialog),
+          });
+        })
+        .catch(e => {
+          setDialog({
+            visible: true,
+            type: 'error',
+            message: bilingual.CREATE_EDIT_DEST.ERROR.CREATE,
+            handleOk: () => setDialog(defaultDialog),
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
+  };
 
-    const hanleButtonOKDialogError = () => {
-        setDialogNotification({ displayMsg: '', isShow: false });
-    }
+  return (
+    <SafeAreaWrapper>
+      <View style={styles.container}>
+        <Spinner
+          size={'large'}
+          visible={loading}
+          color={theme.colors.orange1}
+          animation={'fade'}
+        />
+        <Dialog
+          isVisible={dialog.visible}
+          message={dialog.message}
+          type={dialog.type}
+          handleOk={dialog.handleOk}
+          handleCancel={() => {
+            console.log('cancel');
+          }}
+        />
 
-    const onHandlerChangeInputString = (name: keyof PlaceProps, value: string) => {
-        setNewPlace(prevPlace => ({ ...prevPlace, [name]: value }))
-    }
+        <DialogChooseImage
+          visible={showTakeImage}
+          onDimissAlert={setShowTakeImage}
+          onHandlerActionCamera={uploadImage}
+          onHandlerActionGallery={uploadImage}
+          onHandlerActionRemove={handleActionRemove}
+        />
 
-    const onHandleFocusInput = (name : keyof FocusInfoUser, value: boolean) => {
-        setOnFoCus(prevOnFocus => ({ ...prevOnFocus, [name]: value}))
-    }
+        {/* Modal dest types */}
+        <Modal
+          visible={isShowDialogFilter}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setShowDialogFilter(false)}>
+          <View style={styles.containerModal}>
+            <View style={styles.containerModalDialog}>
+              <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+                {bilingual.CREATE_EDIT_DEST.SELECT_TYPES}
+              </Text>
 
-    const handleRequestSubmitCreate = () => {
-        const infoPlaceChange: PlaceProps =
-        {
-            id: newPlace.id,
-            destination_VI: newPlace.destination_VI,
-            content_VI: newPlace.content_VI,
-            destination_EN: newPlace.destination_EN,
-            content_EN: newPlace.content_EN,
-            latitude: newPlace.latitude,
-            longitude: newPlace.longitude,
-            star: newPlace.star,
-            images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
-            status: newPlace.status,
-            types: types?.filter(typeItem => typeItem.isChoose)
-                .map(typeItem => typeItem.type.typeName) || []
-        }
+              <View style={styles.bodyModal}>
+                {typesModal.map(type => (
+                  <TouchableOpacity
+                    key={type.dest.id}
+                    activeOpacity={0.5}
+                    style={[
+                      styles.filter,
+                      {
+                        backgroundColor: type.isChoose
+                          ? theme.colors.grey
+                          : theme.colors.blue1,
+                      },
+                    ]}
+                    onPress={() =>
+                      setTypesModal(types =>
+                        types?.map(typeItem =>
+                          typeItem.dest.id === type.dest.id
+                            ? {...typeItem, isChoose: !typeItem.isChoose}
+                            : typeItem,
+                        ),
+                      )
+                    }>
+                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                      {type.dest.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
 
-        console.log('Create-Screen(228): ')
-        console.log(JSON.stringify(infoPlaceChange))
-    }
-
-    return (
-        <SafeAreaWrapper >
-            <View style={styles.container}>
-                <DialogChooseImage
-                    visible={showTakeImage}
-                    onDimissAlert={setShowTakeImage}
-                    onHandlerActionCamera={uploadImage}
-                    onHandlerActionGallery={uploadImage}
-                    onHandlerActionRemove={handleActionRemove}
+              <View style={styles.footerModal}>
+                <Button01
+                  height={60}
+                  label={bilingual.CREATE_EDIT_DEST.CHOOSE}
+                  color={theme.colors.orange}
+                  onPress={() => {
+                    setShowDialogFilter(false);
+                    setTypes(typesModal);
+                  }}
                 />
-                <DialogNotification
-                    status='error'
-                    displayMode='UPLOAD IMAGE ERROR'
-                    displayMsg={dialogNotification.displayMsg}
-                    visible={dialogNotification.isShow}
-                    onDimissAlert={hanleButtonOKDialogError}
-                />
-                <Modal
-                    visible={isShowDialogFilter}
-                    animationType='fade'
-                    transparent={true}
-                    onRequestClose={() => setShowDialogFilter(false)}
-                >
-                    <View style={styles.containerModal}>
-                        <View style={styles.containerModalDialog}>
-                            <Text
-                                style={[theme.textVariants.textXl, styles.textTitleModal
-                                ]}>
-                                Select the type of place you want to search
-                            </Text>
-
-                            <View style={styles.bodyModal}>
-                                {typesChoose?.map(type => (
-                                    <TouchableOpacity
-                                        key={type.type.id}
-                                        activeOpacity={0.5}
-                                        style={[
-                                            styles.filter,
-                                            { backgroundColor: type.isChoose ? theme.colors.grey : theme.colors.blue1 }
-                                        ]}
-                                        onPress={() => setTypesChoose((types) =>
-                                            types?.map(typeSelected => typeSelected.type.id === type.type.id ?
-                                                { ...type, isChoose: !typeSelected.isChoose } : typeSelected)
-                                        )}
-                                    >
-                                        <Text style={[theme.textVariants.textBase, styles.text]}>{type.type.typeName}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-
-                            <View style={styles.footerModal}>
-                                <Button01
-                                    height={60}
-                                    label='Choose'
-                                    color={theme.colors.orange}
-                                    onPress={() => {
-                                        setShowDialogFilter(false)
-                                        setTypes(typesChoose)
-                                    }}
-                                />
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
-                <ScrollView style={{ marginBottom: isKeyboardVisible ? 5 : 135 }} showsVerticalScrollIndicator={false}>
-                    <View style={styles.headerContainer}>
-                        <TouchableOpacity
-                            activeOpacity={0.85}
-                            style={styles.headerItem}
-                            onPress={handleRequestSubmitCreate} >
-                            <Icons name={'createDestination'} color={theme.colors.orange} />
-                            <Text style={styles.headerText}>{'Create destination'}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.headerItem}
-                            onPress={navigateToCreatedPlacesScreen}
-                            activeOpacity={0.85}>
-                            <Icons name='list' />
-                            <Text style={styles.headerText}>List</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View 
-                        style={[
-                            styles.viewInputDestination, 
-                            {
-                                borderWidth: onFocus.name_VI ? 2 : 0,
-                                borderColor: onFocus.name_VI ? '#0be881' : theme.colors.white
-                            }]}>
-                        <Text style={[
-                            theme.textVariants.textBase,
-                            {
-                                color: theme.colors.orange,
-                                marginStart: 8,
-                                marginTop: 4
-                            }]} >
-                            Name (VI)
-                        </Text>
-                        <TextInput
-                            placeholder='Destination name'
-                            onFocus={() => onHandleFocusInput('name_VI', true)}
-                            onBlur={() => onHandleFocusInput('name_VI', false)}
-                            style={[
-                                theme.textVariants.textBase,
-                                styles.inputDestination]}
-                            value={newPlace.destination_VI}
-                            onChangeText={(value) => onHandlerChangeInputString('destination_VI', value)} />
-                    </View>
-
-                    <View style={[
-                        styles.viewInputDestination, 
-                        {
-                            borderWidth: onFocus.name_EN ? 2 : 0,
-                            borderColor: onFocus.name_EN ? '#0be881' : theme.colors.white
-                        }
-                    ]}>
-                        <Text style={[
-                            theme.textVariants.textBase,
-                            {
-                                color: theme.colors.orange,
-                                marginStart: 8,
-                                marginTop: 4
-                            }]} >
-                            Name (EN)
-                        </Text>
-                        <TextInput
-                            placeholder='Destination name'
-                            onFocus={() => onHandleFocusInput('name_EN', true)}
-                            onBlur={() => onHandleFocusInput('name_EN', false)}
-                            style={[
-                                theme.textVariants.textBase,
-                                styles.inputDestination]}
-                            value={newPlace.destination_EN}
-                            onChangeText={(value) => onHandlerChangeInputString('destination_EN', value)} />
-                    </View>
-
-                    <View style={[
-                        styles.destinationDescription, 
-                        {
-                            borderWidth: onFocus.content_VI ? 2 : 0,
-                            borderColor: onFocus.content_VI ? '#0be881' : theme.colors.white
-                        }
-                    ]}>
-                        <Text style={[
-                            theme.textVariants.textBase,
-                            {
-                                color: theme.colors.orange,
-                                marginStart: 8,
-                                marginTop: 4
-                            }]} >
-                            Content (VI)
-                        </Text>
-                        <TextInput
-                            style={[theme.textVariants.textBase, styles.inputDestination]}
-                            placeholder='Destination content'
-                            onFocus={() => onHandleFocusInput('content_VI', true)}
-                            onBlur={() => onHandleFocusInput('content_VI', false)}
-                            multiline={true}
-                            numberOfLines={8}
-                            value={newPlace.content_VI}
-                            onChangeText={(value) => onHandlerChangeInputString('content_VI', value)}
-                        />
-                    </View>
-
-                    <View style={[
-                        styles.destinationDescription,
-                        {
-                            borderWidth: onFocus.content_EN ? 2 : 0,
-                            borderColor: onFocus.content_EN ? '#0be881' : theme.colors.white
-                        }
-                    ]}>
-                        <Text style={[
-                            theme.textVariants.textBase,
-                            {
-                                color: theme.colors.orange,
-                                marginStart: 8,
-                                marginTop: 4
-                            }]} >
-                            Content (EN)
-                        </Text>
-                        <TextInput
-                            style={[theme.textVariants.textBase, styles.inputDestination]}
-                            placeholder='Destination content'
-                            onFocus={() => onHandleFocusInput('content_EN', true)}
-                            onBlur={() => onHandleFocusInput('content_EN', false)}
-                            multiline={true}
-                            numberOfLines={8}
-                            value={newPlace.content_EN}
-                            onChangeText={(value) => onHandlerChangeInputString('content_EN', value)}
-                        />
-                    </View>
-
-                    <View style={[
-                        styles.viewInputDestination,
-                        {
-                            borderWidth: onFocus.latitude ? 2 : 0,
-                            borderColor: onFocus.latitude ? '#0be881' : theme.colors.white
-                        }
-                    ]}>
-                        <TextInput
-                            keyboardType='numeric'
-                            placeholder='Latitude'
-                            onFocus={() => onHandleFocusInput('latitude', true)}
-                            onBlur={() => onHandleFocusInput('latitude', false)}
-                            style={[
-                                theme.textVariants.textBase,
-                                styles.inputDestination]}
-                            value={''+newPlace.latitude}
-                            onChangeText={(value) => onHandlerChangeInputString('latitude', value)} />
-                    </View>
-
-                    <View style={[
-                        styles.viewInputDestination,
-                        {
-                            borderWidth: onFocus.longitude ? 2 : 0,
-                            borderColor: onFocus.longitude ? '#0be881' : theme.colors.white
-                        }
-                    ]}>
-                        <TextInput
-                            keyboardType='numeric'
-                            placeholder='Longitude'
-                            onFocus={() => onHandleFocusInput('longitude', true)}
-                            onBlur={() => onHandleFocusInput('longitude', false)}
-                            style={[
-                                theme.textVariants.textBase,
-                                styles.inputDestination]}
-                            value={'' + newPlace.longitude}
-                            onChangeText={(value) => onHandlerChangeInputString('longitude', value)} />
-                    </View>
-
-                    <View style={styles.containerFilter}>
-                        <TouchableOpacity
-                            activeOpacity={0.85}
-                            style={[styles.filter,
-                            {
-                                backgroundColor: theme.colors.orange,
-                                marginStart: 0,
-                                borderWidth: 0,
-                            }
-                            ]}
-                            onPress={() => {
-                                setTypesChoose(types)
-                                setShowDialogFilter(true)
-                            }}
-                        >
-                            <Text style={[theme.textVariants.textBase, styles.text]}>Chooses Types</Text>
-                        </TouchableOpacity>
-                        {types?.map(type => (
-                            type.isChoose ? (
-                                <View key={type.type.id} style={styles.filter}>
-                                    <TouchableOpacity
-                                        activeOpacity={0.85}
-                                        style={styles.iconRemove}
-                                        onPress={() => {
-                                            setTypes((prevType) =>
-                                                prevType?.map(typeSelected => typeSelected.type.id === type.type.id ?
-                                                    { ...type, isChoose: !type.isChoose } : typeSelected)
-                                            )
-                                        }}
-                                    >
-                                        <Icons name='cancel' />
-                                    </TouchableOpacity>
-                                    <Text style={[theme.textVariants.textBase, styles.text]}>{type.type.typeName}</Text>
-                                </View>) : null
-                        ))}
-                    </View>
-
-                    <View style={[
-                        styles.containerFooter,
-                        { flexWrap: 'wrap', rowGap: 10, columnGap: 30 }
-                    ]}>
-                        <TouchableOpacity
-                            activeOpacity={0.85}
-                            style={styles.btnAdd}
-                            onPress={() => {
-                                setIdImage(-1)
-                                setShowTakeImage(true)
-                            }}>
-                            <Icons name='add' />
-                        </TouchableOpacity>
-                        {imageUploads.length > 0 ? imageUploads?.map((imageUpload, index) => (
-                            <View key={imageUpload.id} style={{ width: 100, height: 100 }}>
-                                <ImageUpload
-                                    image={imageUpload.uri}
-                                    onHandleShowTakeImage={() => {
-                                        setIdImage(imageUpload.id)
-                                        setShowTakeImage(true)
-                                    }}
-                                />
-                            </View>
-                        )) : null}
-                    </View>
-                </ScrollView>
+              </View>
             </View>
-        </SafeAreaWrapper>
-    )
-}
+          </View>
+        </Modal>
+        {/* End modal dest types */}
 
-export default CreatePlaceScreen
+        <ScrollView
+          style={{marginBottom: isKeyboardVisible ? 5 : 135}}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.headerItem}
+              onPress={handleRequestSubmitCreate}>
+              <Icons name={'createDestination'} color={theme.colors.orange} />
+              <Text style={styles.headerText}>
+                {bilingual.CREATE_EDIT_DEST.CREATE}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerItem}
+              onPress={navigateToCreatedPlacesScreen}
+              activeOpacity={0.85}>
+              <Icons name="list" />
+              <Text style={styles.headerText}>
+                {bilingual.CREATE_EDIT_DEST.LIST}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={[
+              styles.viewInputDestination,
+              {
+                borderWidth: onFocus.nameVi ? 2 : 0,
+                borderColor: onFocus.nameVi ? '#0be881' : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.NAME_VI}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              placeholder={bilingual.CREATE_EDIT_DEST.NAME_VI}
+              onFocus={() => onHandleFocusInput('nameVi', true)}
+              onBlur={() => onHandleFocusInput('nameVi', false)}
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              value={newPlace.nameVi}
+              onChangeText={value =>
+                onHandlerChangeInputString('nameVi', value)
+              }
+            />
+          </View>
+
+          <View
+            style={[
+              styles.viewInputDestination,
+              {
+                borderWidth: onFocus.nameEn ? 2 : 0,
+                borderColor: onFocus.nameEn ? '#0be881' : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.NAME_EN}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              placeholder={bilingual.CREATE_EDIT_DEST.NAME_EN}
+              onFocus={() => onHandleFocusInput('nameEn', true)}
+              onBlur={() => onHandleFocusInput('nameEn', false)}
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              value={newPlace.nameEn}
+              onChangeText={value =>
+                onHandlerChangeInputString('nameEn', value)
+              }
+            />
+          </View>
+
+          <View
+            style={[
+              styles.destinationDescription,
+              {
+                borderWidth: onFocus.descriptionVi ? 2 : 0,
+                borderColor: onFocus.descriptionVi
+                  ? '#0be881'
+                  : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.DESC_VI}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              placeholder={bilingual.CREATE_EDIT_DEST.DESC_VI}
+              onFocus={() => onHandleFocusInput('descriptionVi', true)}
+              onBlur={() => onHandleFocusInput('descriptionVi', false)}
+              multiline={true}
+              numberOfLines={8}
+              value={newPlace.descriptionVi}
+              onChangeText={value =>
+                onHandlerChangeInputString('descriptionVi', value)
+              }
+            />
+          </View>
+
+          <View
+            style={[
+              styles.destinationDescription,
+              {
+                borderWidth: onFocus.descriptionEn ? 2 : 0,
+                borderColor: onFocus.descriptionEn
+                  ? '#0be881'
+                  : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.DESC_EN}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              placeholder={bilingual.CREATE_EDIT_DEST.DESC_EN}
+              onFocus={() => onHandleFocusInput('descriptionEn', true)}
+              onBlur={() => onHandleFocusInput('descriptionEn', false)}
+              multiline={true}
+              numberOfLines={8}
+              value={newPlace.descriptionEn}
+              onChangeText={value =>
+                onHandlerChangeInputString('descriptionEn', value)
+              }
+            />
+          </View>
+
+          <View
+            style={[
+              styles.viewInputDestination,
+              {
+                borderWidth: onFocus.latitude ? 2 : 0,
+                borderColor: onFocus.latitude ? '#0be881' : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.LAT}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              placeholder={bilingual.CREATE_EDIT_DEST.LAT}
+              onFocus={() => onHandleFocusInput('latitude', true)}
+              onBlur={() => onHandleFocusInput('latitude', false)}
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              value={
+                newPlace.latitude === 0 ? '' : newPlace.latitude.toString()
+              }
+              onChangeText={value =>
+                onHandlerChangeInputString('latitude', value)
+              }
+            />
+          </View>
+
+          <View
+            style={[
+              styles.viewInputDestination,
+              {
+                borderWidth: onFocus.longitude ? 2 : 0,
+                borderColor: onFocus.longitude ? '#0be881' : theme.colors.white,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textBase,
+                {
+                  color: theme.colors.orange,
+                  marginStart: 8,
+                  marginTop: 4,
+                  paddingHorizontal: 4,
+                },
+              ]}>
+              {bilingual.CREATE_EDIT_DEST.LON}
+            </Text>
+            <TextInput
+              keyboardType="default"
+              placeholder={bilingual.CREATE_EDIT_DEST.LON}
+              onFocus={() => onHandleFocusInput('longitude', true)}
+              onBlur={() => onHandleFocusInput('longitude', false)}
+              style={[theme.textVariants.textBase, styles.inputDestination]}
+              value={
+                newPlace.longitude === 0 ? '' : newPlace.longitude.toString()
+              }
+              onChangeText={value =>
+                onHandlerChangeInputString('longitude', value)
+              }
+            />
+          </View>
+
+          <View style={styles.containerFilter}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={[
+                styles.filter,
+                {
+                  backgroundColor: theme.colors.orange,
+                  marginStart: 0,
+                  borderWidth: 0,
+                },
+              ]}
+              onPress={() => {
+                setShowDialogFilter(true);
+                // setTypeChosen(typesChosenRef);
+                setTypesModal(types);
+              }}>
+              <Text style={[theme.textVariants.textBase, styles.text]}>
+                {bilingual.CREATE_EDIT_DEST.CHOOSE_TYPES}
+              </Text>
+            </TouchableOpacity>
+            {types.map(type =>
+              type.isChoose ? (
+                <View key={type.dest.id} style={styles.filter}>
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    style={styles.iconRemove}
+                    onPress={() => {
+                      setTypes(prevType =>
+                        prevType?.map(typeItem =>
+                          typeItem.dest.id === type.dest.id
+                            ? {...type, isChoose: !type.isChoose}
+                            : typeItem,
+                        ),
+                      );
+                    }}>
+                    <Icons name="cancel" />
+                  </TouchableOpacity>
+                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                    {type.dest.label}
+                  </Text>
+                </View>
+              ) : null,
+            )}
+          </View>
+
+          <View
+            style={[
+              styles.containerFooter,
+              {flexWrap: 'wrap', rowGap: 10, columnGap: 30},
+            ]}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.btnAdd}
+              onPress={() => {
+                setIdImage(-1);
+                setShowTakeImage(true);
+              }}>
+              <Icons name="add" />
+            </TouchableOpacity>
+            {imageUploads.length > 0
+              ? imageUploads?.map((imageUpload, index) => (
+                  <View key={imageUpload.id} style={{width: 100, height: 100}}>
+                    <ImageUpload
+                      image={imageUpload.uri}
+                      onHandleShowTakeImage={() => {
+                        setIdImage(imageUpload.id);
+                        setShowTakeImage(true);
+                      }}
+                    />
+                  </View>
+                ))
+              : null}
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaWrapper>
+  );
+};
+
+export default CreatePlaceScreen;

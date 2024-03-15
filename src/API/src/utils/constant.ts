@@ -15,5 +15,10 @@ export const statusDestinationConstant = {
 }
 
 export const avatarConstant = {
-    DEFAULT: "avatar/anonymous.webp",
+    DEFAULT: "anonymous.webp",
+}
+
+export const orderConstant = {
+    ASCENDING: "asc",
+    DESCENDING: "desc",
 }

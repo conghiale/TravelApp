@@ -6,6 +6,7 @@ import destinationRoutes from "./routes/destination.routes"
 import userCommentRoutes from "./routes/user.comment.routes"
 import cors from 'cors'
 import destinationTypeRoutes from "./routes/destination.type.routes"
+import userLoveRoutes from "./routes/user.love.routes"
 
 const app = express()
 const PORT = 1702
@@ -23,6 +24,7 @@ app.use("/user", userRoutes)
 app.use("/dest", destinationRoutes)
 app.use("/comment", userCommentRoutes)
 app.use("/dtype", destinationTypeRoutes)
+app.use("/love", userLoveRoutes)
 
 tryConnectDB().then(() => {
     console.log("- Connect DB successfully")

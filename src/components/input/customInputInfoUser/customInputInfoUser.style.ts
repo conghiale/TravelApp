@@ -1,3 +1,4 @@
+import { font } from "@/utils/font";
 import theme from "@/utils/theme";
 import { StyleSheet } from "react-native";
 
@@ -28,6 +29,9 @@ const styles = StyleSheet.create({
     },
     textInput: {
         width: '100%',
+        fontFamily: font.regular,
+        fontSize: 18,
+        paddingStart: 12,
     }
 })
 

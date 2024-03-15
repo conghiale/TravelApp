@@ -36,10 +36,12 @@ const FlatlistHorizontal: React.FC<ListPlaceProps> = ({ data }) => {
                 renderItem={({ item }) => (
                     <View style={{ marginHorizontal: 8, paddingBottom: 8 }}>
                         <Place
-                            id={item.id}
-                            destination_VI={item.destination_VI}
-                            content_VI={item.content_VI}
-                            star={item.star}
+                            images={item.images}
+                            types={item.types}
+                            id={item.id ? item.id : ''}
+                            name={item.name}
+                            description={item.description}
+                            vote={item.vote}
                             longitude={item.longitude}
                             latitude={item.latitude} />
                     </View>

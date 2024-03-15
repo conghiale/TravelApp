@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: theme.colors.orange,
-        fontSize: 16,
+        fontSize: 20,
         fontFamily: font.semiBold,
         marginStart: 8,
     },

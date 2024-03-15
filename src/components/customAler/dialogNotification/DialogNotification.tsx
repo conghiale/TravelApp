@@ -1,4 +1,3 @@
-import { font } from '@/utils/font'
 import theme from '@/utils/theme'
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { runOnJS } from 'react-native-reanimated'
@@ -55,14 +54,14 @@ const DialogNotification = ({ status, displayMode, displayMsg, visible, onDimiss
                             {status === 'warning' ? (
                                 <TouchableOpacity
                                     activeOpacity={0.9}
-                                    onPress={handleActionCANCEL}
+                                    onPress={() => handleActionCANCEL()}
                                     style={styles.btnCancel}>
                                     <Text style={styles.btnText}>CANCEL</Text>
                                 </TouchableOpacity>
                             ) : null}
                             <TouchableOpacity
                                 activeOpacity={0.9}
-                                onPress={handleActionOK}
+                                onPress={() => handleActionOK()}
                                 style={[
                                     styles.btnOk, {
                                         backgroundColor: status === 'success' ? '#05c46b' :'#ff3f34'

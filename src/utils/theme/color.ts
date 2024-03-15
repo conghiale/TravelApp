@@ -9,8 +9,10 @@ export const palette = {
     blue: '#386bf6',
     blue1: '#2f3542',
     brown: '#826969',
-    yellow: '#ffd32a',
-    yellow1: '#ffa801'
+    yellow: '#ffa801',
+    yellow1: '#ffd32a',
+    green: '#05c46b',
+    red: '#ff3f34',
 }
 
 export const colors = {
@@ -26,4 +28,6 @@ export const colors = {
     brown: palette.brown,
     yellow: palette.yellow,
     yellow1: palette.yellow1,
+    green: palette.green,
+    red: palette.red,
 }

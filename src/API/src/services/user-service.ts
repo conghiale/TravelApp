@@ -10,6 +10,7 @@ import Validation from '../models/validation-model';
 import {sendMail} from '../utils/mailer';
 import {bcryptHash, bcryptCompare} from '../utils/password';
 import DestinationType from '../models/destination-type-model';
+import {type} from 'os';
 
 class UserService {
   getUserToken = (_id: string | Types.ObjectId) => {
@@ -24,6 +25,7 @@ class UserService {
 
   markUserValidation = async (email: string) => {
     const genCode = this.generateCodeValidation();
+    await Validation.deleteMany({email});
     await Validation.create({
       email: email,
       code: genCode,
@@ -54,7 +56,7 @@ class UserService {
     email: string,
     password: string,
   ) => {
-    const existingUser = await User.find({email});
+    const existingUser = await User.find({email}, {__v: 0});
 
     if (existingUser && existingUser.length !== 0) {
       return {
@@ -85,22 +87,21 @@ class UserService {
         user: {
           id: createdUser._id.toString(),
           email: createdUser.email,
-          name:
-            createdUser.language === 'EN'
-              ? `${createdUser.firstName} ${createdUser.lastName}`
-              : `${createdUser.lastName} ${createdUser.firstName}`,
+          firstName: createdUser.firstName,
+          lastName: createdUser.lastName,
           role: createdUser.role,
           language: createdUser.language,
           lock: createdUser.lock,
           avatar: createdUser.avatar,
           isFirstTime: createdUser.isFirstTime,
+          hobby: createdUser.hobby,
         },
       },
     };
   };
 
   loginUser = async (email: string, password: string) => {
-    const existingUser = await User.findOne({email});
+    const existingUser = await User.findOne({email}, {__v: 0});
 
     if (!existingUser) {
       return {
@@ -124,15 +125,14 @@ class UserService {
           user: {
             id: existingUser._id.toString(),
             email: existingUser.email,
-            name:
-              existingUser.language === 'EN'
-                ? `${existingUser.firstName} ${existingUser.lastName}`
-                : `${existingUser.lastName} ${existingUser.firstName}`,
+            firstName: existingUser.firstName,
+            lastName: existingUser.lastName,
             role: existingUser.role,
             language: existingUser.language,
             lock: existingUser.lock,
             avatar: existingUser.avatar,
             isFirstTime: existingUser.isFirstTime,
+            hobby: existingUser.hobby,
           },
         },
       };
@@ -148,22 +148,38 @@ class UserService {
     userId: string,
     firstName: string,
     lastName: string,
+    typesString: string,
   ) => {
-    const user = await User.findById(userId);
-    if (user) {
-      if (firstName) user.firstName = firstName;
-      if (lastName) user.lastName = lastName;
-      user.save();
-
+    const user = await User.findById(userId, {__v: 0});
+    if (!user) {
       return {
-        success: true,
-        message: 'Update user successfully',
+        success: false,
+        message: 'User does not exist',
       };
     }
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (typesString) {
+      let types = typesString
+        .split(',')
+        .map(t => new mongoose.Types.ObjectId(t));
+      for (let i = 0; i < types.length; ++i) {
+        if (!DestinationType.findById(types[i])) {
+          return {
+            success: false,
+            message: 'At least one destination type is not exist',
+          };
+        }
+      }
+      console.log(typesString);
+      user.hobby = types;
+    }
+    user.save();
 
     return {
-      success: false,
-      message: 'User does not exist',
+      success: true,
+      message: 'Update user successfully',
+      data: user,
     };
   };
 
@@ -214,7 +230,7 @@ class UserService {
   };
 
   getAllUser = async () => {
-    const users = await User.find({}, {password: 0});
+    const users = await User.find({role: roleConstant.USER}, {password: 0, __v: 0});
 
     if (users && users.length > 0) {
       return {
@@ -294,13 +310,15 @@ class UserService {
       };
     }
 
-    for(let i = 0; i < destinationTypeIds.length; ++i) {
-      const foundDestType = await DestinationType.findById(destinationTypeIds[i]);
-      if(!foundDestType) {
+    for (let i = 0; i < destinationTypeIds.length; ++i) {
+      const foundDestType = await DestinationType.findById(
+        destinationTypeIds[i],
+      );
+      if (!foundDestType) {
         return {
           success: false,
-          message: 'At least having one invalid destination type'
-        }
+          message: 'At least having one invalid destination type',
+        };
       }
     }
 
@@ -312,8 +330,53 @@ class UserService {
       message: 'Create user hobby successfully',
       data: {
         email: user.email,
-        hobby: await DestinationType.find({ _id: { $in: user.hobby } }),
+        hobby: await DestinationType.find({_id: {$in: user.hobby}}),
       },
+    };
+  };
+
+  changePassword = async (email: string, current: string, change: string) => {
+    const user = await User.findOne({email});
+    if (!user) {
+      return {
+        success: false,
+        message: 'User does not exist',
+      };
+    }
+
+    if (!(await bcryptCompare(current, user.password))) {
+      return {
+        success: false,
+        message: 'Wrong current password',
+      };
+    }
+
+    const hashedPassword = await bcryptHash(change);
+    user.password = hashedPassword;
+    user.save();
+    return {
+      success: true,
+      message: 'Change password successfully',
+    };
+  };
+
+  getAllUserHobby = async (userId: string) => {
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
+      return {
+        success: false,
+        message: 'User does not exist',
+      };
+    }
+
+    const hobbies = await DestinationType.find(
+      {_id: {$in: existingUser.hobby}},
+      {__v: 0},
+    );
+    return {
+      success: true,
+      message: 'Get all user hobby successfully',
+      data: hobbies,
     };
   };
 }
