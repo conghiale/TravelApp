@@ -39,6 +39,7 @@ export interface IUserComment {
   userId: string
   destinationId: string
   content: string
+  star: number
 }
 
 export interface IUserHobby {}

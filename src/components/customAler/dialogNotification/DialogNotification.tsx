@@ -27,7 +27,7 @@ const DialogNotification = ({ status, displayMode, displayMsg, visible, onDimiss
             >
                 <View style={styles.container}>
                     <View style={styles.containerAlert}>
-                        <View style={[styles.header]}>
+                        {displayMode !== '' ? <View style={[styles.header]}>
                             <Text style={[
                                 theme.textVariants.textXl,
                                 {
@@ -39,7 +39,7 @@ const DialogNotification = ({ status, displayMode, displayMsg, visible, onDimiss
                             >
                                 {displayMode}
                             </Text>
-                        </View>
+                        </View> : null }
                         <View style={styles.body}>
                             <Text style={[
                                 theme.textVariants.textSm,

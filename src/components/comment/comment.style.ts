@@ -11,25 +11,21 @@ const styles = StyleSheet.create({
         fontFamily: font.semiBold,
         color: theme.colors.white,
     },
-    containerHeader: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
     containerHeaderUser: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
         gap: 10
     },
     image: {
-        width: 50,
-        height: 50,
-        borderRadius: 50,
+        width: 40,
+        height: 40,
+        borderRadius: 40,
     },
     containerHeaderStar: {
+        marginTop: 12,
+        flexDirection : 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
     }
 })

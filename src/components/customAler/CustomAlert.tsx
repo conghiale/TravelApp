@@ -1,13 +1,27 @@
 import { font } from '@/utils/font'
 import theme from '@/utils/theme'
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import styles from './customAlert.style'
 import { runOnJS } from 'react-native-reanimated'
 import { Rating } from 'react-native-ratings'
 import { useState } from 'react'
+import CustomInput from '../input/CustomInput'
 
-const CustomAlert = ({ stateColor, displayMode, isStar, displayMsg, visible, onDimissAlert,  onHandlerActionOK, onHandlerActionCANCEL }: CustomAlertProps) => {
-    const [rating, setRating] = useState(4.5)
+const CustomAlert = ({ 
+    stateColor, 
+    displayMode, 
+    isStar, 
+    isEdit, 
+    displayMsg, 
+    visible, 
+    star,
+    inputComment,
+    onChangeInput,
+    onDimissAlert, 
+    onHandlerActionOK, 
+    onHandlerActionCANCEL }: CustomAlertProps) => {
+
+    const [rating, setRating] = useState(star)
 
     const handleActionOK = () => {
         if (onHandlerActionOK)
@@ -50,13 +64,24 @@ const CustomAlert = ({ stateColor, displayMode, isStar, displayMsg, visible, onD
                             {isStar && isStar === true ? (<Rating
                                                 type='star'
                                                 ratingCount={5}
-                                                startingValue={4.5}
+                                                startingValue={star ? star : 4.5}
                                                 imageSize={25}
                                                 fractions={1}
                                                 jumpValue={0.5}
                                                 showRating={true}
                                                 onFinishRating={setRating}
                                             />) : null}
+
+                            {isEdit && isEdit === true ? (
+                                <View style={{marginVertical: 8, width: '100%'}}>
+                                    <CustomInput
+                                    name='contentComment'
+                                    value={inputComment ? inputComment :''}
+                                    placeholder='Enter your edit comment'
+                                    handleInputChange={onChangeInput}
+                                />
+                                </View>
+                            ) : null}
                         </View>
                         <View style={styles.footer}>
                             <TouchableOpacity

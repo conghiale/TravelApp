@@ -123,7 +123,11 @@ interface CustomAlertProps {
   displayMode: any;
   displayMsg: string;
   isStar?: boolean;
+  isEdit?: boolean
   visible: boolean;
+  inputComment?: string;
+  star?: number
+  onChangeInput?: (input: string) => void;
   onDimissAlert: (state: boolean) => void;
   onHandlerActionOK?: (star?: number) => void;
   onHandlerActionCANCEL?: () => void;
@@ -150,8 +154,8 @@ interface DialogNotificationProps {
 interface DialogChooseImageProps {
   visible: boolean;
   onDimissAlert: (state: boolean) => void;
-  onHandlerActionCamera: ({type, options1, options2}: any) => void;
-  onHandlerActionGallery: ({type, options1, options2}: any) => void;
+  onHandlerActionCamera: ({ type, options1, options2 }: any) => void;
+  onHandlerActionGallery: ({ type, options1, options2 }: any) => void;
   onHandlerActionRemove: () => void;
 }
 
@@ -201,6 +205,7 @@ interface InputChangePassword {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
+  contentComment?: string;
 }
 
 interface SwitchProps {
@@ -298,11 +303,15 @@ interface ApprovalListItemProps {
 }
 
 interface CommentProps {
-  id: number;
-  image: string;
-  nameUser: string;
+  _id: string;
+  avatar: string;
+  email: string;
   star: number;
   content: string;
+  createdAt: string;
+  updatedAt: string;
+  onActionRemove?: (id: string) => void;
+  onActionEdit?: () => void;
 }
 
 interface TypesProps {
@@ -376,6 +385,19 @@ type ApiReturnDestType = {
   labelVi: string;
   labelEn: string;
 };
+
+type ApiReturnUserComment = {
+  _id: string
+  userId: string
+  email: string
+  avatar: string
+  destinationId: string
+  content: string
+  star: number
+  isDeleted: boolean
+  createdAt: string
+  updatedAt: string
+}
 
 interface Coordinates {
   latitude: number;

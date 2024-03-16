@@ -18,6 +18,7 @@ destinationRoutes.route('/waiting').get(destController.getWaitingDestination);
 
 destinationRoutes.route('/uploads').post(destController.uploadMulti);
 destinationRoutes.route('/get/:id').get(destController.getDestinationById);
+destinationRoutes.route('/get-images/:id').get(destController.getImagesByDestinationId);
 destinationRoutes.route('/create').post(destController.createDestination);
 destinationRoutes.route('/edit/:id').put(destController.updateDestination);
 destinationRoutes.route('/delete').delete(destController.deleteDestination);

@@ -7,6 +7,7 @@ const userCommentRoutes = express.Router()
 
 userCommentRoutes.use(authenticationMiddleware)
 userCommentRoutes.route("/create").post(userCommentController.createComment)
+userCommentRoutes.route("/edit/:id").put(userCommentController.updateComment)
 userCommentRoutes.route("/comments/:destinationId").get(userCommentController.getCommentsByDestinationId)
 userCommentRoutes.route("/delete/:commentId").delete(userCommentController.deleteCommentById)
 
