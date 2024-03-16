@@ -76,7 +76,7 @@ const CreatePlaceScreen = () => {
   const [imageUploads, setImageUploads] = useState<UploadImages[]>([]);
 
   //dataAPI
-  useEffect(() => {
+  const fetchDestTypes = () => {
     getDestinationTypes()
       .then(r => {
         const dataChosen: TypesFilterProps[] = r.data.data.map(
@@ -96,6 +96,9 @@ const CreatePlaceScreen = () => {
       .finally(() => {
         setLoading(false);
       });
+  }
+  useEffect(() => {
+    fetchDestTypes();
   }, []);
 
   // keyboard
@@ -324,7 +327,6 @@ const CreatePlaceScreen = () => {
             types: [],
             vote: 0,
           });
-          setTypes([]);
           setImageUploads([]);
           setDialog({
             visible: true,
@@ -343,6 +345,7 @@ const CreatePlaceScreen = () => {
         })
         .finally(() => {
           setLoading(false);
+          fetchDestTypes();
         });
     }
   };

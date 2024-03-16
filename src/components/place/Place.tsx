@@ -8,9 +8,17 @@ import {Status} from '@/utils/constant';
 import {Rating} from 'react-native-ratings';
 import {BASE_URL_DESTINATION} from '@/services/config';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
-import { labelEn, labelVi } from '@/utils/label';
+import {labelEn, labelVi} from '@/utils/label';
 
-const Place = ({id, name, description, vote, status, images}: IPlace) => {
+const Place = ({
+  id,
+  name,
+  description,
+  vote,
+  status,
+  images,
+  distance,
+}: IPlace) => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
 
@@ -30,7 +38,7 @@ const Place = ({id, name, description, vote, status, images}: IPlace) => {
     });
   };
 
-  const handeStar = () => {
+  const handleStar = () => {
     if (status) {
       return (
         <Text
@@ -70,17 +78,36 @@ const Place = ({id, name, description, vote, status, images}: IPlace) => {
       {/* thay bằng uri đầu tiên */}
       <Image
         style={styles.place_image}
-        source={images && images[0] ? {uri: `${BASE_URL_DESTINATION}/${images[0]}`} : require('@/assets/images/vinh-ha-long.jpg')}
+        source={
+          images && images[0]
+            ? {uri: `${BASE_URL_DESTINATION}/${images[0]}`}
+            : require('@/assets/images/vinh-ha-long.jpg')
+        }
       />
       <View style={styles.place_header}>
-        <Text
-          style={[theme.textVariants.textBase, styles.place_text_title]}
-          numberOfLines={1}
-          ellipsizeMode="tail">
-          {name}
-        </Text>
+        <View style={{flexDirection: 'column', flex: 1}}>
+          <Text
+            style={[theme.textVariants.textBase, styles.place_text_title]}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {name}
+          </Text>
+          {distance ? (
+            <Text
+              style={[theme.textVariants.textBase, styles.place_text_title, {color: theme.colors.orange1}]}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {`About ${distance.toFixed(2)} km`}
+            </Text>
+          ) : (
+            <></>
+          )}
+        </View>
         <View>
-          <Button01 label={bilingual.GENERAL.BTN_MAP} onPress={navigateToMainScreen} />
+          <Button01
+            label={bilingual.GENERAL.BTN_MAP}
+            onPress={navigateToMainScreen}
+          />
         </View>
       </View>
       <Text
@@ -90,10 +117,12 @@ const Place = ({id, name, description, vote, status, images}: IPlace) => {
         {description}
       </Text>
       <View style={styles.place_footer}>
-        {handeStar()}
+        {handleStar()}
         <View>
           <Button01
-            label={status ? bilingual.GENERAL.BTN_EDIT : bilingual.GENERAL.BTN_DETAIL}
+            label={
+              status ? bilingual.GENERAL.BTN_EDIT : bilingual.GENERAL.BTN_DETAIL
+            }
             onPress={navigateToEditDetailPlaceScreen}
           />
         </View>

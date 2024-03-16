@@ -11,16 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Place from '@/components/place/Place';
-import {DestTypes, NearestPlaces, Places, TopPlaces} from '@/assets/data';
-import Pagination from '@/components/Pagination';
 import FlatlistHorizontal from '@/components/flatList/flasListPlacesHorizontal/FlatlistPlaceHorizontal';
 import FlatListPlaceVertical from '@/components/flatList/flatListPlaceVertical/FlatListPlaceVertical';
 import LabelScreen from '@/components/labelScreen/LabelScreen';
 import Button01 from '@/components/button/button01/Button01';
-import Geolocation from '@react-native-community/geolocation';
 import {
-  getAllDestinationByRole,
   getDestinationPublic,
   getDestinationTypes,
   getNearDestination,
@@ -30,42 +25,77 @@ import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {languageConstant} from '@/API/src/utils/constant';
-import {formatDestination, getErrorMessage, getItemPagination} from '@/utils';
+import {
+  defaultDialog,
+  formatDestination,
+  getErrorMessage,
+  getItemPagination,
+  isShowBtnPagination,
+  isShowMoreUtil,
+} from '@/utils';
+import {useFocusEffect} from '@react-navigation/native';
+
+type FilterProps = 'all' | 'search' | 'type';
 
 const OutstandingPlacesScreen = () => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(true);
-  const defaultDialog: DialogHandleEvent = {
-    visible: false,
-    type: 'success',
-    message: '',
-    handleOk: () => {},
-  };
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
-  const [searchValue, setSearchValue] = useState('');
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
 
   const [types, setTypes] = useState<TypesFilterProps[]>([]);
   const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]);
-
-  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
-  const [isActionShowMore, setIsActionShowMore] = useState(false);
-
   const [places, setPlaces] = useState<IPlace[]>([]);
   const [topPlaces, setTopPlaces] = useState<IPlace[]>([]);
   const [nearPlaces, setNearPlaces] = useState<IPlace[]>([]);
+  const [page, setPage] = useState(1);
+
+  const [filter, setFilter] = useState<FilterProps>('all');
+  const [searchText, setSearchText] = useState('');
+  const dataRender = () => {
+    console.log('filter:', filter);
+    switch (filter) {
+      case 'all':
+        return places;
+      case 'type':
+        const data = places.filter(p =>
+          p.types.every(idStr =>
+            types
+              .filter(t => t.isChoose)
+              .map(t => t.dest.id)
+              .includes(idStr),
+          ),
+        );
+        console.info('type:', data.length);
+        return data;
+      case 'search':
+        const ds = places.filter(p =>
+          p.name.toLowerCase().includes(searchText.toLowerCase()),
+        );
+        console.log('search:', ds.length);
+        return ds;
+    }
+  };
+  const isShowMore = isShowMoreUtil(dataRender(), page);
+
+  const releaseMemory = () => {
+    setTypes([]);
+    setTypesModal([]);
+    setPlaces([]);
+    setTopPlaces([]);
+    // setNearPlaces([]);
+  };
 
   //call API
-  useEffect(() => {
-    //get dests
+  const fetchOutstandingPlaces = () => {
+    setLoading(true);
     getDestinationPublic().then(r => {
-      const dataFetch: IPlace[] = r.data.data.map((place: ApiReturnDestination) =>
-        formatDestination(place, user),
+      const dataFetch: IPlace[] = r.data.data.map(
+        (place: ApiReturnDestination) => formatDestination(place, user),
       );
       setPlaces(dataFetch);
-      setDataPagination(dataFetch.slice(0, getItemPagination(page)));
     });
     // get top
     getTopDestination()
@@ -106,8 +136,33 @@ const OutstandingPlacesScreen = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen focused');
+      fetchOutstandingPlaces();
+
+      return () => {
+        releaseMemory();
+        console.log('Screen blurred');
+      };
+    }, []),
+  );
+
+  //filter data
+  useEffect(() => {
+    console.info(types.filter(t => t.isChoose).length);
+    if (types.filter(t => t.isChoose).length > 0) {
+      setFilter('type');
+    } else {
+      setFilter('all');
+    }
+  }, [types, page]);
+
+  // end filter data
+
+  //get nearest places
   useEffect(() => {
     if (user && user.latitude && user.longitude) {
       getNearDestination(user.latitude, user.longitude)
@@ -119,7 +174,7 @@ const OutstandingPlacesScreen = () => {
           );
         })
         .catch(e => {
-          console.log('near e:', e);
+          console.log('Nearest error:', getErrorMessage(e));
         })
         .finally(() => {
           setLoading(false);
@@ -127,22 +182,13 @@ const OutstandingPlacesScreen = () => {
     }
   }, [user?.latitude]);
 
-  // pagination
-  const [dataPagination, setDataPagination] = useState<IPlace[]>([]);
-  const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    const newData: IPlace[] = places.slice(0, getItemPagination(page));
-    setDataPagination(newData);
-  }, [page]);
-
-  useEffect(() => {
-    if (places.length > dataPagination.length) setIsActionShowMore(true);
-    else setIsActionShowMore(false);
-  }, [dataPagination]);
-
   const handleChangeValueSearch = (value: string) => {
-    setSearchValue(value);
+    setSearchText(value);
+    if (value.length === 0) {
+      setFilter('all');
+    } else {
+      setFilter('search');
+    }
   };
 
   useEffect(() => {
@@ -238,8 +284,9 @@ const OutstandingPlacesScreen = () => {
           showsVerticalScrollIndicator={false}>
           <View style={styles.containerSearch}>
             <Search
-              value={searchValue}
+              value={searchText}
               handleChangeValueSearch={handleChangeValueSearch}
+              placeholderLabel={bilingual.OUTSTANDING.FIND_PLACEHOLDER}
             />
           </View>
 
@@ -287,25 +334,32 @@ const OutstandingPlacesScreen = () => {
             )}
           </View>
 
-          {/* Top Places */}
-          <View style={styles.title_container}>
-            <LabelScreen
-              nameIcon="topPlace"
-              title={bilingual.OUTSTANDING.TOP_PLACES}
-            />
-          </View>
-          <View style={{marginVertical: 8}}>
-            <FlatlistHorizontal data={topPlaces} />
-          </View>
-
-          {/* Nearest Places */}
-          <View style={styles.title_container}>
-            <LabelScreen
-              nameIcon="places"
-              title={bilingual.OUTSTANDING.NEAREST_PLACE}
-            />
-          </View>
-          <FlatlistHorizontal data={nearPlaces}/>
+          {filter === 'all' &&
+          searchText.length === 0 &&
+          types.filter(t => t.isChoose).length === 0 ? (
+            <>
+              {/* Top Places */}
+              <View style={styles.title_container}>
+                <LabelScreen
+                  nameIcon="topPlace"
+                  title={bilingual.OUTSTANDING.TOP_PLACES}
+                />
+              </View>
+              <View style={{marginVertical: 8}}>
+                <FlatlistHorizontal data={topPlaces} />
+              </View>
+              {/* Nearest Places */}
+              <View style={styles.title_container}>
+                <LabelScreen
+                  nameIcon="places"
+                  title={bilingual.OUTSTANDING.NEAREST_PLACE}
+                />
+              </View>
+              <FlatlistHorizontal data={nearPlaces} />
+            </>
+          ) : (
+            <></>
+          )}
 
           {/* Places */}
           <View style={styles.title_container}>
@@ -315,20 +369,29 @@ const OutstandingPlacesScreen = () => {
             />
           </View>
           <FlatListPlaceVertical
-            data={dataPagination}
+            data={dataRender().slice(0, getItemPagination(page))}
             // onRefresh={() => setPage(prePage => prePage + 1)}
           />
-
-          <View
-            pointerEvents={isActionShowMore ? 'auto' : 'none'}
-            style={{marginTop: 32, marginHorizontal: 50}}>
-            <Button01
-              height={60}
-              label={bilingual.OUTSTANDING.SHOW_MORE}
-              color={isActionShowMore ? theme.colors.orange : theme.colors.grey}
-              onPress={() => setPage(prePage => prePage + 1)}
-            />
-          </View>
+          {isShowBtnPagination(dataRender()) ? (
+            <View
+              pointerEvents={'auto'}
+              style={{marginTop: 32, marginHorizontal: 90}}>
+              <Button01
+                height={40}
+                label={
+                  isShowMore
+                    ? bilingual.OUTSTANDING.SHOW_MORE
+                    : bilingual.OUTSTANDING.COLLAPSE
+                }
+                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                onPress={() =>
+                  isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
+                }
+              />
+            </View>
+          ) : (
+            <></>
+          )}
         </ScrollView>
       </View>
     </SafeAreaWrapper>

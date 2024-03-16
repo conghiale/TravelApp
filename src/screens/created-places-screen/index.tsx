@@ -1,6 +1,6 @@
 import {AppScreenNavigationType} from '@/navigation/types';
 import theme from '@/utils/theme';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
 import styles from './createdPlaces.style';
@@ -15,33 +15,18 @@ import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {languageConstant} from '@/API/src/utils/constant';
-
-type ApiReturn = {
-  _id: string
-  nameVi: string
-  nameEn: string
-  descriptionVi: string
-  descriptionEn: string
-  latitude: number
-  longitude: number
-  vote: number
-  status: number
-  types: string[]
-  images: string[]
-}
+import {defaultDialog, getErrorMessage, getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
+import Button01 from '@/components/button/button01/Button01';
 
 const CreatedPlacesScreen = () => {
   const {user} = useUserGlobalStore();
+  const router = useRoute<any>();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(true);
-  const defaultDialog: DialogHandleEvent = {
-    visible: false,
-    type: 'success',
-    message: '',
-    handleOk: () => {},
-  };
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
+  const [page, setPage] = useState(1);
+  const isShowMore = isShowMoreUtil(places, page);
 
   const navigation = useNavigation<AppScreenNavigationType<'CreatedPlaces'>>();
   const [searchValue, setSearchValue] = useState('');
@@ -62,31 +47,35 @@ const CreatedPlacesScreen = () => {
   };
 
   useEffect(() => {
-    if(user && user.role) {
+    console.log('fetched hehe');
+    if (user && user.role) {
       getAllDestinationByRole(user.role, user.id)
         .then(r => {
-          const dataCustom: IPlace[] = r.data.data.map((d: ApiReturn) => ({
-            id: d._id,
-            name: user?.language === languageConstant.VI ? d.nameVi : d.nameEn,
-            description:
-              user?.language === languageConstant.VI
-                ? d.descriptionVi
-                : d.descriptionEn,
-            latitude: d.latitude,
-            longitude: d.longitude,
-            vote: d.vote,
-            types: d.types,
-            status: d.status,
-            images: d.images,
-          }));
-          console.log(dataCustom.length);
+          const dataCustom: IPlace[] = r.data.data.map(
+            (d: ApiReturnDestination) => ({
+              id: d._id,
+              name:
+                user?.language === languageConstant.VI ? d.nameVi : d.nameEn,
+              description:
+                user?.language === languageConstant.VI
+                  ? d.descriptionVi
+                  : d.descriptionEn,
+              latitude: d.latitude,
+              longitude: d.longitude,
+              vote: d.vote,
+              types: d.types,
+              status: d.status,
+              images: d.images,
+            }),
+          );
+          // console.log(dataCustom.length);
           setPlaces(dataCustom);
         })
         .catch(e => {
           setDialog({
             visible: true,
             type: 'error',
-            message: e.response.data.message,
+            message: getErrorMessage(e),
             handleOk: () => setDialog(defaultDialog),
           });
         })
@@ -94,7 +83,7 @@ const CreatedPlacesScreen = () => {
           setLoading(false);
         });
     }
-  }, []);
+  }, [router]);
 
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.blue1}}>
@@ -122,7 +111,7 @@ const CreatedPlacesScreen = () => {
           </View>
           <View style={styles.containerSearch}>
             <View style={styles.search}>
-              <Search 
+              <Search
                 value={searchValue}
                 handleChangeValueSearch={handleChangeValueSearch}
                 placeholderLabel={bilingual.CREATED_PLACES.FIND_PLACEHOLDER}
@@ -150,7 +139,7 @@ const CreatedPlacesScreen = () => {
             />
           </View>
           <View style={styles.containerUser}>
-            {places.map((place, index) => (
+            {places.slice(0, getItemPagination(page)).map((place, index) => (
               <View key={index} style={styles.place}>
                 <Place
                   id={place.id}
@@ -166,6 +155,26 @@ const CreatedPlacesScreen = () => {
               </View>
             ))}
           </View>
+          {isShowBtnPagination(places) ? (
+            <View
+              pointerEvents={'auto'}
+              style={{marginHorizontal: 50, marginVertical: 24}}>
+              <Button01
+                height={40}
+                label={
+                  isShowMore
+                    ? bilingual.OUTSTANDING.SHOW_MORE
+                    : bilingual.OUTSTANDING.COLLAPSE
+                }
+                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                onPress={() =>
+                  isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
+                }
+              />
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </ScrollView>
     </View>

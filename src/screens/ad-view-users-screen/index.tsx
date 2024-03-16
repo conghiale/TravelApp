@@ -1,5 +1,5 @@
 import {AppScreenNavigationType} from '@/navigation/types';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {Alert, ScrollView, Text, View} from 'react-native';
 import styles from './viewUsers.style';
@@ -15,8 +15,10 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
-import {defaultDialog, getErrorMessage, getItemPagination} from '@/utils';
+import {defaultDialog, getErrorMessage, getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
 import Button01 from '@/components/button/button01/Button01';
+import { getDestinationTypes } from '@/services/destination-service';
+import { languageConstant } from '@/API/src/utils/constant';
 
 interface ApiReturnUser {
   _id: string;
@@ -34,28 +36,63 @@ interface ApiReturnUser {
   updatedAt: string;
 }
 
+type FilterProps = 'all'|'lock'|'unlock'|'search';
+
 const ViewUsersScreen = () => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
-
+  
   const navigation = useNavigation<AppScreenNavigationType<'ViewUsers'>>();
-  const [searchValue, setSearchValue] = useState('');
-  const [selected, setSelected] = React.useState('');
+  const [selected, setSelected] = React.useState('All');
   const dataFilter = [
     {key: '1', value: 'All'},
-    {key: '2', value: 'Lock'},
+    {key: '2', value: 'Locked'},
     {key: '3', value: 'Unlock'},
   ];
+
   const [users, setUsers] = useState<CardUserProps[]>([]);
+  const [types, setTypes] = useState<DestCustom[]>([])
   const [page, setPage] = useState(1);
-  const [dataPagination, setDataPagination] = useState<CardUserProps[]>([]);
-  const [userId, setUserId] = useState('')
+
+  const [filter, setFilter] = useState<FilterProps>('all');
+  const [searchText, setSearchText] = useState('');
 
   const goBack = () => {
     navigation.goBack();
   };
+
+  //filter data
+  useEffect(() => {
+    if(selected === 'Locked') {
+      setFilter('lock');
+    } else if(selected === 'Unlock') {
+      setFilter('unlock');
+    } else {
+      setFilter('all')
+    }
+  }, [selected, page])
+
+  const handleChangeValueSearch = (value: string) => {
+    setSearchText(value);
+    setFilter('search');
+  };
+
+  const dataRender = () => {
+    switch (filter) {
+      case 'all':
+        return users;
+      case 'lock':
+        return users.filter(u => u.lock);
+      case 'unlock':
+        return users.filter(u => !u.lock);
+      case 'search':
+        return users.filter(u => u.email.includes(searchText) || u.firstName.includes(searchText) || u.lastName.includes(searchText))
+    }
+  }
+  const isShowMore = isShowMoreUtil(dataRender(), page);
+  // end filter data
 
   const fetchUsers = () => {
     setLoading(true);
@@ -74,7 +111,6 @@ const ViewUsersScreen = () => {
           }),
         );
         setUsers(fetchData);
-        setDataPagination(fetchData.slice(0, getItemPagination(page)));
         console.log('user set');
       })
       .catch(e => {
@@ -90,15 +126,26 @@ const ViewUsersScreen = () => {
       });
   };
 
-  useEffect(() => {
-    // get data user from server
-    // if (searchValue === '' && selected === '')
-    fetchUsers();
-  }, []);
+  const fetchTypes = () => {
+    getDestinationTypes().then(r => {
+      setTypes(r.data.data.map((d: ApiReturnDestType) => ({
+        id: d._id,
+        label: user?.language === languageConstant.VI ? d.labelVi : d.labelEn,
+      })))
+    })
+  }
 
-  const handleChangeValueSearch = (value: string) => {
-    setSearchValue(value);
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchTypes();
+      fetchUsers();
+
+      return () => {
+        // releaseMemory();
+        console.log('Screen blurred');
+      };
+    }, []),
+  );
 
   const lockUser = (email: string) => {
     lockUserByEmail(email)
@@ -115,11 +162,11 @@ const ViewUsersScreen = () => {
       });
   };
 
-  const handleButtonLock = (email: string) => {
+  const handleButtonLock = (email: string, lock: boolean) => {
     setDialog({
       visible: true,
       type: 'warning',
-      message: 'Are you sure to lock user ' + email,
+      message: lock ? `${bilingual.VIEW_USERS.CF_UNLOCK} ${email}` : `${bilingual.VIEW_USERS.CF_LOCK} ${email}`,
       handleOk: () => lockUser(email),
       handleCancel: () => setDialog(defaultDialog),
     });
@@ -152,14 +199,15 @@ const ViewUsersScreen = () => {
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
               <Text style={[theme.textVariants.textLg, styles.title]}>
-                Users
+                {bilingual.VIEW_USERS.TITLE}
               </Text>
             </View>
           </View>
           <View style={styles.containerSearch}>
             <View style={styles.search}>
               <Search
-                value={searchValue}
+                placeholderLabel={bilingual.VIEW_USERS.FIND_PLACEHOLDER}
+                value={searchText}
                 handleChangeValueSearch={handleChangeValueSearch}
               />
             </View>
@@ -171,35 +219,35 @@ const ViewUsersScreen = () => {
               }
               data={dataFilter}
               save="value"
-              placeholder="-- Select state --"
-              searchPlaceholder="-- Select state --"
+              placeholder={`-- ${bilingual.VIEW_USERS.SELECT_STATE} --`}
+              searchPlaceholder={`-- ${bilingual.VIEW_USERS.SELECT_STATE} --`}
               defaultOption={dataFilter[0]}
               fontFamily={font.semiBold}
-              boxStyles={{borderWidth: 2, borderColor: theme.colors.white}}
-              inputStyles={{color: theme.colors.orange, fontSize: 16}}
+              boxStyles={{borderWidth: 2, borderColor: theme.colors.white, backgroundColor: theme.colors.grey}}
+              inputStyles={{color: theme.colors.blue1, fontSize: 16}}
               dropdownStyles={{borderWidth: 2, borderColor: theme.colors.white}}
               dropdownTextStyles={{color: theme.colors.white, fontSize: 16}}
             />
           </View>
           <View style={styles.containerUser}>
-            {dataPagination.map(user => (
+            {dataRender().slice(0, getItemPagination(page)).map(user => (
               <View key={user.id} style={styles.user}>
                 <ProfileUser
                   image={user.avatar}
                   email={user.email}
                   firstName={user.firstName}
                   LastName={user.lastName}
-                  hobby={user.hobby}
+                  hobby={types.filter(t => user.hobby.includes(t.id)).map(t => t.label)}
                   lock={user.lock}
-                  handleButtonLock={() => handleButtonLock(user.email)}
+                  handleButtonLock={() => handleButtonLock(user.email, user.lock)}
                   handleButtonReview={() => handleButtonReview(user.id)}
                 />
               </View>
             ))}
-            {dataPagination?.length === 0 ? (
+            {!loading && dataRender().length === 0 ? (
               <Text
                 style={{
-                  marginTop: '75%',
+                  marginTop: '50%',
                   color: theme.colors.white,
                   textAlign: 'center',
                   fontFamily: font.bold,
@@ -212,22 +260,27 @@ const ViewUsersScreen = () => {
             )}
           </View>
           
-          {dataPagination.length !== 0 ? <View
-            pointerEvents={
-              dataPagination.length < users.length ? 'auto' : 'none'
-            }
-            style={{marginTop: 32, marginHorizontal: 50}}>
-            <Button01
-              height={60}
-              label={bilingual.OUTSTANDING.SHOW_MORE}
-              color={
-                dataPagination.length < users.length
-                  ? theme.colors.orange
-                  : theme.colors.grey
-              }
-              onPress={() => setPage(prePage => prePage + 1)}
-            />
-          </View> : <></>}
+          
+          {isShowBtnPagination(users)? (
+            <View
+              pointerEvents={'auto'}
+              style={{marginTop: 32, marginHorizontal: 50}}>
+              <Button01
+                height={60}
+                label={
+                  isShowMore
+                    ? bilingual.OUTSTANDING.SHOW_MORE
+                    : bilingual.OUTSTANDING.COLLAPSE
+                }
+                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                onPress={() =>
+                  isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
+                }
+              />
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </ScrollView>
     </SafeAreaWrapper>

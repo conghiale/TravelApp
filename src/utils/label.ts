@@ -75,6 +75,7 @@ export const labelEn = {
     NEAREST_PLACE: 'Nearest places',
     HOBBY_PLACES: 'For you',
     SHOW_MORE: 'Show more',
+    COLLAPSE: 'Collapse',
   },
   PERSONAL: {
     YOUR_PROFILE: 'Your profile',
@@ -82,8 +83,9 @@ export const labelEn = {
     FIRST_NAME: 'First name',
     LAST_NAME: 'Last name',
     SET_HOBBY: 'Set hobby',
+    HOBBY: 'Hobby',
     SAVE: 'Save',
-    CHANGE_PASSWORD: 'Change password',
+    CHANGE_PWD: 'Change password',
     SETTING: 'Setting',
     LANGUAGUE: 'Language (VI/EN)',
     THEME: 'Theme (Dark/Light)',
@@ -94,9 +96,11 @@ export const labelEn = {
     FILTER_LABEL: 'Select type(s) to search',
     FILTER_CHOOSE: 'Choose',
     ERROR: {
-
+      UPLOAD_AVATAR: 'Upload avatar failed',
+      UPDATE_PROFILE: 'Edit profile failed',
     },
     SUCCESS: {
+      UPLOAD_AVATAR: 'Upload avatar successfully',
       UPDATE_PROFILE: 'Edit profile successfully',
     },
   },
@@ -106,7 +110,7 @@ export const labelEn = {
     NEW: 'New password',
     CONFIRM: 'Confirm password',
     CHANGE: 'Change password',
-    CANCEL: 'Cancel',
+    RESET: 'Reset',
     SUCCESS: 'Change password successfully',
     ERROR: 'Change password failed',
     VALIDATE: 'Invalid input field(s)',
@@ -124,6 +128,43 @@ export const labelEn = {
     COLLAPSE: 'Collapse',
     SELECT_TYPES: 'Chọn loại hình du lịch',
     CHOOSE: 'Chọn',
+  },
+  VIEW_USERS: {
+    TITLE: 'Users list',
+    FIND_PLACEHOLDER: 'Find users',
+    SELECT_STATE: 'Select filtering',
+    FILTER_ALL: 'ALL',
+    FILTER_LOCK: 'LOCKED',
+    FILTER_UNLOCK: 'ACTIVE',
+    SHOW_MORE: 'Show more',
+    COLLAPSE: 'Collapse',
+    CF_LOCK: 'Are you sure to lock user',
+    CF_UNLOCK: 'Are you sure to unlock user',
+  },
+  DETAIL_REQUEST: {
+    APPROVE_LIST: 'Approval list',
+    TITLE: 'Request detail',
+    CREATED_BY: 'Created by:',
+    CREATED_TIME: 'Created at:',
+    APPROVE: 'Approve',
+    REJECT: 'Reject',
+    CF_APPROVE: 'Are you sure to approve this request?',
+    CF_REJECT: 'Are you sure to reject this request?',
+    SUCCESS: {
+      APPROVE: "Place's approved, now it's pulbic",
+      REJECT: "Place's rejected"
+    },
+    ERROR: {
+      APPROVE: 'Approve failed',
+      REJECT: 'Reject failed'
+    },
+  },
+  ASK_HOBBY: {
+    TITLE: 'Which is your favorite kinds of travel?',
+    CONTINUE: 'Continue',
+    ERROR: {
+      MT_TYPE: 'Require at least one type of travel',
+    },
   },
 };
 
@@ -196,7 +237,7 @@ export const labelVi = {
     COLLAPSE: 'Rút gọn',
   },
   OUTSTANDING: {
-    FIND_PLACEHOLDER: 'Nhập để tìm kiếm',
+    FIND_PLACEHOLDER: 'Nhập để tìm địa điểm',
     FILTER_BTN: 'Bộ lọc',
     FILTER_LABEL: 'Chọn loại hình để tìm kiếm',
     FILTER_CHOOSE: 'Chọn',
@@ -204,6 +245,7 @@ export const labelVi = {
     NEAREST_PLACE: 'Lân cận',
     HOBBY_PLACES: 'Dành cho bạn',
     SHOW_MORE: 'Xem thêm',
+    COLLAPSE: 'Rút gọn',
   },
   PERSONAL: {
     YOUR_PROFILE: 'Hồ sơ của bạn',
@@ -211,8 +253,9 @@ export const labelVi = {
     FIRST_NAME: 'Tên',
     LAST_NAME: 'Họ',
     SET_HOBBY: 'Chỉnh sở thích',
+    HOBBY: 'Sở thích',
     SAVE: 'Lưu',
-    CHANGE_PASSWORD: 'Đổi mật khẩu',
+    CHANGE_PWD: 'Đổi mật khẩu',
     SETTING: 'Cài đặt',
     LANGUAGUE: 'Ngôn ngữ (VI/EN)',
     THEME: 'Chủ để (Dark/Light)',
@@ -223,9 +266,11 @@ export const labelVi = {
     FILTER_LABEL: 'Chọn loại hình để tìm kiếm',
     FILTER_CHOOSE: 'Chọn',
     ERROR: {
-
+      UPLOAD_AVATAR: 'Tải ảnh đại diện thất bại',
+      UPDATE_PROFILE: 'Cập nhật thông tin thất bại',
     },
     SUCCESS: {
+      UPLOAD_AVATAR: 'Tải ảnh đại diện thành công',
       UPDATE_PROFILE: 'Cập nhật thông tin thành công',
     },
   },
@@ -235,7 +280,7 @@ export const labelVi = {
     NEW: 'Mật khẩu mới',
     CONFIRM: 'Xác nhận mật khẩu',
     CHANGE: 'Đổi mật khẩu',
-    CANCEL: 'Hủy',
+    RESET: 'Đặt lại',
     SUCCESS: 'Đổi mật khẩu thành công',
     ERROR: 'Đổi mật khẩu thất bại',
     VALIDATE: 'Ít nhất một thông tin không hợp lệ',
@@ -253,5 +298,42 @@ export const labelVi = {
     COLLAPSE: 'Rút gọn',
     SELECT_TYPES: 'Chọn loại hình du lịch',
     CHOOSE: 'Chọn',
+  },
+  VIEW_USERS: {
+    TITLE: 'Danh sách người dùng',
+    FIND_PLACEHOLDER: 'Nhập để tìm người dùng',
+    SELECT_STATE: 'Chọn bộ lọc',
+    FILTER_ALL: 'Tất cả',
+    FILTER_LOCK: 'Đã khóa',
+    FILTER_UNLOCK: 'Chưa xóa',
+    SHOW_MORE: 'Xem thêm',
+    COLLAPSE: 'Rút gọn',
+    CF_LOCK: 'Bạn có chắc muốn khóa',
+    CF_UNLOCK: 'Bạn có chắc muốn bỏ khóa',
+  },
+  DETAIL_REQUEST: {
+    APPROVE_LIST: 'Danh sách yêu cầu',
+    TITLE: 'Chi tiết yêu cầu',
+    CREATED_BY: 'Tạo bởi',
+    CREATED_TIME: 'Thời gian tạo',
+    APPROVE: 'Duyệt',
+    REJECT: 'Từ chối',
+    CF_APPROVE: 'Chắc chắn muốn duyệt yêu cầu này?',
+    CF_REJECT: 'Chắc chắn muốn từ chối yêu cầu này?',
+    SUCCESS: {
+      APPROVE: "Địa điểm đã được duyệt",
+      REJECT: "Địa điểm đã bị từ chối"
+    },
+    ERROR: {
+      APPROVE: 'Duyệt thất bại',
+      REJECT: 'Từ chối thất bại'
+    },
+  },
+  ASK_HOBBY: {
+    TITLE: 'Hãy chọn loại hình du lịch mà bạn yêu thích',
+    CONTINUE: 'Tiếp tục',
+    ERROR: {
+      MT_TYPE: 'Hãy chọn ít nhất một loại hình du lịch',
+    },
   },
 };

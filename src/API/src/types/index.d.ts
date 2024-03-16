@@ -10,6 +10,7 @@ export interface IUser {
   avatar: string
   codeValidation: string
   typesString: string
+  theme: string
 }
 
 export interface IDestination {

@@ -56,7 +56,7 @@ interface IAuthenticatedUser {
   lock?: boolean;
   role?: string;
   avatar?: string;
-  isFirstTime?: string;
+  isFirstTime?: boolean;
   latitude?: number;
   longitude?: number;
   hobby?: string[];
@@ -72,6 +72,7 @@ interface IPlace {
   types: string[];
   status?: number;
   images: string[];
+  distance?: number;
 }
 
 interface PlaceProps {
@@ -270,6 +271,7 @@ interface CustomInputInfoUserProps {
   value: string;
   name: keyof InfoProps;
   handleChangeValue: (name: keyof InfoProps, value: string) => void;
+  changeEditable: boolean;
 }
 
 interface InfoProps {
@@ -366,6 +368,7 @@ type ApiReturnDestination = {
   destination?: number;
   createdAt?: string;
   createdBy?: string;
+  distance?: number;
 };
 
 type ApiReturnDestType = {

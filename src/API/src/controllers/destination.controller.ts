@@ -52,20 +52,20 @@ class DestinationController {
       }
 
       if (role === roleConstant.ADMIN) {
+        const data = await this.destService.getAllDestinationOnMap();
         return res.send({
           message: 'Get all destination successfully',
-          data: {
-            ...(await this.destService.getAllDestinationOnMap()),
-          },
+          data,
         });
       } else if (role === roleConstant.USER) {
         if (!uid) {
           return res.status(400).send({message: 'Missing parameter(s)'});
         }
         const userId = new mongoose.Types.ObjectId(uid);
+        const data = await this.destService.getAllDestinationByCreatedUser(userId);
         return res.send({
           message: 'Get all created destination successfully',
-          data: await this.destService.getAllDestinationByCreatedUser(userId),
+          data,
         });
       } else {
         return res.status(400).send({message: 'Invalid role of user'});
@@ -243,6 +243,10 @@ class DestinationController {
         if (!data) {
           return res.status(400).send({message: 'Destination does not exist'});
         }
+
+        console.log('role:', role)
+        console.log('status:', status)
+        console.log('create by:', data.createdBy.toString(), createdBy)
   
         if (
           (role === roleConstant.ADMIN &&

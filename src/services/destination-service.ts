@@ -38,3 +38,8 @@ export const getNearDestination = (latitude: number, longitude: number) => {
 export const getWaitingDestination = () => {
   return axiosInstance.get(`/dest/waiting`);
 };
+
+export const waitingDestinationApproval = (id: string, accepted: boolean) => {
+  return axiosInstance.post(`/dest/approval`, {id, accepted})
+};
+

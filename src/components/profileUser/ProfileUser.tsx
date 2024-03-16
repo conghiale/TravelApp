@@ -1,9 +1,10 @@
-import {Alert, Image, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import styles from './profileUse.style';
 import theme from '@/utils/theme';
 import Button02 from '../button/button02/Button02';
-import {useState} from 'react';
 import {BASE_URL_AVATAR} from '@/services/config';
+import useUserGlobalStore from '@/store/useUserGlobalStore';
+import { labelEn, labelVi } from '@/utils/label';
 
 const ProfileUser = ({
   image,
@@ -15,7 +16,8 @@ const ProfileUser = ({
   handleButtonLock,
   handleButtonReview,
 }: ProfileUserProps) => {
-  // const [isLock, setLock] = useState(lock)
+  const {user} = useUserGlobalStore();
+  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
 
   const handleButtonLockPress = () => {
     // setLock(!isLock)
@@ -42,7 +44,7 @@ const ProfileUser = ({
       <View style={styles.body}>
         <View style={styles.containerFN}>
           <Text style={[theme.textVariants.textLg, styles.titleFN]}>
-            First name:
+            {`${bilingual.PERSONAL.FIRST_NAME}:`}
           </Text>
           <Text style={[theme.textVariants.textBase, styles.firstName]}>
             {firstName}
@@ -50,7 +52,7 @@ const ProfileUser = ({
         </View>
         <View style={styles.containerFN}>
           <Text style={[theme.textVariants.textLg, styles.titleFN]}>
-            Last name:
+            {`${bilingual.PERSONAL.LAST_NAME}:`}
           </Text>
           <Text style={[theme.textVariants.textBase, styles.firstName]}>
             {LastName}
@@ -58,10 +60,10 @@ const ProfileUser = ({
         </View>
         <View style={styles.containerFN}>
           <Text style={[theme.textVariants.textLg, styles.titleFN]}>
-            Hobby:
+            {`${bilingual.PERSONAL.HOBBY}:`}
           </Text>
           <Text style={[theme.textVariants.textBase, styles.firstName]}>
-            {hobby}
+            {hobby.join(', ')}
           </Text>
         </View>
       </View>

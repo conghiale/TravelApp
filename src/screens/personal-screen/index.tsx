@@ -1,4 +1,4 @@
-import theme, {Box, Text} from '@/utils/theme';
+import theme, {Text} from '@/utils/theme';
 import React, {useEffect, useState} from 'react';
 import {
   Image,
@@ -18,51 +18,47 @@ import LabelScreen from '@/components/labelScreen/LabelScreen';
 import * as ImagePicker from 'react-native-image-picker';
 // import * as ImagePicker from 'react-native-image-crop-picker';
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
-import axiosInstance, {BASE_URL_AVATAR} from '@/services/config';
+import {BASE_URL_AVATAR} from '@/services/config';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser';
 import Button01 from '@/components/button/button01/Button01';
-// import {DestTypes} from '@/assets/data';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {getDestinationTypes} from '@/services/destination-service';
-import {getErrorMessage} from '@/utils';
-import {getUserById, updateUserById} from '@/services/user-service';
+import {defaultDialog, getErrorMessage, randomNumberString} from '@/utils';
+import {
+  getUserById,
+  updateUserById,
+  uploadAvatar,
+} from '@/services/user-service';
 import {roleConstant} from '@/API/src/utils/constant';
 
 const PersonalScreen = () => {
   const {user, updateUser} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(false);
-  const defaultDialog: DialogHandleEvent = {
-    visible: false,
-    type: 'success',
-    message: '',
-    handleOk: () => {},
-  };
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
+  const [changeEditable, setChangeEditable] = useState(true);
 
   const IMAGE = '../../assets/images/avatarDefault.jpg';
   const [person, setPerson] = useState<Person>({
-    id: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    avatar: '',
+    id: user?.id as string,
+    email: user?.email as string,
+    firstName: user?.firstName as string,
+    lastName: user?.lastName as string,
+    avatar: user?.avatar as string,
     hobby: [],
   });
+  const navigation = useNavigation<AppScreenNavigationType<'Root'>>();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
   const [showTakeImage, setShowTakeImage] = useState(false);
-  const [response, setResponse] = useState<any>(null);
+  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
   const [image, setImage] = useState<any>('');
+
+  const [infoChanged, setInfoChanged] = useState(false);
   const [types, setTypes] = useState<TypesFilterProps[]>([]);
   const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]);
-
-  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
-  const navigation = useNavigation<AppScreenNavigationType<'Root'>>();
-  const [infoChanged, setInfoChanged] = useState(false);
 
   //call API
   useEffect(() => {
@@ -70,7 +66,7 @@ const PersonalScreen = () => {
       getUserById(user.id)
         .then(ru => {
           const data: ApiReturnPerson = ru.data.data;
-          console.log('data:', data);
+          // console.log('data:', data);
           setPerson({
             id: data._id,
             email: data.email,
@@ -117,18 +113,35 @@ const PersonalScreen = () => {
   }, [user]);
 
   const handleToggle = (key: keyof IAuthenticatedUser) => {
-    switch (key) {
-      case 'language':
-        updateUser({
-          ...user,
-          language: user?.language === 'VI' ? 'EN' : 'VI',
-        });
-        break;
-      case 'theme':
-        updateUser({
-          ...user,
-          theme: user?.theme === 'Dark' ? 'Light' : 'Dark',
-        });
+    if(user && user.id) {
+      switch (key) {
+        case 'language':
+          let langValue = user?.language === 'VI' ? 'EN' : 'VI'
+          updateUserById(user.id, {language: langValue}).then(r => {
+            console.log('Switch lang OK')
+          }).catch(e => {
+            console.error('Switch lang failed')
+          })
+          updateUser({
+            ...user,
+            language: langValue,
+          });
+          //sendapi
+          break;
+        case 'theme':
+          const themeValue = user?.theme === 'Dark' ? 'Light' : 'Dark';
+          updateUserById(user.id, {theme: themeValue}).then(r => {
+            console.log('Switch lang OK')
+          }).catch(e => {
+            console.error('Switch lang failed')
+          })
+          updateUser({
+            ...user,
+            theme: themeValue,
+          });
+        // sendapi
+
+    }
     }
   };
 
@@ -171,22 +184,6 @@ const PersonalScreen = () => {
     };
   }, []);
 
-  // passing types to person.hobby
-  // useEffect(() => {
-  //   const personUpdate = {...person};
-  //   types.forEach(type => {
-  //     if (type.isChoose && !personUpdate.hobby.includes(type.dest.id)) {
-  //       personUpdate.hobby.push(type.dest.id);
-  //     } else if (!type.isChoose && personUpdate.hobby.includes(type.dest.id)) {
-  //       const index = personUpdate.hobby.indexOf(type.dest.id);
-  //       if (index !== -1) {
-  //         personUpdate.hobby.splice(index, 1);
-  //       }
-  //     }
-  //   });
-  //   setPerson(personUpdate);
-  // }, [types]);
-
   // checkChangeInfoUser
   useEffect(() => {
     const flag =
@@ -199,26 +196,26 @@ const PersonalScreen = () => {
 
   const uploadImage = async ({type, options}: any) => {
     if (type === 'capture') {
-      // ImagePicker.openCamera({
-      //   width: 160,
-      //   height: 160,
-      //   cropperCircleOverlay: true,
-      //   cropping: true,
-      // })
-      //   .then(image => {
-      //     setImage(image.path);
-      //     // send Backend
-      //     console.log(image);
-      //     const formData = new FormData();
-      //     formData.append('file', {
-      //       uri: image.path,
-      //       type: 'image/jpeg',
-      //       name: Date.now().toString(),
-      //     });
-      //   })
-      //   .catch(error => {
-      //     setDialogNotification({displayMsg: error.message, isShow: true});
-      //   });
+      /*ImagePicker.openCamera({
+        width: 160,
+        height: 160,
+        cropperCircleOverlay: true,
+        cropping: true,
+      })
+        .then(image => {
+          setImage(image.path);
+          // send Backend
+          console.log(image);
+          const formData = new FormData();
+          formData.append('file', {
+            uri: image.path,
+            type: 'image/jpeg',
+            name: Date.now().toString(),
+          });
+        })
+        .catch(error => {
+          setDialogNotification({displayMsg: error.message, isShow: true});
+        });*/
 
       await ImagePicker.launchCamera(options, async response => {
         if (response.didCancel) {
@@ -240,20 +237,22 @@ const PersonalScreen = () => {
         } else {
           let imageUri = response.assets?.[0]?.uri;
           setImage(imageUri);
+          // sendBackend
+          uploadAvatarUser(imageUri);
         }
       });
     } else {
       /*ImagePicker.openPicker({
-                width: 200,
-                height: 200,
-                cropperCircleOverlay: true,
-                cropping: true
-            }).then(image => {
-                setImage(image.path)
-                // send Backend
-            }).catch((error) => {
-                setDialogNotification({ displayMsg: error.message, isShow: true });
-            });*/
+        width: 200,
+        height: 200,
+        cropperCircleOverlay: true,
+        cropping: true
+      }).then(image => {
+        setImage(image.path)
+        // send Backend
+      }).catch((error) => {
+        setDialogNotification({ displayMsg: error.message, isShow: true });
+      });*/
 
       await ImagePicker.launchImageLibrary(options, response => {
         if (response.didCancel) {
@@ -276,6 +275,7 @@ const PersonalScreen = () => {
           let imageUri = response.assets?.[0]?.uri;
           setImage(imageUri);
           // sendBackend
+          uploadAvatarUser(imageUri);
         }
       });
     }
@@ -303,25 +303,44 @@ const PersonalScreen = () => {
     return false;
   };
 
-  // so sánh avatar
-  const compareImages = () => {
-    // so sanh avatar co thay doi hay khong
+  const uploadAvatarUser = (imageUri: any) => {
+    setLoading(true);
+    let formData = new FormData();
+    const fileName = `${Date.now()}${randomNumberString()}.jpg`;
+    formData.append('file', {
+      uri: imageUri,
+      type: 'image/jpeg',
+      name: `${fileName}`,
+    });
+
+    uploadAvatar(user && user.id ? user.id : '', formData)
+      .then(r => {
+        updateUser({
+          ...user,
+          avatar: `${user?.id}/${fileName}`,
+        });
+        setDialog({
+          visible: true,
+          type: 'success',
+          message: bilingual.PERSONAL.SUCCESS.UPLOAD_AVATAR,
+          handleOk: () => setDialog(defaultDialog),
+        });
+      })
+      .catch(e => {
+        setDialog({
+          visible: true,
+          type: 'error',
+          message: bilingual.PERSONAL.ERROR.UPLOAD_AVATAR,
+          handleOk: () => setDialog(defaultDialog),
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleActionSave = () => {
-    const infoUserChange: Person = {
-      id: person.id,
-      hobby: person.hobby,
-      email: person.email,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      avatar: person.avatar,
-    };
-
-    // console.log('Personal-Screen(274): ');
-    // console.log(JSON.stringify(infoUserChange));
-
-    if (person.hobby.length === 0) {
+    if (types.filter(t => t.isChoose).length === 0) {
       setDialog({
         visible: true,
         type: 'error',
@@ -329,12 +348,13 @@ const PersonalScreen = () => {
         handleOk: () => setDialog(defaultDialog),
       });
     }
-
+    
+    setChangeEditable(false);
     setLoading(true);
     updateUserById(person.id, {
       firstName: person.firstName,
       lastName: person.lastName,
-      typesString: person.hobby.join(','),
+      typesString: types.filter(t => t.isChoose).map(t => t.dest.id).join(','),
     })
       .then(r => {
         const d: ApiReturnPerson = r.data.data;
@@ -498,6 +518,7 @@ const PersonalScreen = () => {
               value={person.firstName}
               name="firstName"
               handleChangeValue={handleChangeValue}
+              changeEditable={changeEditable}
             />
             <CustomInputInfoUser
               label={bilingual.PERSONAL.LAST_NAME}
@@ -505,6 +526,7 @@ const PersonalScreen = () => {
               value={person.lastName}
               name="lastName"
               handleChangeValue={handleChangeValue}
+              changeEditable={changeEditable}
             />
             <View style={styles.containerUpdateTypes}>
               <TouchableOpacity
@@ -533,7 +555,7 @@ const PersonalScreen = () => {
                       style={styles.iconAdd}
                       onPress={() => {
                         setTypes(prevType =>
-                          prevType?.map(typeSelected =>
+                          prevType.map(typeSelected =>
                             typeSelected.dest.id === type.dest.id
                               ? {...type, isChoose: !type.isChoose}
                               : typeSelected,
@@ -569,7 +591,7 @@ const PersonalScreen = () => {
               style={styles.changePassword}
               onPress={navigateToChangePasswordScreen}>
               <Text style={[theme.textVariants.textLg, styles.text]}>
-                {bilingual.PERSONAL.CHANGE_PASSWORD}
+                {bilingual.PERSONAL.CHANGE_PWD}
               </Text>
             </TouchableOpacity>
           </View>

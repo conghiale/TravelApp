@@ -4,6 +4,7 @@ import {IUser} from '../types';
 import {sendMail} from '../utils/mailer';
 import {handleUpload, uploadFile} from '../utils/upload';
 import UserService from '../services/user-service';
+import User from '../models/user-model';
 const fs = require('fs');
 
 type InputField = {
@@ -86,18 +87,22 @@ class UserController {
   editUserById = async (req: Request, res: Response) => {
     try {
       const {id} = req.params;
-      console.log('id:', id)
-      if(!id) return res.status(400).send({message: 'Missing parameter(s)'})
-      const {firstName, lastName, typesString}: IUser = req.body;
+      console.log('id:', id);
+      if (!id) return res.status(400).send({message: 'Missing parameter(s)'});
+      const {firstName, lastName, typesString, language, theme}: IUser =
+        req.body;
 
       const result = await this.userService.editUserById(
         id,
         firstName,
         lastName,
-        typesString
+        typesString,
+        language,
+        theme,
       );
-      
-      if(result.success) return res.send({message: result.message, data: result.data});
+
+      if (result.success)
+        return res.send({message: result.message, data: result.data});
       return res.status(400).send({message: result.message});
     } catch (error) {
       console.log('Internal error in updateUser:', error);
@@ -109,7 +114,9 @@ class UserController {
     try {
       const {email}: IUser = req.body;
       const result = await this.userService.toggleLockUser(email);
-      return res.status(result.success ? 200 : 400).send({message: result.message});
+      return res
+        .status(result.success ? 200 : 400)
+        .send({message: result.message});
     } catch (error) {
       return res
         .status(500)
@@ -162,7 +169,7 @@ class UserController {
 
   uploadAvatar = async (req: Request, res: Response) => {
     const {id} = req.params;
-    console.log(req.body);
+    console.log('upload id:', id);
     const storedDir = `src/resources/avatar/${id}`;
 
     if (!fs.existsSync(storedDir)) {
@@ -170,11 +177,13 @@ class UserController {
       console.log(`Directory ${storedDir} created.`);
     }
 
-    uploadFile(storedDir)(req, res, (err: any) => {
+    uploadFile(storedDir)(req, res, async (err: any) => {
       if (err) {
         return res.status(400).json({message: err});
       }
-      handleUpload(req, res);
+      await User.findByIdAndUpdate({_id: id}, {avatar: `${id}/${req.file.originalname}`})
+      // handleUpload(req, res);
+      res.send({message: 'Upload file successfully', data: req.file});
     });
   };
 

@@ -76,7 +76,8 @@ const Dialog: React.FC<DialogProps> = ({
               alignItems: 'center',
               gap: 24,
             }}>
-              {handleCancel ? <TouchableOpacity onPress={handleCancel}>
+            {handleCancel ? (
+              <TouchableOpacity onPress={handleCancel}>
                 <Text
                   style={{
                     color: theme.colors.white,
@@ -86,31 +87,34 @@ const Dialog: React.FC<DialogProps> = ({
                     borderRadius: 12,
                     textAlign: 'center',
                     fontFamily: font.extraBold,
-                    fontSize: 14
+                    fontSize: 14,
                   }}>
                   {bilingual.DIALOG.CANCEL}
                 </Text>
-              </TouchableOpacity> : <></>}
-              <TouchableOpacity onPress={handleOk}>
-                <Text
-                  style={{
-                    color: theme.colors.white,
-                    backgroundColor:
-                      type === 'success'
-                        ? theme.colors.green
-                        : type === 'error'
-                        ? theme.colors.red
-                        : theme.colors.blue,
-                    paddingHorizontal: 40,
-                    paddingVertical: 12,
-                    borderRadius: 12,
-                    textAlign: 'center',
-                    fontFamily: font.extraBold,
-                    fontSize: 14
-                  }}>
-                  {bilingual.DIALOG.OK}
-                </Text>
               </TouchableOpacity>
+            ) : (
+              <></>
+            )}
+            <TouchableOpacity onPress={handleOk}>
+              <Text
+                style={{
+                  color: theme.colors.white,
+                  backgroundColor:
+                    type === 'success'
+                      ? theme.colors.green
+                      : type === 'error'
+                      ? theme.colors.red
+                      : theme.colors.orange,
+                  paddingHorizontal: 40,
+                  paddingVertical: 12,
+                  borderRadius: 12,
+                  textAlign: 'center',
+                  fontFamily: font.extraBold,
+                  fontSize: 14,
+                }}>
+                {bilingual.DIALOG.OK}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

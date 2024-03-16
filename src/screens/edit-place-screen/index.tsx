@@ -18,7 +18,6 @@ import ImageUpload from '@/components/imageUpload/ImageUpload';
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
 import * as ImagePicker from 'react-native-image-picker';
 import Button01 from '@/components/button/button01/Button01';
-import {DestTypes, Places} from '@/assets/data';
 import ButtonArrowLeft from '@/components/button/buttonArrowLeft/ButtonArrowLeft';
 import BorderButton from '@/components/button/borderButton/BorderButton';
 import {
@@ -31,6 +30,7 @@ import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {
+  defaultDialog,
   getErrorMessage,
   getRandomIntInclusive,
   randomNumberString,
@@ -41,12 +41,6 @@ const EditPlaceScreen = () => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(true);
-  const defaultDialog: DialogHandleEvent = {
-    visible: false,
-    type: 'success',
-    message: '',
-    handleOk: () => {},
-  };
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'EditPlace'>>();
 
@@ -107,11 +101,12 @@ const EditPlaceScreen = () => {
           types: d.types,
           images: d.images,
           vote: d.vote,
+          status: d.status,
         });
 
         setImageUploads(
-          d.images.map(img => ({
-            id: getRandomIntInclusive(5, 100),
+          d.images.map((img, index) => ({
+            id: index,
             uri: `${BASE_URL_DESTINATION}/${img}`,
           })),
         );
@@ -334,7 +329,7 @@ const EditPlaceScreen = () => {
       });
     } else {
       const formData = new FormData();
-      console.log(imageUploads.length)
+      // console.log(imageUploads.length)
       imageUploads.forEach(img => {
         formData.append('files', {
           uri: img.uri,
@@ -349,6 +344,7 @@ const EditPlaceScreen = () => {
       formData.append('descriptionEn', placeUpdate.descriptionEn);
       formData.append('latitude', placeUpdate.latitude);
       formData.append('longitude', placeUpdate.longitude);
+      formData.append('status', placeUpdate.status);
       formData.append(
         'typesString',
         types
@@ -356,7 +352,7 @@ const EditPlaceScreen = () => {
           .map(type => type.dest.id)
           .join(','),
       );
-      formData.append('createdBy', user?.id);
+      formData.append('createdBy', user?.email);
       formData.append('role', user?.role);
 
       setLoading(true);
@@ -382,8 +378,8 @@ const EditPlaceScreen = () => {
             })),
           );
           setImageUploads(
-            data.images.map(img => ({
-              id: getRandomIntInclusive(5, 20),
+            data.images.map((img, index) => ({
+              id: index,
               uri: `${BASE_URL_DESTINATION}/${img}`,
             })),
           );
@@ -755,7 +751,7 @@ const EditPlaceScreen = () => {
             </TouchableOpacity>
             {imageUploads.length > 0
               ? imageUploads?.map((imageUpload, index) => (
-                  <View key={imageUpload.id + randomNumberString()} style={{width: 100, height: 100}}>
+                  <View key={index} style={{width: 100, height: 100}}>
                     <ImageUpload
                       image={imageUpload.uri}
                       onHandleShowTakeImage={() => {

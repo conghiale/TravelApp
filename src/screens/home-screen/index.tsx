@@ -1,29 +1,24 @@
-import theme, {Box, Text} from '@/utils/theme';
-import React, {useEffect, useState} from 'react';
+import theme from '@/utils/theme';
+import React, {useState} from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
-import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification';
-import {Alert, Image, Linking, PermissionsAndroid, View} from 'react-native';
-import Button01 from '@/components/button/button01/Button01';
-import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
-import * as ImagePicker from 'react-native-image-picker';
+import {Linking, PermissionsAndroid} from 'react-native';
 import MapView, {
   Callout,
   Marker,
   PROVIDER_GOOGLE,
-  Point,
   Region,
 } from 'react-native-maps';
-import {Places} from '@/assets/data';
 import MyCustomMarkerView from '@/components/maps/MyCustomMarkerView';
 import MyCustomCalloutView from '@/components/maps/MyCustomCalloutView';
 import styles from './homeScreen.style';
-import {PartialRoute, useRoute} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@/navigation/types';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {getDestinationPublic} from '@/services/destination-service';
-import {formatDestination} from '@/utils';
+import {defaultDialog, formatDestination, getErrorMessage} from '@/utils';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import Geolocation from '@react-native-community/geolocation';
+import {labelEn, labelVi} from '@/utils/label';
+import Spinner from 'react-native-loading-spinner-overlay';
+import Dialog from '@/components/dialog-handle-event';
 
 const HomeScreen = () => {
   const routes = useRoute<any>();
@@ -39,66 +34,84 @@ const HomeScreen = () => {
   });
 
   const {user, updateUser} = useUserGlobalStore();
+  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const [loading, setLoading] = useState<boolean>(false);
+  const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
   const [markerSelected, setMarketSelected] = useState(false);
-  const [dialogNotification, setDialogNotification] = useState<{
-    displayMsg: string;
-    isShow: boolean;
-  }>({displayMsg: '', isShow: false});
 
-  useEffect(() => {
-    const requestLocationPermission = async () => {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'This app needs access to your location.',
-            buttonPositive: 'OK',
-          },
+  const releaseMemory = () => {
+    setPlaces([]);
+  };
+
+  const fetchDestPublic = () => {
+    setLoading(true);
+    getDestinationPublic()
+      .then(r => {
+        setPlaces(
+          r.data.data.map((place: ApiReturnDestination) =>
+            formatDestination(place, user),
+          ),
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          Geolocation.getCurrentPosition(
-            (position: Position) => {
-              const {latitude, longitude} = position.coords;
-              updateUser({
-                ...user,
-                latitude,
-                longitude,
-              });
-              console.log('Current pos:', latitude, longitude);
-            },
-            (error: GeolocationError) => console.error(error),
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-          );
-        } else {
-          console.log('Location permission denied');
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    };
+      })
+      .catch(e => {
+        console.log(getErrorMessage(e));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
-    requestLocationPermission();
-    console.log('requested');
-  }, []);
-
-  useEffect(() => {
-    getDestinationPublic().then(r => {
-      setPlaces(
-        r.data.data.map((place: ApiReturnDestination) =>
-          formatDestination(place, user),
-        ),
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message: 'This app needs access to your location.',
+          buttonPositive: 'OK',
+        },
       );
-    });
-  }, []);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        Geolocation.getCurrentPosition(
+          (position: Position) => {
+            const {latitude, longitude} = position.coords;
+            updateUser({
+              ...user,
+              latitude,
+              longitude,
+            });
+            console.info('Got current pos:', latitude, longitude);
+          },
+          (error: GeolocationError) => console.error(error),
+          {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+        );
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen focused');
+      requestLocationPermission();
+      fetchDestPublic();
+      return () => {
+        releaseMemory();
+        console.log('Screen blurred');
+      };
+    }, []),
+  );
 
   const onRegionChange = (region: Region) => {
     setRegion(region);
   };
 
   const hanleButtonOKDialogError = () => {
-    setDialogNotification({displayMsg: '', isShow: false});
+    setDialog(defaultDialog);
   };
 
   const goToGoogleMap = (lat: number, lon: number) => {
@@ -109,12 +122,17 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaWrapper>
-      <DialogNotification
-        status="error"
-        displayMode="SEARCH DESTINATION"
-        displayMsg={dialogNotification.displayMsg}
-        visible={dialogNotification.isShow}
-        onDimissAlert={hanleButtonOKDialogError}
+      <Spinner
+        size={'large'}
+        visible={loading}
+        color={theme.colors.orange1}
+        animation={'fade'}
+      />
+      <Dialog
+        isVisible={dialog.visible}
+        message={dialog.message}
+        type={dialog.type}
+        handleOk={dialog.handleOk}
       />
       <MapView
         // onRegionChange={onRegionChange}

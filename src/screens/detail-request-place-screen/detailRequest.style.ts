@@ -63,13 +63,14 @@ const styles = StyleSheet.create({
         color: theme.colors.white,
         fontFamily: font.semiBold,
         marginTop: 16,
+        textAlign: 'justify',
     },
     footer: {
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginBottom: 16,
         gap: 12
     }
 })

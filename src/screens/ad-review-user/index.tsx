@@ -1,5 +1,9 @@
 import {AppScreenNavigationType} from '@/navigation/types';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
   Image,
@@ -19,47 +23,51 @@ import {DestTypes, LoginHistory, Places} from '@/assets/data';
 import LoginHistoryItem from '@/components/loginHistoryItem/LoginHistoryItem';
 import Place from '@/components/place/Place';
 import Button01 from '@/components/button/button01/Button01';
-import {getUserById} from '@/services/user-service';
+import {getUserById, updateUserById} from '@/services/user-service';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
 import {defaultDialog, getErrorMessage} from '@/utils';
 import {getDestinationTypes} from '@/services/destination-service';
 import {BASE_URL_AVATAR} from '@/services/config';
+import Spinner from 'react-native-loading-spinner-overlay';
+import Dialog from '@/components/dialog-handle-event';
 
 const ReviewUserScreen = () => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'ReviewUser'>>();
   const router = useRoute<any>();
   const userId = router.params.id;
+  const [changeEditable, setChangeEditable] = useState(true);
 
   // Person mặc định (DEMO)
   const personInit: Person = {
     id: '',
-    email: 'legend.mighty28102002@gmail.com',
-    firstName: 'Cong Nghia',
-    lastName: 'Le',
-    avatar: '../../assets/images/avatarDefault.jpg',
-    hobby: ['Du lich xa', 'Du lich gan', 'The thao', 'Thien nhien'],
+    email: '',
+    firstName: '',
+    lastName: '',
+    avatar: '',
+    hobby: [],
   };
 
   const [loginHistory, setLoginHistory] = useState(true);
   const [placeHistory, setPlaceHistory] = useState(true);
 
   const [person, setPerson] = useState<Person>(personInit);
-  const [types, setTypes] = useState<TypesFilterProps[]>();
-  const [typesModal, setTypesModal] = useState<TypesFilterProps[]>();
-  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
+  const [input, setInput] = useState<Person>(personInit);
+  const [types, setTypes] = useState<TypesFilterProps[]>([]);
+  const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]);
   const [infoChanged, setInfoChanged] = useState(false);
+  const [isShowDialogFilter, setShowDialogFilter] = useState(false);
 
   const goBack = () => {
     navigation.goBack();
   };
 
   const handleChangeValue = (name: keyof Person, value: string) => {
-    setPerson({
+    setInput({
       ...person,
       [name]: value,
     });
@@ -73,20 +81,26 @@ const ReviewUserScreen = () => {
     setPlaceHistory(!placeHistory);
   };
 
-  // // Get user by id
-  useEffect(() => {
+  const releaseMemory = () => {
+    setTypes([]);
+  };
+
+  const fetchData = () => {
+    setLoading(true);
     getUserById(userId)
       .then(ru => {
         const data: ApiReturnPerson = ru.data.data;
         console.log('data:', data);
-        setPerson({
+        const dataAssign = {
           id: data._id,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
           avatar: data.avatar,
           hobby: data.hobby,
-        });
+        };
+        setPerson(dataAssign);
+        setInput(dataAssign);
         getDestinationTypes()
           .then(r => {
             const dataCustom: TypesFilterProps[] = r.data.data.map(
@@ -99,6 +113,7 @@ const ReviewUserScreen = () => {
                 isChoose: ru.data.data.hobby.includes(dtype._id),
               }),
             );
+            console.log(dataCustom.map(d => d.isChoose))
             setTypes(dataCustom);
             setTypesModal(dataCustom);
           })
@@ -122,84 +137,112 @@ const ReviewUserScreen = () => {
           handleOk: () => setDialog(defaultDialog),
         });
       });
-  }, []);
+  };
 
-  // Init Type
-  useEffect(() => {
-    let dataTypes: TypesFilterProps[] = [];
-    DestTypes.map(destType =>
-      dataTypes.push({
-        dest: {id: destType.id, label: destType.typeName},
-        isChoose: person.hobby.includes(destType.typeName),
-      }),
-    );
-    setTypes(dataTypes);
-    setTypesModal(dataTypes);
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen focused');
+      fetchData();
 
-  // passing types to person.hobby
-  useEffect(() => {
-    const personUpdate = {...person};
-    types?.forEach(type => {
-      if (type.isChoose && !personUpdate.hobby.includes(type.dest.label)) {
-        personUpdate.hobby.push(type.dest.label);
-      } else if (
-        !type.isChoose &&
-        personUpdate.hobby.includes(type.dest.label)
-      ) {
-        const index = personUpdate.hobby.indexOf(type.dest.label);
-        if (index !== -1) {
-          personUpdate.hobby.splice(index, 1);
-        }
-      }
-    });
-    setPerson(personUpdate);
-  }, [types]);
+      return () => {
+        releaseMemory();
+        console.log('Screen blurred');
+      };
+    }, []),
+  );
 
   // checkChangeInfoUser
   useEffect(() => {
-    setInfoChanged(
-      compareHobby() &&
-        person.email === personInit.email &&
-        person.firstName === personInit.firstName &&
-        person.lastName === personInit.lastName,
-    );
-  }, [person]);
+    const flag =
+      hobbyChanged() ||
+      person.firstName !== input.firstName ||
+      person.lastName !== input.lastName;
+    console.log(hobbyChanged());
+    console.log(flag);
+    setInfoChanged(flag);
+  }, [input, types]);
 
   // compare hobby
-  const compareHobby = () => {
-    let isEqual = true;
-
-    personInit.hobby.forEach((element, index) => {
-      if (element !== person.hobby[index]) {
-        isEqual = false;
-        return; // Thoát khỏi vòng lặp
+  const hobbyChanged = () => {
+    const selected = types.filter(t => t.isChoose);
+    if (!person.hobby || selected.length !== person.hobby.length) {
+      return true;
+    }
+    for (let i = 0; i < selected.length; ++i) {
+      if (!person.hobby.includes(selected[i].dest.id)) {
+        return true;
       }
-    });
-    return isEqual;
-  };
-
-  // so sánh avatar
-  const compareImages = () => {
-    // so sanh avatar co thay doi hay khong
+    }
+    return false;
   };
 
   const handleActionSave = () => {
-    const infoUserChange: Person = {
-      id: person.id,
-      hobby: person.hobby,
-      email: person.email,
-      firstName: person.firstName,
-      lastName: person.lastName,
-      avatar: person.avatar,
-    };
+    // console.log('review-user-Screen(145): ');
+    // console.log(JSON.stringify(infoUserChange));
+    if (types.filter(t => t.isChoose).length === 0) {
+      setDialog({
+        visible: true,
+        type: 'error',
+        message: bilingual.CREATE_EDIT_DEST.ERROR.MT_TYPES,
+        handleOk: () => setDialog(defaultDialog),
+      });
+    }
 
-    console.log('review-user-Screen(145): ');
-    console.log(JSON.stringify(infoUserChange));
+    setChangeEditable(false);
+    setLoading(true);
+    updateUserById(person.id, {
+      firstName: input.firstName,
+      lastName: input.lastName,
+      typesString: types
+        .filter(t => t.isChoose)
+        .map(t => t.dest.id)
+        .join(','),
+    })
+      .then(r => {
+        const d: ApiReturnPerson = r.data.data;
+        setPerson({
+          id: d._id,
+          email: d.email,
+          firstName: d.firstName,
+          lastName: d.lastName,
+          avatar: d.avatar,
+          hobby: d.hobby,
+        });
+        setDialog({
+          visible: true,
+          type: 'success',
+          message: bilingual.PERSONAL.SUCCESS.UPDATE_PROFILE,
+          handleOk: () => setDialog(defaultDialog),
+        });
+      })
+      .catch(e => {
+        setDialog({
+          visible: true,
+          message: getErrorMessage(e),
+          type: 'error',
+          handleOk: () => setDialog(defaultDialog),
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <View style={{width: '100%', height: '100%'}}>
+      <Spinner
+        size={'large'}
+        visible={loading}
+        color={theme.colors.orange1}
+        animation={'fade'}
+      />
+      <Dialog
+        isVisible={dialog.visible}
+        message={dialog.message}
+        type={dialog.type}
+        handleOk={dialog.handleOk}
+        handleCancel={dialog.handleCancel}
+      />
       <Modal
         visible={isShowDialogFilter}
         animationType="fade"
@@ -264,11 +307,11 @@ const ReviewUserScreen = () => {
                 {bilingual.REVIEW_USER.TITLE}
               </Text>
             </View>
-            <View pointerEvents={infoChanged ? 'none' : 'auto'}>
+            <View pointerEvents={infoChanged ? 'auto' : 'none'}>
               <Button01
                 height={40}
                 label={bilingual.REVIEW_USER.CHANGE_BTN}
-                color={infoChanged ? theme.colors.grey : theme.colors.orange}
+                color={infoChanged ? theme.colors.orange : theme.colors.grey}
                 onPress={() => handleActionSave()}
               />
             </View>
@@ -286,7 +329,7 @@ const ReviewUserScreen = () => {
                 source={
                   person.avatar
                     ? {uri: `${BASE_URL_AVATAR}/${person.avatar}`}
-                    : require('../../assets/images/user.png')
+                    : require('../../assets/images/avatarDefault.jpg')
                 }
               />
               <Text
@@ -302,17 +345,19 @@ const ReviewUserScreen = () => {
             <CustomInputInfoUser
               label={bilingual.REVIEW_USER.FIRST_NAME}
               nameIcon="edit"
-              value={person.firstName}
+              value={input.firstName}
               name="firstName"
               handleChangeValue={handleChangeValue}
+              changeEditable={changeEditable}
             />
 
             <CustomInputInfoUser
               label={bilingual.REVIEW_USER.LAST_NAME}
               nameIcon="edit"
-              value={person.lastName}
+              value={input.lastName}
               name="lastName"
               handleChangeValue={handleChangeValue}
+              changeEditable={changeEditable}
             />
 
             <View style={styles.containerUpdateTypes}>

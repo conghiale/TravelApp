@@ -250,7 +250,7 @@ const ChangePasswordScreen = () => {
             />
             <BorderButton
               height={60}
-              label={bilingual.CHANGE_PASSWORD.CANCEL}
+              label={bilingual.CHANGE_PASSWORD.RESET}
               nameIcon="cancel"
               onPress={handleCancel}
             />

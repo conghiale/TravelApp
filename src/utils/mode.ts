@@ -1,0 +1,33 @@
+export const Dark = {
+    white: '#ffffff',
+    black: '#000000',
+    transparent: 'transparent',
+    orange: '#c67c4e',
+    orange1: '#f36e1b',
+    grey: '#9db2ce',
+    grey1: '#f1f2f6',
+    blue: '#386bf6',
+    blue1: '#2f3542',
+    brown: '#826969',
+    yellow: '#ffa801',
+    yellow1: '#ffd32a',
+    green: '#05c46b',
+    red: '#ff3f34',
+}
+
+export const Light = {
+    white: '#ffffff',
+    black: '#000000',
+    transparent: 'transparent',
+    orange: '#c67c4e',
+    orange1: '#f36e1b',
+    grey: '#9db2ce',
+    grey1: '#f1f2f6',
+    blue: '#386bf6',
+    blue1: '#2f3542',
+    brown: '#826969',
+    yellow: '#ffa801',
+    yellow1: '#ffd32a',
+    green: '#05c46b',
+    red: '#ff3f34',
+}

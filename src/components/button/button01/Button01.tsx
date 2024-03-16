@@ -18,10 +18,11 @@ const Button01 = ({ height, label, color, onPress }: ButtonProps) => {
             activeOpacity={0.9}
             style={[styles.button, {
                 backgroundColor: color ? color : theme.colors.orange,
-                height: height ? height : 38
+                height: height ? height : 36,
+                marginVertical: 2,
             }]}
             onPress={onPress}>
-            <Text style={[theme.textVariants.textBase, styles.button_label]}>{label}</Text>
+            <Text style={[styles.button_label]}>{label}</Text>
         </TouchableOpacity>
     )
 }

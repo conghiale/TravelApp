@@ -13,8 +13,9 @@ import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {languageConstant} from '@/API/src/utils/constant';
-import {getItemPagination} from '@/utils';
+import {getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
 import {font} from '@/utils/font';
+import { useFocusEffect } from '@react-navigation/native';
 
 type ApiReturn = {
   _id: string;
@@ -40,7 +41,6 @@ type ApiReturn = {
 };
 
 const LovedScreen = () => {
-  console.log('Loved-Place-screen(12): ');
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,17 +52,16 @@ const LovedScreen = () => {
   };
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
-  // pagination
-  const [dataPagination, setDataPagination] = useState<IPlace[]>([]);
   const [page, setPage] = useState(1);
-  const [isActionShowMore, setIsActionShowMore] = useState(false);
   const [isAsc, setIsAsc] = useState(false);
 
-  const loadDataByPage = () => {
-    setDataPagination(places.slice(0, getItemPagination(page)));
-  };
+  const isShowMore = isShowMoreUtil(places, page);
+  const releaseMemory = () => {
+    setPlaces([]);
+  }
 
   const fetchLoveList = () => {
+    setLoading(true);
     getAllLoveListByUser(user?.id as string, isAsc)
       .then(r => {
         const customData: IPlace[] = r.data.data.map((d: ApiReturn) => ({
@@ -83,7 +82,6 @@ const LovedScreen = () => {
         }));
         // console.log('custom:', customData);
         setPlaces(customData);
-        setDataPagination(customData.slice(0, getItemPagination(page)));
       })
       .catch(e => {
         setDialog({
@@ -98,18 +96,17 @@ const LovedScreen = () => {
       });
   };
 
-  useEffect(() => {
-    fetchLoveList();
-  }, [user]);
+  useFocusEffect(
+    React.useCallback(() => {
+      //focused
+      fetchLoveList();
 
-  useEffect(() => {
-    loadDataByPage();
-  }, [page]);
-
-  useEffect(() => {
-    if (dataPagination?.length === Places.length) setIsActionShowMore(true);
-    else setIsActionShowMore(false);
-  }, [dataPagination]);
+      return () => {
+        //blur
+        releaseMemory();
+      };
+    }, []),
+  );
 
   const onDimiss = useCallback((place: IPlace) => {
     setPlaces(places => places.filter(item => item.id !== place.id));
@@ -151,10 +148,10 @@ const LovedScreen = () => {
           </View>
 
           {/* list data */}
-          {dataPagination?.map((place, index) => (
+          {places.slice(0, getItemPagination(page))?.map((place, index) => (
             <ListPlaceItem key={index} placeItem={place} onDismiss={onDimiss} />
           ))}
-          {dataPagination?.length === 0 ? (
+          {!loading && places.length === 0 ? (
             <Text
               style={{
                 marginTop: '75%',
@@ -163,44 +160,22 @@ const LovedScreen = () => {
                 fontFamily: font.bold,
                 fontSize: 20,
               }}>
-            {loading ? "" : bilingual.GENERAL.NO_DATA}
+              {loading ? '' : bilingual.GENERAL.NO_DATA}
             </Text>
           ) : (
             <></>
           )}
 
-          {!loading && dataPagination && dataPagination.length < places.length ? (
-            <View
-              pointerEvents={isActionShowMore ? 'none' : 'auto'}
-              style={{marginTop: 32, marginHorizontal: 50}}>
-              <Button01
-                height={60}
-                label={bilingual.LOVE_LIST.BTN_SHOW_MORE}
-                color={
-                  isActionShowMore ? theme.colors.grey : theme.colors.orange
-                }
-                onPress={() => setPage(prePage => prePage + 1)}
-              />
-            </View>
-          ) : (
-            <></>
-          )}
-          {dataPagination && dataPagination.length === places.length ? (
-            <View
-              pointerEvents={isActionShowMore ? 'none' : 'auto'}
-              style={{marginTop: 32, marginHorizontal: 50}}>
-              <Button01
-                height={60}
-                label={bilingual.LOVE_LIST.COLLAPSE}
-                color={
-                  isActionShowMore ? theme.colors.grey : theme.colors.orange
-                }
-                onPress={() => setPage(1)}
-              />
-            </View>
-          ) : (
-            <></>
-          )}
+          {isShowBtnPagination(places) ? <View
+            pointerEvents={'auto'}
+            style={{marginTop: 32, marginHorizontal: 50}}>
+            <Button01
+              height={60}
+              label={isShowMore ? bilingual.OUTSTANDING.SHOW_MORE : bilingual.OUTSTANDING.COLLAPSE}
+              color={isShowMore ? theme.colors.green : theme.colors.grey}
+              onPress={() => isShowMore ? setPage(prePage => prePage + 1) : setPage(1)}
+            />
+          </View> : <></>}
         </ScrollView>
       </View>
     </SafeAreaWrapper>

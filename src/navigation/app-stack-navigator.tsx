@@ -18,7 +18,7 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStackNavigator = () => {
   const {user} = useUserGlobalStore();
-  console.log(user)
+  console.info('AppStackNavigator:', user);
   
   return (
     <Stack.Navigator>

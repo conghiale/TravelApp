@@ -5,12 +5,12 @@ import {
   avatarConstant,
   languageConstant,
   roleConstant,
+  themeConstant,
 } from '../utils/constant';
 import Validation from '../models/validation-model';
 import {sendMail} from '../utils/mailer';
 import {bcryptHash, bcryptCompare} from '../utils/password';
 import DestinationType from '../models/destination-type-model';
-import {type} from 'os';
 
 class UserService {
   getUserToken = (_id: string | Types.ObjectId) => {
@@ -75,6 +75,7 @@ class UserService {
       role: roleConstant.USER,
       language: languageConstant.VI,
       avatar: avatarConstant.DEFAULT,
+      theme: themeConstant.DARK,
     });
 
     await this.cleanCodeValidation(email);
@@ -107,6 +108,13 @@ class UserService {
       return {
         success: false,
         message: 'User does not exist',
+      };
+    }
+
+    if (existingUser.lock) {
+      return {
+        success: false,
+        message: 'Your account has been locked',
       };
     }
 
@@ -149,6 +157,8 @@ class UserService {
     firstName: string,
     lastName: string,
     typesString: string,
+    language: string,
+    theme: string,
   ) => {
     const user = await User.findById(userId, {__v: 0});
     if (!user) {
@@ -174,6 +184,14 @@ class UserService {
       console.log(typesString);
       user.hobby = types;
     }
+    if (language) {
+      user.language = language;
+    }
+    if (theme) {
+      user.theme = theme;
+    }
+    //when this api called, user is not first time more
+    user.isFirstTime = false;
     user.save();
 
     return {
@@ -230,7 +248,10 @@ class UserService {
   };
 
   getAllUser = async () => {
-    const users = await User.find({role: roleConstant.USER}, {password: 0, __v: 0});
+    const users = await User.find(
+      {role: roleConstant.USER},
+      {password: 0, __v: 0},
+    );
 
     if (users && users.length > 0) {
       return {

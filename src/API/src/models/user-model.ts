@@ -4,34 +4,34 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true
+      required: true,
     },
     lastName: {
       type: String,
-      required: true
+      required: true,
     },
     email: {
       type: String,
       unique: true,
-      required: true
+      required: true,
     },
     password: {
       type: String,
-      required: true
+      required: true,
     },
     role: {
       type: String,
       default: 'USER',
-      required: true
+      required: true,
     },
     language: {
       type: String,
-      required: true
+      required: true,
     },
     lock: {
       type: Boolean,
       default: false,
-      require: true
+      require: true,
     },
     avatar: {
       type: String,
@@ -55,11 +55,15 @@ const userSchema = new mongoose.Schema(
       default: [],
       require: true,
     },
+    theme: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
-)
+);
 
-const User = mongoose.model('User', userSchema)
-export default User
+const User = mongoose.model('User', userSchema);
+export default User;

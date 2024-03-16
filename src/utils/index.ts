@@ -26,10 +26,6 @@ export const getErrorMessage = (e: any) => {
   return errorMsg;
 };
 
-export const getItemPagination = (page: number) => {
-  return 1 * page;
-};
-
 export const formatDestination = (
   place: ApiReturnDestination,
   user: IAuthenticatedUser | null,
@@ -46,7 +42,21 @@ export const formatDestination = (
   types: place.types,
   status: place.status,
   vote: place.vote,
+  distance: place.distance,
 });
+
+const ITEM_PER_PAGE = 2;
+export const getItemPagination = (page: number) => {
+  return ITEM_PER_PAGE * page;
+};
+
+export const isShowMoreUtil = (places: any, page: number) => {
+  return places.length > places.slice(0, getItemPagination(page)).length;
+}
+
+export const isShowBtnPagination = (dataSource: any) => {
+  return dataSource.length !== 0 && dataSource.length > ITEM_PER_PAGE;
+}
 
 export const defaultDialog: DialogHandleEvent = {
   visible: false,
@@ -57,7 +67,7 @@ export const defaultDialog: DialogHandleEvent = {
 
 export const parseTimestamp = (timestamp: string) => {
   const parsedDate = new Date(timestamp);
-  console.log(parsedDate)
+  console.log(parsedDate);
 
   const day = parsedDate.getDate();
   const month = parsedDate.getMonth() + 1;
@@ -67,11 +77,11 @@ export const parseTimestamp = (timestamp: string) => {
   const minutes = parsedDate.getMinutes();
   const seconds = parsedDate.getSeconds();
 
-  const paddedDay = day < 10 ? "0" + day : day;
-  const paddedMonth = month < 10 ? "0" + month : month;
-  const paddedHours = hours < 10 ? "0" + hours : hours;
-  const paddedMinutes = minutes < 10 ? "0" + minutes : minutes;
-  const paddedSeconds = seconds < 10 ? "0" + seconds : seconds;
+  const paddedDay = day < 10 ? '0' + day : day;
+  const paddedMonth = month < 10 ? '0' + month : month;
+  const paddedHours = hours < 10 ? '0' + hours : hours;
+  const paddedMinutes = minutes < 10 ? '0' + minutes : minutes;
+  const paddedSeconds = seconds < 10 ? '0' + seconds : seconds;
 
   return `${paddedDay}/${paddedMonth}/${year} ${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
-}
+};

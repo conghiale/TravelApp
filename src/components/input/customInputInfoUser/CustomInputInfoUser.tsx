@@ -3,7 +3,6 @@ import styles from './customInputInfoUser.style';
 import theme from '@/utils/theme';
 import LabelScreenReverse from '@/components/labelScreen/LabelScreenReverse';
 import {useEffect, useRef, useState} from 'react';
-import {border} from '@shopify/restyle';
 
 const CustomInputInfoUser = ({
   label,
@@ -11,6 +10,7 @@ const CustomInputInfoUser = ({
   value,
   name,
   handleChangeValue,
+  changeEditable,
 }: CustomInputInfoUserProps) => {
   const [editable, setEditable] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -50,7 +50,10 @@ const CustomInputInfoUser = ({
         <View
           style={[
             styles.containerTitle,
-            {backgroundColor: editable ? '#0be881' : theme.colors.orange},
+            {
+              backgroundColor:
+                (editable && changeEditable) ? '#0be881' : theme.colors.orange,
+            },
           ]}>
           <LabelScreenReverse
             nameIcon={nameIcon}
@@ -64,7 +67,7 @@ const CustomInputInfoUser = ({
           ref={inputText}
           numberOfLines={2}
           multiline={true}
-          editable={editable}
+          editable={editable && changeEditable}
           style={[theme.textVariants.textBase, styles.textInput]}
           placeholder={label}
           value={value}

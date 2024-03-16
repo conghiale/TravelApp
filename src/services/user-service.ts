@@ -16,6 +16,7 @@ export const createUser = (data: IUser) => {
   return axiosInstance.post(`/user/create`, data);
 };
 
+// user
 export const getUserById = (id: string) => {
   return axiosInstance.get(`/user/get/${id}`);
 };
@@ -25,9 +26,12 @@ export const getLinkResetPassword = (data: any) => {
 };
 
 export const updateUserById = (id: string, data: any) => {
-  console.log('prepared', data);
   return axiosInstance.put(`/user/edit/${id}`, data);
 };
+
+export const uploadAvatar = (userId: string, formData: FormData) => {
+  return axiosInstance.postForm(`user/upload-avatar/${userId}`, formData)
+}
 
 //love list
 export const getAllLoveListByUser = (userId: string, isAsc: boolean) => {
