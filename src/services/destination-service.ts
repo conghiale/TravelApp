@@ -40,7 +40,7 @@ export const getWaitingDestination = () => {
 };
 
 export const waitingDestinationApproval = (id: string, accepted: boolean) => {
-  return axiosInstance.post(`/dest/approval`, {id, accepted})
+  return axiosInstance.post(`/dest/approval`, {id, accepted});
 };
 
 export const getImagesByDestinationId = (id: string) => {

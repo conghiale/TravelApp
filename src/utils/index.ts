@@ -17,10 +17,10 @@ export const getRandomIntInclusive = (min: number, max: number) => {
 export const getErrorMessage = (e: any) => {
   let errorMsg = '';
   if (e.response && e.response.data && e.response.data.message) {
-    console.log('Error: ', e.response.data.message);
+    console.error('Error: ', e.response.data.message);
     errorMsg = e.response.data.message;
   } else {
-    console.log('Error: Network error\n', e);
+    console.error('Error: Network error\n', e);
     errorMsg = 'Network error';
   }
   return errorMsg;

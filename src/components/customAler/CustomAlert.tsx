@@ -73,7 +73,7 @@ const CustomAlert = ({
                                             />) : null}
 
                             {isEdit && isEdit === true ? (
-                                <View style={{marginVertical: 8, width: '100%'}}>
+                                <View style={{marginVertical: 12, width: '90%', marginTop: 28}}>
                                     <CustomInput
                                     name='contentComment'
                                     value={inputComment ? inputComment :''}

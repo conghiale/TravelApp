@@ -30,8 +30,8 @@ export const updateUserById = (id: string, data: any) => {
 };
 
 export const uploadAvatar = (userId: string, formData: FormData) => {
-  return axiosInstance.postForm(`user/upload-avatar/${userId}`, formData)
-}
+  return axiosInstance.postForm(`user/upload-avatar/${userId}`, formData);
+};
 
 //love list
 export const getAllLoveListByUser = (userId: string, isAsc: boolean) => {
@@ -63,4 +63,4 @@ export const getAllUserExceptAdmin = () => {
 
 export const lockUserByEmail = (email: string) => {
   return axiosInstance.post(`/user/lock`, {email});
-}
+};

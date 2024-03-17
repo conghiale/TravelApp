@@ -159,6 +159,21 @@ export const labelEn = {
       REJECT: 'Reject failed'
     },
   },
+  DETAIL_PLACE: {
+    TITLE: 'Thông tin địa điểm',
+    COMMENT: 'Bình luận',
+    ENTER_COMMENT: 'Nhập nội dung bình luận',
+    GO_MAP: 'Đến bản đồ',
+    ASK_STAR: 'Hãy cho chúng tôi biết đánh giá của bạn về địa điểm nhé!',
+    CF_DEL_CMT: 'Chắn chắn muốn xóa bình luận này?',
+    ERROR: {
+      DEFAULT: 'Có lỗi xảy ra',
+    },
+    SUCCESS: {
+      DEL_CMT: 'Xóa bình luận thành công',
+      EDIT_CMT: 'Sửa bình luận thành công',
+    },
+  },
   ASK_HOBBY: {
     TITLE: 'Which is your favorite kinds of travel?',
     CONTINUE: 'Continue',
@@ -327,6 +342,21 @@ export const labelVi = {
     ERROR: {
       APPROVE: 'Duyệt thất bại',
       REJECT: 'Từ chối thất bại'
+    },
+  },
+  DETAIL_PLACE: {
+    TITLE: 'Detail Place',
+    COMMENT: 'Comment',
+    ENTER_COMMENT: 'Enter your comment',
+    GO_MAP: 'Go to map',
+    ASK_STAR: 'Let us know how much you like this place?',
+    CF_DEL_CMT: 'Are you sure you want to delete this comment?',
+    ERROR: {
+      DEFAULT: 'Error happened',
+    },
+    SUCCESS: {
+      DEL_CMT: 'Comment deleted',
+      EDIT_CMT: 'Comment updated',
     },
   },
   ASK_HOBBY: {

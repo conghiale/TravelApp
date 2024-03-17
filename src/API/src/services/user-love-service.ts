@@ -56,7 +56,7 @@ class UserLoveService {
         });
       }
     } else {
-      if (!(await UserLove.findOne({userId, destinationId}))) {
+      if ((await UserLove.findOne({userId, destinationId}))) {
         await UserLove.deleteOne({
           userId,
           destinationId,
@@ -123,6 +123,18 @@ class UserLoveService {
       success: false,
       message: 'Love item does not exist',
     };
+  };
+
+  checkUserLoveDestination = async (userId: string, destinationId: string) => {
+    const check = await UserLove.findOne({userId, destinationId});
+    if(!check) return {
+      success: false,
+      message: 'User have not loved this destination',
+    }
+    return {
+      success: true,
+      message: 'User loved this destination',
+    }
   };
 }
 
