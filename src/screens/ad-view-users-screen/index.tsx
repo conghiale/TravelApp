@@ -15,10 +15,16 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
-import {defaultDialog, getErrorMessage, getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
+import {
+  defaultDialog,
+  getErrorMessage,
+  getItemPagination,
+  isShowBtnPagination,
+  isShowMoreUtil,
+} from '@/utils';
 import Button01 from '@/components/button/button01/Button01';
-import { getDestinationTypes } from '@/services/destination-service';
-import { languageConstant } from '@/API/src/utils/constant';
+import {getDestinationTypes} from '@/services/destination-service';
+import {languageConstant} from '@/API/src/utils/constant';
 
 interface ApiReturnUser {
   _id: string;
@@ -36,14 +42,14 @@ interface ApiReturnUser {
   updatedAt: string;
 }
 
-type FilterProps = 'all'|'lock'|'unlock'|'search';
+type FilterProps = 'all' | 'lock' | 'unlock' | 'search';
 
 const ViewUsersScreen = () => {
   const {user} = useUserGlobalStore();
   const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
-  
+
   const navigation = useNavigation<AppScreenNavigationType<'ViewUsers'>>();
   const [selected, setSelected] = React.useState('All');
   const dataFilter = [
@@ -53,7 +59,7 @@ const ViewUsersScreen = () => {
   ];
 
   const [users, setUsers] = useState<CardUserProps[]>([]);
-  const [types, setTypes] = useState<DestCustom[]>([])
+  const [types, setTypes] = useState<DestCustom[]>([]);
   const [page, setPage] = useState(1);
 
   const [filter, setFilter] = useState<FilterProps>('all');
@@ -65,14 +71,14 @@ const ViewUsersScreen = () => {
 
   //filter data
   useEffect(() => {
-    if(selected === 'Locked') {
+    if (selected === 'Locked') {
       setFilter('lock');
-    } else if(selected === 'Unlock') {
+    } else if (selected === 'Unlock') {
       setFilter('unlock');
     } else {
-      setFilter('all')
+      setFilter('all');
     }
-  }, [selected, page])
+  }, [selected, page]);
 
   const handleChangeValueSearch = (value: string) => {
     setSearchText(value);
@@ -88,9 +94,14 @@ const ViewUsersScreen = () => {
       case 'unlock':
         return users.filter(u => !u.lock);
       case 'search':
-        return users.filter(u => u.email.includes(searchText) || u.firstName.includes(searchText) || u.lastName.includes(searchText))
+        return users.filter(
+          u =>
+            u.email.toLowerCase().includes(searchText.toLowerCase()) ||
+            u.firstName.toLowerCase().includes(searchText.toLowerCase()) ||
+            u.lastName.toLowerCase().includes(searchText.toLowerCase()),
+        );
     }
-  }
+  };
   const isShowMore = isShowMoreUtil(dataRender(), page);
   // end filter data
 
@@ -128,12 +139,14 @@ const ViewUsersScreen = () => {
 
   const fetchTypes = () => {
     getDestinationTypes().then(r => {
-      setTypes(r.data.data.map((d: ApiReturnDestType) => ({
-        id: d._id,
-        label: user?.language === languageConstant.VI ? d.labelVi : d.labelEn,
-      })))
-    })
-  }
+      setTypes(
+        r.data.data.map((d: ApiReturnDestType) => ({
+          id: d._id,
+          label: user?.language === languageConstant.VI ? d.labelVi : d.labelEn,
+        })),
+      );
+    });
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -166,7 +179,9 @@ const ViewUsersScreen = () => {
     setDialog({
       visible: true,
       type: 'warning',
-      message: lock ? `${bilingual.VIEW_USERS.CF_UNLOCK} ${email}` : `${bilingual.VIEW_USERS.CF_LOCK} ${email}`,
+      message: lock
+        ? `${bilingual.VIEW_USERS.CF_UNLOCK} ${email}`
+        : `${bilingual.VIEW_USERS.CF_LOCK} ${email}`,
       handleOk: () => lockUser(email),
       handleCancel: () => setDialog(defaultDialog),
     });
@@ -223,27 +238,37 @@ const ViewUsersScreen = () => {
               searchPlaceholder={`-- ${bilingual.VIEW_USERS.SELECT_STATE} --`}
               defaultOption={dataFilter[0]}
               fontFamily={font.semiBold}
-              boxStyles={{borderWidth: 2, borderColor: theme.colors.white, backgroundColor: theme.colors.grey}}
+              boxStyles={{
+                borderWidth: 2,
+                borderColor: theme.colors.white,
+                backgroundColor: theme.colors.grey,
+              }}
               inputStyles={{color: theme.colors.blue1, fontSize: 16}}
               dropdownStyles={{borderWidth: 2, borderColor: theme.colors.white}}
               dropdownTextStyles={{color: theme.colors.white, fontSize: 16}}
             />
           </View>
           <View style={styles.containerUser}>
-            {dataRender().slice(0, getItemPagination(page)).map(user => (
-              <View key={user.id} style={styles.user}>
-                <ProfileUser
-                  image={user.avatar}
-                  email={user.email}
-                  firstName={user.firstName}
-                  LastName={user.lastName}
-                  hobby={types.filter(t => user.hobby.includes(t.id)).map(t => t.label)}
-                  lock={user.lock}
-                  handleButtonLock={() => handleButtonLock(user.email, user.lock)}
-                  handleButtonReview={() => handleButtonReview(user.id)}
-                />
-              </View>
-            ))}
+            {dataRender()
+              .slice(0, getItemPagination(page))
+              .map(user => (
+                <View key={user.id} style={styles.user}>
+                  <ProfileUser
+                    image={user.avatar}
+                    email={user.email}
+                    firstName={user.firstName}
+                    LastName={user.lastName}
+                    hobby={types
+                      .filter(t => user.hobby.includes(t.id))
+                      .map(t => t.label)}
+                    lock={user.lock}
+                    handleButtonLock={() =>
+                      handleButtonLock(user.email, user.lock)
+                    }
+                    handleButtonReview={() => handleButtonReview(user.id)}
+                  />
+                </View>
+              ))}
             {!loading && dataRender().length === 0 ? (
               <Text
                 style={{
@@ -259,9 +284,8 @@ const ViewUsersScreen = () => {
               <></>
             )}
           </View>
-          
-          
-          {isShowBtnPagination(users)? (
+
+          {isShowBtnPagination(users) ? (
             <View
               pointerEvents={'auto'}
               style={{marginTop: 32, marginHorizontal: 50}}>

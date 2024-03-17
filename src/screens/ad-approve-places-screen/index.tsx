@@ -39,7 +39,7 @@ const ApprovePlacesScreen = () => {
   ];
   const [filter, setFilter] = useState<FilterProps>('all');
   const [searchText, setSearchText] = useState('');
-  
+
   //filter data
   useEffect(() => {
     if (selected === 'Oldest to Newest') {
@@ -62,11 +62,13 @@ const ApprovePlacesScreen = () => {
       case 'old_new':
         return places;
       case 'new_old':
-        const copyPlaces = [...places]
+        const copyPlaces = [...places];
         return copyPlaces.reverse();
       case 'search':
         return places.filter(
-          p => p.nameVi.includes(searchText) || p.nameEn.includes(searchText),
+          p =>
+            p.nameVi.toLowerCase().includes(searchText.toLowerCase()) ||
+            p.nameEn.toLowerCase().includes(searchText.toLowerCase()),
         );
     }
   };
