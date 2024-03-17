@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     commentContainer: {
         width: '100%',
         gap: 10,
+        marginTop: 20
     },
 
     commentBox: {
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     userCommentItem: {
         backgroundColor: theme.colors.blue1,
         paddingVertical: 16,
-        paddingHorizontal:4,
+        paddingHorizontal: 4,
 
         shadowColor: "#000",
         shadowOffset: {

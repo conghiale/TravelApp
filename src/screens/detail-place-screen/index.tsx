@@ -15,26 +15,26 @@ import CustomAlert from '@/components/customAler/CustomAlert'
 import FlatlistHorizontal from '@/components/flatList/flasListPlacesHorizontal/FlatlistPlaceHorizontal'
 import { Places } from '@/assets/data'
 import FlatlistImagesHorizontal from '@/components/flatList/flasListImagesHorizontal/FlatlistImagesHorizontal'
-import { createComment, deleteCommentById, getByDestinationId, updateCommentById } from '@/services/comments'
+import { createComment, deleteCommentById, getCommentByDestinationId, updateCommentById } from '@/services/comments'
 import useUserGlobalStore from '@/store/useUserGlobalStore'
-import { getImagesByDestinationId } from '@/services/destination-service'
+import { getDestinationById, getImagesByDestinationId } from '@/services/destination-service'
 import DialogNotification from '@/components/customAler/dialogNotification/DialogNotification'
 import { visible } from '@shopify/restyle'
 
 const PLACE_IMAGE = '../../assets/images/vinh-ha-long.jpg';
 
-const data = {
-  gmailUser: 'Conghiale@Gmail.com',
-  dayStart: '08/10/2023',
-  timeStart: '20:30:06',
-  image: '../../assets/images/vinh-ha-long.jpg',
-  destination: 'Vinh Ha Long',
-  content: "Vịnh Hạ Long là một di sản độc đáo bởi địa danh này chứa đựng những dấu tích  quan trọng trong quá trình hình thành và phát triển lịch sử trái đất, là cái nôi cư trú của người Việt cổ, đồng thời là tác phẩm nghệ thuật tạo hình vĩ đại của thiên nhiên với sự hiện diện của hàng nghìn đảo đá muôn hình vạn trạng, với nhiều hang động kỳ thú quần tụ thành một thế giới vừa sinh động vừa huyền bí.Bên cạnh đó, vịnh Hạ Long còn là nơi tập trung đa dạng sinh học cao với những hệ sinh thái điển hình cùng với hàng nghìn loài động thực vật vô cùng phong phú, đa dạng.Nơi đây còn gắn liền với những giá trị văn hóa – lịch sử hào hùng của dân tộc...",
-  latitude: '50.3213211',
-  longtitude: '120.339228',
-  status: 0,
-  star: 4.5,
-}
+// const data = {
+//   gmailUser: 'Conghiale@Gmail.com',
+//   dayStart: '08/10/2023',
+//   timeStart: '20:30:06',
+//   image: '../../assets/images/vinh-ha-long.jpg',
+//   destination: 'Vinh Ha Long',
+//   content: "Vịnh Hạ Long là một di sản độc đáo bởi địa danh này chứa đựng những dấu tích  quan trọng trong quá trình hình thành và phát triển lịch sử trái đất, là cái nôi cư trú của người Việt cổ, đồng thời là tác phẩm nghệ thuật tạo hình vĩ đại của thiên nhiên với sự hiện diện của hàng nghìn đảo đá muôn hình vạn trạng, với nhiều hang động kỳ thú quần tụ thành một thế giới vừa sinh động vừa huyền bí.Bên cạnh đó, vịnh Hạ Long còn là nơi tập trung đa dạng sinh học cao với những hệ sinh thái điển hình cùng với hàng nghìn loài động thực vật vô cùng phong phú, đa dạng.Nơi đây còn gắn liền với những giá trị văn hóa – lịch sử hào hùng của dân tộc...",
+//   latitude: '50.3213211',
+//   longtitude: '120.339228',
+//   status: 0,
+//   star: 4.5,
+// }
 
 const DetailPlaceScreen = () => {
   const navigation = useNavigation<AppScreenNavigationType<"DetailPlace">>()
@@ -44,6 +44,7 @@ const DetailPlaceScreen = () => {
 
   const { user, updateUser } = useUserGlobalStore();
 
+  const [destination, setDestination] = useState<ApiReturnDestination>()
   const [love, setLove] = useState(false)
   const [comment, setComment] = useState('')
   const [comments, setComments] = useState<CommentProps[]>([])
@@ -87,7 +88,7 @@ const DetailPlaceScreen = () => {
   }, []);
 
   useEffect(() => {
-    getByDestinationId(idPlace)
+    getCommentByDestinationId(idPlace)
       .then((res) => {
         const dataComments: ApiReturnUserComment[] = res.data.data
 
@@ -103,13 +104,20 @@ const DetailPlaceScreen = () => {
         }))
 
         setComments(comentsInit)
-      })
+    })
 
-    getImagesByDestinationId(idPlace)
-      .then(res => {
-        const dataImages: string[] = res.data.data
-        setDestinationImages(dataImages)
-      })
+    getDestinationById(idPlace)
+    .then(res => {
+      const dest : ApiReturnDestination = res.data.data
+      setDestination(dest)
+      setDestinationImages(dest.images)
+    })
+
+    // getImagesByDestinationId(idPlace)
+    //   .then(res => {
+    //     const dataImages: string[] = res.data.data
+    //     setDestinationImages(dataImages)
+    //   })
 
   }, [])
 
@@ -250,13 +258,13 @@ const DetailPlaceScreen = () => {
               {/* change to data = {places.images} */}
               <FlatlistImagesHorizontal data={destinationImages} />
             </View>
-            <Text style={[theme.textVariants.textXl, styles.content]}>Hạ Long Bay</Text>
+            <Text style={[theme.textVariants.textXl, styles.content]}>{destination?.nameVi}</Text>
             <View style={styles.ratingContainer}>
               <View style={styles.rating}>
                 <Rating
                   type='star'
                   ratingCount={5}
-                  startingValue={data.star}
+                  startingValue={destination?.vote}
                   readonly
                   tintColor={theme.colors.blue1}
                   imageSize={25}
@@ -274,12 +282,12 @@ const DetailPlaceScreen = () => {
                   showRating={false}
                   isDisabled={false}
                   starImage={require('../../assets/images/heart.png')}
-                  onFinishRating={(rating) => handlePressButtonLove()}
+                  onFinishRating={() => handlePressButtonLove()}
                 />
               </View>
             </View>
             <Text style={[theme.textVariants.textLg, styles.content]}>
-              {data.content}
+              {destination?.descriptionVi}
             </Text>
           </View>
           <View style={styles.commentContainer}>
