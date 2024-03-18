@@ -3,6 +3,9 @@ import styles from './customInputInfoUser.style';
 import theme from '@/utils/theme';
 import LabelScreenReverse from '@/components/labelScreen/LabelScreenReverse';
 import {useEffect, useRef, useState} from 'react';
+import { themeConstant } from '@/API/src/utils/constant';
+import useUserGlobalStore from '@/store/useUserGlobalStore';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const CustomInputInfoUser = ({
   label,
@@ -15,6 +18,8 @@ const CustomInputInfoUser = ({
   const [editable, setEditable] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputText = useRef<TextInput>(null);
+  const {user} = useUserGlobalStore();
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
 
   const handlePressLabel = () => {
     setEditable(!editable);
@@ -39,7 +44,7 @@ const CustomInputInfoUser = ({
       style={[
         styles.container,
         {
-          borderColor: isFocused ? '#0be881' : '',
+          borderColor: isFocused ? mode.green1 : '',
           borderWidth: isFocused ? 2 : 0,
         },
       ]}>
@@ -52,13 +57,13 @@ const CustomInputInfoUser = ({
             styles.containerTitle,
             {
               backgroundColor:
-                (editable && changeEditable) ? '#0be881' : theme.colors.orange,
+                (editable && changeEditable) ? mode.green1 : mode.orange,
             },
           ]}>
           <LabelScreenReverse
             nameIcon={nameIcon}
             title={label}
-            color={theme.colors.white}
+            color={mode.white}
           />
         </View>
       </TouchableOpacity>

@@ -60,6 +60,8 @@ interface IAuthenticatedUser {
   latitude?: number;
   longitude?: number;
   hobby?: string[];
+  no_loading?: boolean;
+  data_loaded?: boolean;
 }
 
 interface IPlace {

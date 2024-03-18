@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import mongoose from 'mongoose';
 import {IUser} from '../types';
 import {sendMail} from '../utils/mailer';
-import {handleUpload, uploadFile} from '../utils/upload';
+import {uploadFile} from '../utils/upload';
 import UserService from '../services/user-service';
 import User from '../models/user-model';
 const fs = require('fs');

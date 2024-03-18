@@ -1,8 +1,15 @@
 import mongoose from 'mongoose';
 import UserComment from '../models/user-comment-model';
 import User from '../models/user-model';
+import { parseObjectId } from '../utils/password';
+import DestinationService from './destination-service';
 
 class UserCommentService {
+  private destinationService: DestinationService;
+
+  constructor() {
+    this.destinationService = new DestinationService();
+  }
   getCommentsByDestinationId = async (
     destinationId: mongoose.Types.ObjectId,
   ) => {
@@ -125,6 +132,9 @@ class UserCommentService {
         avatar: (await User.findById(createComment.userId)).avatar,
       };
 
+      // update vote of destination
+      await this.updateDestinationVote(parseObjectId(destinationId));
+
       return {
         message: 'Create comment successfully',
         data: data,
@@ -182,7 +192,10 @@ class UserCommentService {
     try {
       const cmt = await UserComment.findById(id, {__v: 0});
       cmt.isDeleted = true;
-      cmt.save();
+      await cmt.save();
+
+      // update vote of destination
+      await this.updateDestinationVote(cmt.destinationId);
 
       return {
         message: 'Comment deleted successfully',
@@ -196,6 +209,33 @@ class UserCommentService {
     const sum = numbers.reduce((acc, num) => acc + num, 0);
     return Math.round((sum / numbers.length) * 2) / 2;
   };
+
+  updateDestinationVote = async (destinationId: mongoose.Types.ObjectId) => {
+    const cmts = (
+      await this.getCommentsByDestinationId(
+        destinationId,
+      )
+    ).data;
+    
+    console.log('num cmts:', cmts.length)
+    const updateVote = this.calculateAverage(
+      cmts.map(c => c.star),
+    );
+    console.log('updateVote value:', updateVote)
+
+    await this.destinationService.updateDestinationById(
+      destinationId,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      updateVote,
+      null,
+    );
+  }
 }
 
 export default UserCommentService;

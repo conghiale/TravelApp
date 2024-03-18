@@ -17,10 +17,10 @@ export const getRandomIntInclusive = (min: number, max: number) => {
 export const getErrorMessage = (e: any) => {
   let errorMsg = '';
   if (e.response && e.response.data && e.response.data.message) {
-    console.error('Error: ', e.response.data.message);
+    console.info('Error: ', e.response.data.message);
     errorMsg = e.response.data.message;
   } else {
-    console.error('Error: Network error\n', e);
+    console.info('Error: Network error\n', e);
     errorMsg = 'Network error';
   }
   return errorMsg;
@@ -28,12 +28,12 @@ export const getErrorMessage = (e: any) => {
 
 export const formatDestination = (
   place: ApiReturnDestination,
-  user: IAuthenticatedUser | null,
+  language: string,
 ): IPlace => ({
   id: place._id,
-  name: user?.language === languageConstant.VI ? place.nameVi : place.nameEn,
+  name: language === languageConstant.VI ? place.nameVi : place.nameEn,
   description:
-    user?.language === languageConstant.VI
+    language === languageConstant.VI
       ? place.descriptionVi
       : place.descriptionEn,
   latitude: place.latitude,
@@ -45,18 +45,18 @@ export const formatDestination = (
   distance: place.distance,
 });
 
-const ITEM_PER_PAGE = 2;
+const ITEM_PER_PAGE = 5;
 export const getItemPagination = (page: number) => {
   return ITEM_PER_PAGE * page;
 };
 
 export const isShowMoreUtil = (places: any, page: number) => {
   return places.length > places.slice(0, getItemPagination(page)).length;
-}
+};
 
 export const isShowBtnPagination = (dataSource: any) => {
   return dataSource.length !== 0 && dataSource.length > ITEM_PER_PAGE;
-}
+};
 
 export const defaultDialog: DialogHandleEvent = {
   visible: false,

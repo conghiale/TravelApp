@@ -5,7 +5,7 @@ import {authenticationMiddleware} from '../middleware';
 const userLoveController = new UserLoveController();
 const userLoveRoutes = express.Router();
 
-// userLoveRoutes.use(authenticationMiddleware);
+userLoveRoutes.use(authenticationMiddleware);
 userLoveRoutes.route('/:id/:order').get(userLoveController.getLoveListByUserId);
 userLoveRoutes.route('/toggle').post(userLoveController.toggleLoveItem);
 userLoveRoutes.route('/add').post(userLoveController.addLoveItem);

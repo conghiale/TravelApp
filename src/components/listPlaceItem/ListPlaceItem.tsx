@@ -7,11 +7,16 @@ import styles from './placeItem.style'
 import theme from '@/utils/theme'
 import { opacity } from '@shopify/restyle'
 import CustomAlert from '../customAler/CustomAlert'
+import useUserGlobalStore from '@/store/useUserGlobalStore'
+import { languageConstant } from '@/API/src/utils/constant'
+import { labelEn, labelVi } from '@/utils/label'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const TRANSLATE_X_THRESHOLD = -SCREEN_WIDTH * 0.2
 
 const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
+    const {user} = useUserGlobalStore();
+    const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
     const translateX = useSharedValue(0)
     const itemHeight = useSharedValue(theme.placeItemInfo.PLACE_ITEM_HEIGHT)
     const marginVertical = useSharedValue(8)
@@ -69,9 +74,9 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
     return (
         <View>
             <CustomAlert
-                stateColor='red'
-                displayMode='TITlE'
-                displayMsg='LOVED LOVED LOVED LOVED'
+                stateColor={theme.colors.orange}
+                displayMode={bilingual.DIALOG.WARNING_MESSAGE}
+                displayMsg={bilingual.DIALOG.DEL_LOVED}
                 visible={showDialog}
                 onDimissAlert={setShowDialog}
                 onHandlerActionOK={onHandlerActionOK}

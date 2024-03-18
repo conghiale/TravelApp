@@ -14,22 +14,25 @@ import {getAllDestinationByRole} from '@/services/destination-service';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {languageConstant} from '@/API/src/utils/constant';
+import {languageConstant, statusDestinationConstant, themeConstant} from '@/API/src/utils/constant';
 import {defaultDialog, getErrorMessage, getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
 import Button01 from '@/components/button/button01/Button01';
+import { DarkMode, LightMode } from '@/utils/mode';
+
+type FilterProps = 'all'|'rejected'|'accepted'|'waiting'|'search';
 
 const CreatedPlacesScreen = () => {
   const {user} = useUserGlobalStore();
   const router = useRoute<any>();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
   const [page, setPage] = useState(1);
-  const isShowMore = isShowMoreUtil(places, page);
 
   const navigation = useNavigation<AppScreenNavigationType<'CreatedPlaces'>>();
-  const [searchValue, setSearchValue] = useState('');
+  const [searchText, setSearchText] = useState('');
   const [selected, setSelected] = React.useState('');
   const dataFilter = [
     {key: '1', value: bilingual.CREATED_PLACES.FILTER_ALL},
@@ -37,17 +40,51 @@ const CreatedPlacesScreen = () => {
     {key: '3', value: bilingual.CREATED_PLACES.FILTER_WAITING},
     {key: '4', value: bilingual.CREATED_PLACES.FILTER_REJECTED},
   ];
+  const [filter, setFilter] = useState<FilterProps>('all');
 
   const handleChangeValueSearch = (value: string) => {
-    setSearchValue(value);
+    setSearchText(value);
+    setFilter('search');
   };
+
+  useEffect(() => {
+    switch(selected) {
+      case bilingual.CREATED_PLACES.FILTER_ALL:
+        setFilter('all');
+        break;
+      case bilingual.CREATED_PLACES.FILTER_ACCEPTED:
+        setFilter('accepted');
+        break;
+      case bilingual.CREATED_PLACES.FILTER_WAITING:
+        setFilter('waiting');
+        break;
+      case bilingual.CREATED_PLACES.FILTER_REJECTED:
+        setFilter('rejected');
+        break;
+    }
+  }, [selected])
+
+  const dataRender = () => {
+    switch(filter) {
+      case 'all':
+        return places;
+      case 'rejected':
+        return places.filter(p => p.status === statusDestinationConstant.REJECTED);
+      case 'accepted':
+        return places.filter(p => p.status === statusDestinationConstant.ACCEPTED);
+      case 'waiting':
+        return places.filter(p => p.status === statusDestinationConstant.WAITING);
+      case 'search':
+        return places.filter(p => p.name.toLowerCase().includes(searchText.toLowerCase()));
+    }
+  }
+  const isShowMore = isShowMoreUtil(dataRender(), page);
 
   const goBack = () => {
     navigation.goBack();
   };
 
   useEffect(() => {
-    console.log('fetched hehe');
     if (user && user.role) {
       getAllDestinationByRole(user.role, user.id)
         .then(r => {
@@ -86,11 +123,11 @@ const CreatedPlacesScreen = () => {
   }, [router]);
 
   return (
-    <View style={{flex: 1, backgroundColor: theme.colors.blue1}}>
+    <View style={{flex: 1, backgroundColor: mode.blue1}}>
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -100,11 +137,11 @@ const CreatedPlacesScreen = () => {
         handleOk={dialog.handleOk}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.title]}>
+              <Text style={[theme.textVariants.textLg, styles.title, {color: mode.orange}]}>
                 {bilingual.CREATED_PLACES.SCREEN_TITLE}
               </Text>
             </View>
@@ -112,7 +149,7 @@ const CreatedPlacesScreen = () => {
           <View style={styles.containerSearch}>
             <View style={styles.search}>
               <Search
-                value={searchValue}
+                value={searchText}
                 handleChangeValueSearch={handleChangeValueSearch}
                 placeholderLabel={bilingual.CREATED_PLACES.FIND_PLACEHOLDER}
               />
@@ -132,14 +169,14 @@ const CreatedPlacesScreen = () => {
               searchPlaceholder={`-- ${bilingual.CREATED_PLACES.FILTER_SEARCH_LABEL} --`}
               defaultOption={dataFilter[0]}
               fontFamily={font.semiBold}
-              boxStyles={{borderWidth: 2, borderColor: theme.colors.white}}
-              inputStyles={{color: theme.colors.orange, fontSize: 16}}
-              dropdownStyles={{borderWidth: 2, borderColor: theme.colors.white}}
-              dropdownTextStyles={{color: theme.colors.white, fontSize: 16}}
+              boxStyles={{borderWidth: 2, borderColor: mode.white}}
+              inputStyles={{color: mode.orange, fontSize: 16}}
+              dropdownStyles={{borderWidth: 2, borderColor: mode.white}}
+              dropdownTextStyles={{color: mode.white, fontSize: 16}}
             />
           </View>
           <View style={styles.containerUser}>
-            {places.slice(0, getItemPagination(page)).map((place, index) => (
+            {dataRender().slice(0, getItemPagination(page)).map((place, index) => (
               <View key={index} style={styles.place}>
                 <Place
                   id={place.id}
@@ -154,8 +191,22 @@ const CreatedPlacesScreen = () => {
                 />
               </View>
             ))}
+            {!loading && dataRender().length === 0 ? (
+              <Text
+                style={{
+                  marginTop: '50%',
+                  color: mode.white,
+                  textAlign: 'center',
+                  fontFamily: font.bold,
+                  fontSize: 20,
+                }}>
+                {loading ? '' : bilingual.GENERAL.NO_DATA}
+              </Text>
+            ) : (
+              <></>
+            )}
           </View>
-          {isShowBtnPagination(places) ? (
+          {isShowBtnPagination(dataRender()) ? (
             <View
               pointerEvents={'auto'}
               style={{marginHorizontal: 50, marginVertical: 24}}>
@@ -166,7 +217,7 @@ const CreatedPlacesScreen = () => {
                     ? bilingual.OUTSTANDING.SHOW_MORE
                     : bilingual.OUTSTANDING.COLLAPSE
                 }
-                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                color={isShowMore ? mode.green : mode.grey}
                 onPress={() =>
                   isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
                 }

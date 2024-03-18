@@ -27,6 +27,8 @@ import {defaultDialog, getErrorMessage} from '@/utils';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
 
 const DetailPlaceScreen = () => {
   const navigation = useNavigation<AppScreenNavigationType<'DetailPlace'>>();
@@ -34,8 +36,9 @@ const DetailPlaceScreen = () => {
   const route = useRoute<any>();
   const idPlace = route.params ? route.params.id : '';
 
-  const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const {user, updateUser} = useUserGlobalStore();
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
@@ -58,6 +61,12 @@ const DetailPlaceScreen = () => {
   const [starEditComment, setStarEditComment] = useState<number>();
 
   const goBack = () => {
+    if (user?.data_loaded) {
+      updateUser({
+        ...user,
+        no_loading: true,
+      });
+    }
     navigation.goBack();
   };
 
@@ -182,8 +191,12 @@ const DetailPlaceScreen = () => {
             updatedAt: res.data.data.updatedAt,
           };
 
-          setComments(prevComment => [...prevComment, newComment]);
+          setComments(prevComment => [newComment, ...prevComment]);
           setComment('');
+          updateUser({
+            ...user,
+            data_loaded: false,
+          });
         })
       : updateCommentById(idCommentChoose, inputEditComment, star ? star : 4.5)
           .then(res => {
@@ -211,9 +224,13 @@ const DetailPlaceScreen = () => {
 
             setInputEditComment('');
             setIdCommentChoose('');
+            updateUser({
+              ...user,
+              data_loaded: false,
+            });
           })
           .catch(err => {
-            getErrorMessage(err)
+            getErrorMessage(err);
           });
   };
 
@@ -233,6 +250,10 @@ const DetailPlaceScreen = () => {
           );
           setComment('');
           setIdCommentChoose('');
+          updateUser({
+            ...user,
+            data_loaded: false,
+          });
         })
       : undefined;
   };
@@ -246,7 +267,7 @@ const DetailPlaceScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -255,8 +276,7 @@ const DetailPlaceScreen = () => {
         type={dialog.type}
         handleOk={dialog.handleOk}
       />
-
-      //lor
+      {/* //lor */}
       <DialogNotification
         status="error"
         displayMode="REMOVE COMMENT"
@@ -274,10 +294,9 @@ const DetailPlaceScreen = () => {
         // onHandlerActionOK={() => console.log('OK')}
         // onHandlerActionOK={() => setDialogComment(prevDialogComment => ({...prevDialogComment, visible: false}))}
       />
-      //end lor
-
+      {/* //end lor */}
       <CustomAlert
-        stateColor={theme.colors.yellow}
+        stateColor={mode.yellow}
         displayMode="EVALUATE"
         displayMsg={bilingual.DETAIL_PLACE.ASK_STAR}
         isStar={true}
@@ -290,18 +309,22 @@ const DetailPlaceScreen = () => {
         onHandlerActionOK={onHandlerActionOK_EVALUATE}
         // onHandlerActionCANCEL={onHandlerActionCANCEL}
       />
-
       <ScrollView
         style={{
-          backgroundColor: theme.colors.blue1,
+          backgroundColor: mode.blue1,
           paddingBottom: isKeyboardVisible ? 50 : 0,
         }}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.label]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.label,
+                  {color: mode.orange},
+                ]}>
                 {bilingual.DETAIL_PLACE.TITLE}
               </Text>
             </View>
@@ -311,7 +334,12 @@ const DetailPlaceScreen = () => {
               {/* change to data = {places.images} */}
               <FlatlistImagesHorizontal data={destinationImages} />
             </View>
-            <Text style={[theme.textVariants.textXl, styles.content]}>
+            <Text
+              style={[
+                theme.textVariants.textXl,
+                styles.content,
+                {color: mode.white},
+              ]}>
               {destination?.nameVi}
             </Text>
             <View style={styles.ratingContainer}>
@@ -321,7 +349,7 @@ const DetailPlaceScreen = () => {
                   ratingCount={5}
                   startingValue={destination?.vote}
                   readonly
-                  tintColor={theme.colors.blue1}
+                  tintColor={mode.blue1}
                   imageSize={25}
                   fractions={1}
                   // jumpValue={0.5}
@@ -333,7 +361,7 @@ const DetailPlaceScreen = () => {
                   count={1}
                   size={30}
                   defaultRating={love ? 1 : 0}
-                  selectedColor="#FF3F34"
+                  selectedColor={mode.red}
                   showRating={false}
                   isDisabled={false}
                   starImage={require('../../assets/images/heart.png')}
@@ -341,15 +369,25 @@ const DetailPlaceScreen = () => {
                 />
               </View>
             </View>
-            <Text style={[theme.textVariants.textLg, styles.content]}>
+            <Text
+              style={[
+                theme.textVariants.textLg,
+                styles.content,
+                {color: mode.white},
+              ]}>
               {destination?.descriptionVi}
             </Text>
           </View>
           <View style={styles.commentContainer}>
-            <Text style={[theme.textVariants.textLg, styles.title]}>
+            <Text
+              style={[
+                theme.textVariants.textLg,
+                styles.title,
+                {color: mode.orange},
+              ]}>
               {bilingual.DETAIL_PLACE.COMMENT}
             </Text>
-            <View style={styles.commentBox}>
+            <View style={[styles.commentBox, {backgroundColor: mode.grey3}]}>
               <View style={{flex: 1}}>
                 <CustomInput
                   name="contentComment"
@@ -358,19 +396,27 @@ const DetailPlaceScreen = () => {
                   handleInputChange={setComment}
                 />
               </View>
-              <View style={styles.sendBtn}>
+              <View style={[styles.sendBtn, {backgroundColor: mode.blue}]}>
                 <TouchableOpacity
                   onPress={() => {
                     setIdCommentChoose('');
                     setShowDialog(true);
                   }}>
-                  <Icons name="send" color="white" />
+                  <Icons name="send" color={mode.white} />
                 </TouchableOpacity>
               </View>
             </View>
             <View style={styles.containerUserComment}>
               {comments.map((comment, index) => (
-                <View key={index} style={styles.userCommentItem}>
+                <View
+                  key={index}
+                  style={[
+                    styles.userCommentItem,
+                    {
+                      backgroundColor: mode.blue1,
+                      shadowColor: mode.black,
+                    },
+                  ]}>
                   <Comment
                     _id={comment._id}
                     avatar={comment.avatar}
@@ -394,13 +440,16 @@ const DetailPlaceScreen = () => {
               ))}
             </View>
           </View>
-          <View style={styles.containerButtonFooter}>
-            <Button01
-              height={60}
-              label={bilingual.DETAIL_PLACE.GO_MAP}
-              onPress={navigateToMainScreen}
-            />
-          </View>
+          {!loading && (
+            <View
+              style={[styles.containerButtonFooter, {shadowColor: mode.black}]}>
+              <Button01
+                height={60}
+                label={bilingual.DETAIL_PLACE.GO_MAP}
+                onPress={navigateToMainScreen}
+              />
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>

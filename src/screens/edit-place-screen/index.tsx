@@ -36,10 +36,13 @@ import {
   randomNumberString,
 } from '@/utils';
 import {BASE_URL_DESTINATION} from '@/services/config';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const EditPlaceScreen = () => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'EditPlace'>>();
@@ -368,7 +371,7 @@ const EditPlaceScreen = () => {
             latitude: data.latitude,
             vote: data.vote,
             images: data.images,
-            types: data.types
+            types: data.types,
           });
 
           setTypes(prevTypes =>
@@ -407,11 +410,11 @@ const EditPlaceScreen = () => {
 
   return (
     <SafeAreaWrapper>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
         <Spinner
           size={'large'}
           visible={loading}
-          color={theme.colors.orange1}
+          color={mode.orange1}
           animation={'fade'}
         />
         <Dialog
@@ -434,9 +437,26 @@ const EditPlaceScreen = () => {
           animationType="fade"
           transparent={true}
           onRequestClose={() => setShowDialogFilter(false)}>
-          <View style={styles.containerModal}>
-            <View style={styles.containerModalDialog}>
-              <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+          <View
+            style={[
+              styles.containerModal,
+              {backgroundColor: mode.grey2},
+            ]}>
+            <View
+              style={[
+                styles.containerModalDialog,
+                {
+                  backgroundColor: mode.blue1,
+                  borderColor: mode.white,
+                  shadowColor: mode.black,
+                },
+              ]}>
+              <Text
+                style={[
+                  theme.textVariants.textXl,
+                  styles.textTitleModal,
+                  {color: mode.orange1},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.SELECT_TYPES}
               </Text>
 
@@ -449,8 +469,9 @@ const EditPlaceScreen = () => {
                       styles.filter,
                       {
                         backgroundColor: type.isChoose
-                          ? theme.colors.grey
-                          : theme.colors.blue1,
+                          ? mode.grey
+                          : mode.blue1,
+                        borderColor: mode.grey,
                       },
                     ]}
                     onPress={() =>
@@ -462,7 +483,12 @@ const EditPlaceScreen = () => {
                         ),
                       )
                     }>
-                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                    <Text
+                      style={[
+                        theme.textVariants.textBase,
+                        styles.text,
+                        {color: mode.white},
+                      ]}>
                       {type.dest.label}
                     </Text>
                   </TouchableOpacity>
@@ -473,7 +499,7 @@ const EditPlaceScreen = () => {
                 <Button01
                   height={60}
                   label="Choose"
-                  color={theme.colors.orange}
+                  color={mode.orange}
                   onPress={() => {
                     setShowDialogFilter(false);
                     setTypes(typesModal);
@@ -491,7 +517,12 @@ const EditPlaceScreen = () => {
           <View style={styles.headerContainer}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.headerText]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.headerText,
+                  {color: mode.orange},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.EDIT_LABEL}
               </Text>
             </View>
@@ -502,14 +533,17 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.nameVi ? 2 : 0,
-                borderColor: onFocus.nameVi ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.nameVi
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -533,14 +567,17 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.nameEn ? 2 : 0,
-                borderColor: onFocus.nameEn ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.nameEn
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -565,15 +602,16 @@ const EditPlaceScreen = () => {
               {
                 borderWidth: onFocus.descriptionVi ? 2 : 0,
                 borderColor: onFocus.descriptionVi
-                  ? '#0be881'
-                  : theme.colors.white,
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -600,15 +638,16 @@ const EditPlaceScreen = () => {
               {
                 borderWidth: onFocus.descriptionEn ? 2 : 0,
                 borderColor: onFocus.descriptionEn
-                  ? '#0be881'
-                  : theme.colors.white,
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -634,14 +673,17 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.latitude ? 2 : 0,
-                borderColor: onFocus.latitude ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.latitude
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -665,14 +707,17 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.longitude ? 2 : 0,
-                borderColor: onFocus.longitude ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.longitude
+                  ? mode.green1
+                  : mode.white,
+                backgroundColor: mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                 },
@@ -697,22 +742,30 @@ const EditPlaceScreen = () => {
               style={[
                 styles.filter,
                 {
-                  backgroundColor: theme.colors.orange,
+                  backgroundColor: mode.orange,
                   marginStart: 0,
                   borderWidth: 0,
+                  borderColor: mode.grey,
                 },
               ]}
               onPress={() => {
                 setTypesModal(types);
                 setShowDialogFilter(true);
               }}>
-              <Text style={[theme.textVariants.textBase, styles.text]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.text,
+                  {color: mode.white},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.CHOOSE_TYPES}
               </Text>
             </TouchableOpacity>
             {types?.map(type =>
               type.isChoose ? (
-                <View key={type.dest.id + randomNumberString()} style={styles.filter}>
+                <View
+                  key={type.dest.id + randomNumberString()}
+                  style={[styles.filter, {borderColor: mode.grey}]}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconRemove}
@@ -727,7 +780,12 @@ const EditPlaceScreen = () => {
                     }}>
                     <Icons name="cancel" />
                   </TouchableOpacity>
-                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                  <Text
+                    style={[
+                      theme.textVariants.textBase,
+                      styles.text,
+                      {color: mode.white},
+                    ]}>
                     {type.dest.label}
                   </Text>
                 </View>
@@ -742,7 +800,7 @@ const EditPlaceScreen = () => {
             ]}>
             <TouchableOpacity
               activeOpacity={0.85}
-              style={styles.btnAdd}
+              style={[styles.btnAdd, {backgroundColor: mode.white}]}
               onPress={() => {
                 setIdImage(-1);
                 setShowTakeImage(true);

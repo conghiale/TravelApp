@@ -24,7 +24,8 @@ import {
 } from '@/utils';
 import Button01 from '@/components/button/button01/Button01';
 import {getDestinationTypes} from '@/services/destination-service';
-import {languageConstant} from '@/API/src/utils/constant';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 interface ApiReturnUser {
   _id: string;
@@ -46,7 +47,8 @@ type FilterProps = 'all' | 'lock' | 'unlock' | 'search';
 
 const ViewUsersScreen = () => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
@@ -122,7 +124,6 @@ const ViewUsersScreen = () => {
           }),
         );
         setUsers(fetchData);
-        console.log('user set');
       })
       .catch(e => {
         setDialog({
@@ -163,12 +164,10 @@ const ViewUsersScreen = () => {
   const lockUser = (email: string) => {
     lockUserByEmail(email)
       .then(r => {
-        console.log(r.data.message);
         fetchUsers();
-        console.log('fetched');
       })
       .catch(e => {
-        console.log(e.response.data.message);
+        getErrorMessage(e);
       })
       .finally(() => {
         setDialog(defaultDialog);
@@ -196,7 +195,7 @@ const ViewUsersScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -207,13 +206,13 @@ const ViewUsersScreen = () => {
         handleCancel={dialog.handleCancel}
       />
       <ScrollView
-        style={{backgroundColor: theme.colors.blue1}}
+        style={{backgroundColor: mode.blue1}}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.title]}>
+              <Text style={[theme.textVariants.textLg, styles.title, {color: mode.orange}]}>
                 {bilingual.VIEW_USERS.TITLE}
               </Text>
             </View>
@@ -240,12 +239,12 @@ const ViewUsersScreen = () => {
               fontFamily={font.semiBold}
               boxStyles={{
                 borderWidth: 2,
-                borderColor: theme.colors.white,
-                backgroundColor: theme.colors.grey,
+                borderColor: mode.white,
+                backgroundColor: mode.grey,
               }}
-              inputStyles={{color: theme.colors.blue1, fontSize: 16}}
-              dropdownStyles={{borderWidth: 2, borderColor: theme.colors.white}}
-              dropdownTextStyles={{color: theme.colors.white, fontSize: 16}}
+              inputStyles={{color: mode.blue1, fontSize: 16}}
+              dropdownStyles={{borderWidth: 2, borderColor: mode.white}}
+              dropdownTextStyles={{color: mode.white, fontSize: 16}}
             />
           </View>
           <View style={styles.containerUser}>
@@ -273,7 +272,7 @@ const ViewUsersScreen = () => {
               <Text
                 style={{
                   marginTop: '50%',
-                  color: theme.colors.white,
+                  color: mode.white,
                   textAlign: 'center',
                   fontFamily: font.bold,
                   fontSize: 20,
@@ -296,7 +295,7 @@ const ViewUsersScreen = () => {
                     ? bilingual.OUTSTANDING.SHOW_MORE
                     : bilingual.OUTSTANDING.COLLAPSE
                 }
-                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                color={isShowMore ? mode.green : mode.grey}
                 onPress={() =>
                   isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
                 }

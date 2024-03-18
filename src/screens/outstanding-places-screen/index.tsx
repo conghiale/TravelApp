@@ -34,13 +34,16 @@ import {
   isShowMoreUtil,
 } from '@/utils';
 import {useFocusEffect} from '@react-navigation/native';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
 
 type FilterProps = 'all' | 'search' | 'type';
 
 const OutstandingPlacesScreen = () => {
-  const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
-  const [loading, setLoading] = useState<boolean>(true);
+  const {user, updateUser} = useUserGlobalStore();
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
+  const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isShowDialogFilter, setShowDialogFilter] = useState(false);
@@ -55,7 +58,7 @@ const OutstandingPlacesScreen = () => {
   const [filter, setFilter] = useState<FilterProps>('all');
   const [searchText, setSearchText] = useState('');
   const dataRender = () => {
-    console.log('filter:', filter);
+    // console.log('filter:', filter);
     switch (filter) {
       case 'all':
         return places;
@@ -68,13 +71,13 @@ const OutstandingPlacesScreen = () => {
               .includes(idStr),
           ),
         );
-        console.info('type:', data.length);
+        // console.info('type:', data.length);
         return data;
       case 'search':
         const ds = places.filter(p =>
           p.name.toLowerCase().includes(searchText.toLowerCase()),
         );
-        console.log('search:', ds.length);
+        // console.log('search:', ds.length);
         return ds;
     }
   };
@@ -85,74 +88,106 @@ const OutstandingPlacesScreen = () => {
     setTypesModal([]);
     setPlaces([]);
     setTopPlaces([]);
-    // setNearPlaces([]);
+    setNearPlaces([]);
   };
 
   //call API
   const fetchOutstandingPlaces = () => {
     setLoading(true);
-    getDestinationPublic().then(r => {
-      const dataFetch: IPlace[] = r.data.data.map(
-        (place: ApiReturnDestination) => formatDestination(place, user),
+    Promise.all([
+      getDestinationPublic().catch(e => {getErrorMessage(e); return Promise.reject(e);}),
+      getTopDestination().catch(e => {getErrorMessage(e); return Promise.reject(e);}),
+      getNearDestination(user?.latitude as number, user?.longitude as number).catch(e => {getErrorMessage(e); return Promise.reject(e);}),
+    ]).then(([rDestPulbic, rTopDest, rNearDest]) => {
+      setPlaces(rDestPulbic.data.data.map(
+        (place: ApiReturnDestination) =>
+          formatDestination(place, user?.language as string),
+      ));
+
+      setTopPlaces(
+        rTopDest.data.data.map((place: ApiReturnDestination) =>
+          formatDestination(place, user?.language as string),
+        ),
       );
-      setPlaces(dataFetch);
+
+      setNearPlaces(
+        rNearDest.data.data.map((place: ApiReturnDestination) =>
+          formatDestination(place, user?.language as string),
+        ),
+      );
+    }).catch(e => {
+      console.info(e);
+    }).finally(() => {
+      setLoading(false);
     });
-    // get top
-    getTopDestination()
-      .then(r => {
-        console.log(r.data.data.length);
-        setTopPlaces(
-          r.data.data.map((place: ApiReturnDestination) =>
-            formatDestination(place, user),
-          ),
-        );
-      })
-      .catch(e => {
-        console.log('top e:', e);
-      });
-    // get types
-    getDestinationTypes()
-      .then(r => {
-        const dataCustom: TypesFilterProps[] = r.data.data.map(
-          (dtype: ApiReturnDestType) => ({
-            dest: {
-              id: dtype._id,
-              label: user?.language === 'VI' ? dtype.labelVi : dtype.labelEn,
-            },
-            isChoose: false,
-          }),
-        );
-        setTypes(dataCustom);
-        setTypesModal(dataCustom);
-      })
-      .catch(e => {
-        setDialog({
-          visible: true,
-          message: getErrorMessage(e),
-          type: 'error',
-          handleOk: () => setDialog(defaultDialog),
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
+
+  // const fetchDests = () => {
+  //   getDestinationPublic().then(r => {
+  //     setNearPlaces(
+  //       r.data.data.map((place: ApiReturnDestination) =>
+  //         formatDestination(place, user?.language as string),
+  //       ),
+  //     );
+  //   })
+  // }
+
+  const fetchTypes = () => {
+    getDestinationTypes().then(r => {
+      const dataCustom: TypesFilterProps[] = r.data.data.map(
+        (dtype: ApiReturnDestType) => ({
+          dest: {
+            id: dtype._id,
+            label:
+              user?.language === languageConstant.VI
+                ? dtype.labelVi
+                : dtype.labelEn,
+          },
+          isChoose: false,
+        }),
+      );
+      setTypes(dataCustom);
+      setTypesModal(dataCustom);
+    })
+  }
+
+  // useEffect(() => {
+  //   if (!user?.no_loading) {
+  //     setLoading(true);
+  //   }
+  //   fetchOutstandingPlaces();
+  // }, [user?.language]);
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Screen focused');
-      fetchOutstandingPlaces();
+      // fetchDests();
+      console.log(user?.no_loading, user?.data_loaded);
+      if (!user?.no_loading || !user?.data_loaded) {
+        fetchOutstandingPlaces();
+        fetchTypes();
+        updateUser({
+          ...user,
+          no_loading: false,
+          data_loaded: true,
+        });
+      }
 
       return () => {
-        releaseMemory();
-        console.log('Screen blurred');
+        // releaseMemory();
+        // console.log('Screen blurred');
       };
-    }, []),
+    }, [
+      user?.language,
+      user?.latitude,
+      user?.no_loading,
+      user?.theme,
+      user?.data_loaded,
+    ]),
   );
 
   //filter data
   useEffect(() => {
-    console.info(types.filter(t => t.isChoose).length);
+    // console.info(types.filter(t => t.isChoose).length);
     if (types.filter(t => t.isChoose).length > 0) {
       setFilter('type');
     } else {
@@ -161,26 +196,6 @@ const OutstandingPlacesScreen = () => {
   }, [types, page]);
 
   // end filter data
-
-  //get nearest places
-  useEffect(() => {
-    if (user && user.latitude && user.longitude) {
-      getNearDestination(user.latitude, user.longitude)
-        .then(r => {
-          setNearPlaces(
-            r.data.data.map((place: ApiReturnDestination) =>
-              formatDestination(place, user),
-            ),
-          );
-        })
-        .catch(e => {
-          console.log('Nearest error:', getErrorMessage(e));
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, [user?.latitude]);
 
   const handleChangeValueSearch = (value: string) => {
     setSearchText(value);
@@ -216,7 +231,7 @@ const OutstandingPlacesScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -225,15 +240,28 @@ const OutstandingPlacesScreen = () => {
         type={dialog.type}
         handleOk={dialog.handleOk}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
         <Modal
           visible={isShowDialogFilter}
           animationType="fade"
           transparent={true}
           onRequestClose={() => setShowDialogFilter(false)}>
-          <View style={styles.containerModal}>
-            <View style={styles.containerModalDialog}>
-              <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+          <View style={[styles.containerModal, {backgroundColor: mode.grey2}]}>
+            <View
+              style={[
+                styles.containerModalDialog,
+                {
+                  backgroundColor: mode.blue1,
+                  borderColor: mode.white,
+                  shadowColor: mode.black,
+                },
+              ]}>
+              <Text
+                style={[
+                  theme.textVariants.textXl,
+                  styles.textTitleModal,
+                  {color: mode.orange1},
+                ]}>
                 {bilingual.OUTSTANDING.FILTER_LABEL}
               </Text>
               <View style={styles.bodyModal}>
@@ -244,9 +272,8 @@ const OutstandingPlacesScreen = () => {
                     style={[
                       styles.filter,
                       {
-                        backgroundColor: type.isChoose
-                          ? theme.colors.grey
-                          : theme.colors.blue1,
+                        backgroundColor: type.isChoose ? mode.grey : mode.blue1,
+                        borderColor: mode.grey,
                       },
                     ]}
                     onPress={() =>
@@ -258,7 +285,12 @@ const OutstandingPlacesScreen = () => {
                         ),
                       )
                     }>
-                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                    <Text
+                      style={[
+                        theme.textVariants.textBase,
+                        styles.text,
+                        {color: mode.white},
+                      ]}>
                       {type.dest.label}
                     </Text>
                   </TouchableOpacity>
@@ -269,7 +301,7 @@ const OutstandingPlacesScreen = () => {
                 <Button01
                   height={60}
                   label={bilingual.OUTSTANDING.FILTER_CHOOSE}
-                  color={theme.colors.orange}
+                  color={mode.orange}
                   onPress={() => {
                     setShowDialogFilter(false);
                     setTypes(typesModal);
@@ -296,22 +328,30 @@ const OutstandingPlacesScreen = () => {
               style={[
                 styles.filter,
                 {
-                  backgroundColor: theme.colors.orange,
+                  backgroundColor: mode.orange,
                   marginStart: 0,
                   borderWidth: 0,
+                  borderColor: mode.grey,
                 },
               ]}
               onPress={() => {
                 setTypesModal(types);
                 setShowDialogFilter(true);
               }}>
-              <Text style={[theme.textVariants.textBase, styles.text]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.text,
+                  {color: mode.white},
+                ]}>
                 {bilingual.OUTSTANDING.FILTER_BTN}
               </Text>
             </TouchableOpacity>
             {types?.map((type, index) =>
               type.isChoose ? (
-                <View key={index} style={styles.filter}>
+                <View
+                  key={index}
+                  style={[styles.filter, {borderColor: mode.grey}]}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconAdd}
@@ -326,7 +366,12 @@ const OutstandingPlacesScreen = () => {
                     }}>
                     <Icons name="cancel" />
                   </TouchableOpacity>
-                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                  <Text
+                    style={[
+                      theme.textVariants.textBase,
+                      styles.text,
+                      {color: mode.white},
+                    ]}>
                     {type.dest.label}
                   </Text>
                 </View>
@@ -355,7 +400,9 @@ const OutstandingPlacesScreen = () => {
                   title={bilingual.OUTSTANDING.NEAREST_PLACE}
                 />
               </View>
-              <FlatlistHorizontal data={nearPlaces} />
+              <View style={{marginVertical: 8}}>
+                <FlatlistHorizontal data={nearPlaces} />
+              </View>
             </>
           ) : (
             <></>
@@ -383,7 +430,7 @@ const OutstandingPlacesScreen = () => {
                     ? bilingual.OUTSTANDING.SHOW_MORE
                     : bilingual.OUTSTANDING.COLLAPSE
                 }
-                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                color={isShowMore ? mode.green : mode.grey}
                 onPress={() =>
                   isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
                 }

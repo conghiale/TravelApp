@@ -1,11 +1,9 @@
 import { font } from "@/utils/font";
-import theme from "@/utils/theme";
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: theme.colors.blue1,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: '5%',
@@ -24,7 +22,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     title: {
-        color: theme.colors.orange,
         fontFamily: font.bold,
     },
     containerSearch: {
@@ -58,10 +55,6 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         justifyContent: 'center',
     },
-    destination: {
-        color: theme.colors.white,
-        fontFamily: font.semiBold
-    }
 })
 
 export default styles

@@ -7,7 +7,6 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: theme.colors.orange,
         paddingHorizontal: 16,
         flexDirection: 'row',
         gap: 8,

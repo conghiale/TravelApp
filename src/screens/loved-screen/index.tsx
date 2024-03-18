@@ -1,8 +1,6 @@
-import theme from '@/utils/theme';
 import React, {useCallback, useEffect, useState} from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
 import {ScrollView, Text, View} from 'react-native';
-import {Places} from '@/assets/data';
 import styles from './loved.style';
 import ListPlaceItem from '@/components/listPlaceItem/ListPlaceItem';
 import LabelScreen from '@/components/labelScreen/LabelScreen';
@@ -12,10 +10,18 @@ import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {languageConstant} from '@/API/src/utils/constant';
-import {getItemPagination, isShowBtnPagination, isShowMoreUtil} from '@/utils';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {
+  defaultDialog,
+  getErrorMessage,
+  getItemPagination,
+  isShowBtnPagination,
+  isShowMoreUtil,
+} from '@/utils';
 import {font} from '@/utils/font';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import {DarkMode, LightMode} from '@/utils/mode';
+import {removeLoveDestination} from '@/services/destination-service';
 
 type ApiReturn = {
   _id: string;
@@ -41,27 +47,18 @@ type ApiReturn = {
 };
 
 const LovedScreen = () => {
-  const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
   const [loading, setLoading] = useState<boolean>(true);
-  const defaultDialog: DialogHandleEvent = {
-    visible: false,
-    type: 'success',
-    message: '',
-    handleOk: () => {},
-  };
+  const {user, updateUser} = useUserGlobalStore();
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
   const [page, setPage] = useState(1);
   const [isAsc, setIsAsc] = useState(false);
 
   const isShowMore = isShowMoreUtil(places, page);
-  const releaseMemory = () => {
-    setPlaces([]);
-  }
 
   const fetchLoveList = () => {
-    setLoading(true);
     getAllLoveListByUser(user?.id as string, isAsc)
       .then(r => {
         const customData: IPlace[] = r.data.data.map((d: ApiReturn) => ({
@@ -80,7 +77,6 @@ const LovedScreen = () => {
           types: d.lovedDest.types,
           vote: d.lovedDest.vote,
         }));
-        // console.log('custom:', customData);
         setPlaces(customData);
       })
       .catch(e => {
@@ -96,31 +92,54 @@ const LovedScreen = () => {
       });
   };
 
+  // useEffect(() => {
+  //   if(!user?.no_loading) {
+  //     setLoading(true);
+  //   }
+  //   fetchLoveList();
+  // }, [user?.language])
+
   useFocusEffect(
     React.useCallback(() => {
       //focused
+      setLoading(true);
       fetchLoveList();
+      console.log('test now:', user?.data_loaded ? true : false);
+      updateUser({
+        ...user,
+        no_loading: user?.data_loaded ? true : false,
+      });
 
       return () => {
         //blur
-        releaseMemory();
+        // setPlaces([]);
       };
-    }, []),
+    }, [
+      user?.language,
+      user?.latitude,
+      user?.no_loading,
+      user?.theme,
+      user?.data_loaded,
+    ]),
   );
 
   const onDimiss = useCallback((place: IPlace) => {
-    setPlaces(places => places.filter(item => item.id !== place.id));
-
-    // Xoa trong data base
+    setLoading(true);
+    removeLoveDestination({userId: user?.id, destId: place.id})
+      .then(r => {
+        setPlaces(places => places.filter(item => item.id !== place.id));
+      })
+      .catch(e => getErrorMessage(e))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <SafeAreaWrapper>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
         <Spinner
           size={'large'}
           visible={loading}
-          color={theme.colors.orange1}
+          color={mode.orange1}
           animation={'fade'}
         />
         <Dialog
@@ -137,14 +156,14 @@ const LovedScreen = () => {
               nameIcon="loved"
               title={bilingual.LOVE_LIST.TITLE_SCREEN}
             />
-            <LabelScreen
+            {/* <LabelScreen
               nameIcon="newest"
               title={
                 isAsc
                   ? bilingual.LOVE_LIST.TOGGLE_OLDEST
                   : bilingual.LOVE_LIST.TOGGLE_NEWEST
               }
-            />
+            /> */}
           </View>
 
           {/* list data */}
@@ -155,7 +174,7 @@ const LovedScreen = () => {
             <Text
               style={{
                 marginTop: '75%',
-                color: theme.colors.white,
+                color: mode.white,
                 textAlign: 'center',
                 fontFamily: font.bold,
                 fontSize: 20,
@@ -166,16 +185,26 @@ const LovedScreen = () => {
             <></>
           )}
 
-          {isShowBtnPagination(places) ? <View
-            pointerEvents={'auto'}
-            style={{marginTop: 32, marginHorizontal: 50}}>
-            <Button01
-              height={60}
-              label={isShowMore ? bilingual.OUTSTANDING.SHOW_MORE : bilingual.OUTSTANDING.COLLAPSE}
-              color={isShowMore ? theme.colors.green : theme.colors.grey}
-              onPress={() => isShowMore ? setPage(prePage => prePage + 1) : setPage(1)}
-            />
-          </View> : <></>}
+          {isShowBtnPagination(places) ? (
+            <View
+              pointerEvents={'auto'}
+              style={{marginTop: 32, marginHorizontal: 50}}>
+              <Button01
+                height={60}
+                label={
+                  isShowMore
+                    ? bilingual.OUTSTANDING.SHOW_MORE
+                    : bilingual.OUTSTANDING.COLLAPSE
+                }
+                color={isShowMore ? mode.green : mode.grey}
+                onPress={() =>
+                  isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
+                }
+              />
+            </View>
+          ) : (
+            <></>
+          )}
         </ScrollView>
       </View>
     </SafeAreaWrapper>

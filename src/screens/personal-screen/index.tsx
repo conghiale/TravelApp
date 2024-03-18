@@ -32,14 +32,21 @@ import {
   updateUserById,
   uploadAvatar,
 } from '@/services/user-service';
-import {roleConstant} from '@/API/src/utils/constant';
+import {
+  languageConstant,
+  roleConstant,
+  themeConstant,
+} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
 
 const PersonalScreen = () => {
   const {user, updateUser} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [changeEditable, setChangeEditable] = useState(true);
+  const [languageToggle, setLanguageToggle] = useState(user?.language);
 
   const IMAGE = '../../assets/images/avatarDefault.jpg';
   const [person, setPerson] = useState<Person>({
@@ -62,6 +69,8 @@ const PersonalScreen = () => {
 
   //call API
   useEffect(() => {
+    setLoading(true);
+    console.log('personal fetch api');
     if (user && user.id)
       getUserById(user.id)
         .then(ru => {
@@ -97,9 +106,6 @@ const PersonalScreen = () => {
                 type: 'error',
                 handleOk: () => setDialog(defaultDialog),
               });
-            })
-            .finally(() => {
-              setLoading(false);
             });
         })
         .catch(e => {
@@ -109,39 +115,52 @@ const PersonalScreen = () => {
             type: 'error',
             handleOk: () => setDialog(defaultDialog),
           });
-        });
-  }, [user]);
+        })
+        .finally(() => setLoading(false));
+  }, [user?.firstName, user?.lastName, user?.avatar, user?.hobby]);
 
   const handleToggle = (key: keyof IAuthenticatedUser) => {
-    if(user && user.id) {
+    if (user && user.id) {
       switch (key) {
         case 'language':
-          let langValue = user?.language === 'VI' ? 'EN' : 'VI'
-          updateUserById(user.id, {language: langValue}).then(r => {
-            console.log('Switch lang OK')
-          }).catch(e => {
-            console.error('Switch lang failed')
-          })
+          let langValue =
+            user?.language === languageConstant.VI
+              ? languageConstant.EN
+              : languageConstant.VI;
+          updateUserById(user.id, {language: langValue})
+            .then(r => {
+              console.log('Switch lang OK');
+            })
+            .catch(e => {
+              console.info('Switch lang failed');
+            });
+          // setLanguageToggle(langValue);
           updateUser({
             ...user,
             language: langValue,
+            no_loading: true,
+            data_loaded: false,
           });
-          //sendapi
+          // setTimeout(() => {
+          // }, 300);
           break;
         case 'theme':
-          const themeValue = user?.theme === 'Dark' ? 'Light' : 'Dark';
-          updateUserById(user.id, {theme: themeValue}).then(r => {
-            console.log('Switch lang OK')
-          }).catch(e => {
-            console.error('Switch lang failed')
-          })
+          const themeValue =
+            user?.theme === themeConstant.DARK
+              ? themeConstant.LIGHT
+              : themeConstant.DARK;
+          updateUserById(user.id, {theme: themeValue})
+            .then(r => {
+              console.log('Switch lang OK');
+            })
+            .catch(e => {
+              console.info('Switch lang failed');
+            });
           updateUser({
             ...user,
             theme: themeValue,
           });
-        // sendapi
-
-    }
+      }
     }
   };
 
@@ -348,13 +367,16 @@ const PersonalScreen = () => {
         handleOk: () => setDialog(defaultDialog),
       });
     }
-    
+
     setChangeEditable(false);
     setLoading(true);
     updateUserById(person.id, {
       firstName: person.firstName,
       lastName: person.lastName,
-      typesString: types.filter(t => t.isChoose).map(t => t.dest.id).join(','),
+      typesString: types
+        .filter(t => t.isChoose)
+        .map(t => t.dest.id)
+        .join(','),
     })
       .then(r => {
         const d: ApiReturnPerson = r.data.data;
@@ -393,7 +415,7 @@ const PersonalScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: mode.blue1}]}>
       <DialogChooseImage
         visible={showTakeImage}
         onDimissAlert={setShowTakeImage}
@@ -404,7 +426,7 @@ const PersonalScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -421,9 +443,22 @@ const PersonalScreen = () => {
         animationType="fade"
         transparent={true}
         onRequestClose={() => setShowDialogFilter(false)}>
-        <View style={styles.containerModal}>
-          <View style={styles.containerModalDialog}>
-            <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+        <View style={[styles.containerModal, {backgroundColor: mode.grey2}]}>
+          <View
+            style={[
+              styles.containerModalDialog,
+              {
+                backgroundColor: mode.blue1,
+                borderColor: mode.white,
+                shadowColor: mode.black,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textXl,
+                styles.textTitleModal,
+                {color: mode.orange1},
+              ]}>
               {bilingual.PERSONAL.FILTER_LABEL}
             </Text>
 
@@ -433,11 +468,10 @@ const PersonalScreen = () => {
                   key={type.dest.id}
                   activeOpacity={0.5}
                   style={[
-                    styles.UpdateTypes,
+                    styles.updateTypes,
                     {
-                      backgroundColor: type.isChoose
-                        ? theme.colors.grey
-                        : theme.colors.blue1,
+                      backgroundColor: type.isChoose ? mode.grey : mode.blue1,
+                      borderColor: mode.grey,
                     },
                   ]}
                   onPress={() =>
@@ -449,7 +483,12 @@ const PersonalScreen = () => {
                       ),
                     )
                   }>
-                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                  <Text
+                    style={[
+                      theme.textVariants.textBase,
+                      styles.text,
+                      {color: mode.white},
+                    ]}>
                     {type.dest.label}
                   </Text>
                 </TouchableOpacity>
@@ -460,7 +499,7 @@ const PersonalScreen = () => {
               <Button01
                 height={60}
                 label={bilingual.PERSONAL.FILTER_CHOOSE}
-                color={theme.colors.orange}
+                color={mode.orange}
                 onPress={() => {
                   setShowDialogFilter(false);
                   setTypes(typesModal);
@@ -476,7 +515,14 @@ const PersonalScreen = () => {
         style={{marginBottom: isKeyboardVisible ? 5 : 135}}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[theme.textVariants.textXl, styles.text]}>{}</Text>
+          <Text
+            style={[
+              theme.textVariants.textXl,
+              styles.text,
+              {color: mode.white},
+            ]}>
+            {}
+          </Text>
           <View style={styles.containerAvatar}>
             <Image
               source={
@@ -484,12 +530,13 @@ const PersonalScreen = () => {
                   ? {uri: `${BASE_URL_AVATAR}/${user.avatar}`}
                   : require(IMAGE)
               }
-              style={styles.imageAvatar}
+              style={[styles.imageAvatar, {borderColor: mode.grey}]}
             />
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => setShowTakeImage(true)}>
-              <View style={styles.containerCamera}>
+              <View
+                style={[styles.containerCamera, {backgroundColor: mode.grey}]}>
                 <Icons name="camera" />
               </View>
             </TouchableOpacity>
@@ -501,7 +548,7 @@ const PersonalScreen = () => {
               style={[
                 theme.textVariants.textBase,
                 styles.text,
-                {textAlign: 'center'},
+                {textAlign: 'center', color: mode.white},
               ]}>
               {person.email}
             </Text>
@@ -532,24 +579,32 @@ const PersonalScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.85}
                 style={[
-                  styles.UpdateTypes,
+                  styles.updateTypes,
                   {
-                    backgroundColor: theme.colors.orange,
+                    backgroundColor: mode.orange,
                     marginStart: 0,
                     borderWidth: 0,
+                    borderColor: mode.grey,
                   },
                 ]}
                 onPress={() => {
                   setTypesModal(types);
                   setShowDialogFilter(true);
                 }}>
-                <Text style={[theme.textVariants.textBase, styles.text]}>
+                <Text
+                  style={[
+                    theme.textVariants.textBase,
+                    styles.text,
+                    {color: mode.white},
+                  ]}>
                   {bilingual.PERSONAL.SET_HOBBY}
                 </Text>
               </TouchableOpacity>
               {types?.map((type, index) =>
                 type.isChoose ? (
-                  <View key={index} style={styles.UpdateTypes}>
+                  <View
+                    key={index}
+                    style={[styles.updateTypes, {borderColor: mode.grey}]}>
                     <TouchableOpacity
                       activeOpacity={0.85}
                       style={styles.iconAdd}
@@ -564,7 +619,12 @@ const PersonalScreen = () => {
                       }}>
                       <Icons name="cancel" />
                     </TouchableOpacity>
-                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                    <Text
+                      style={[
+                        theme.textVariants.textBase,
+                        styles.text,
+                        {color: mode.white},
+                      ]}>
                       {type.dest.label}
                     </Text>
                   </View>
@@ -582,7 +642,7 @@ const PersonalScreen = () => {
               <Button01
                 height={60}
                 label={bilingual.PERSONAL.SAVE}
-                color={infoChanged ? theme.colors.orange : theme.colors.grey}
+                color={infoChanged ? mode.orange : mode.grey}
                 onPress={() => handleActionSave()}
               />
             </View>
@@ -590,7 +650,12 @@ const PersonalScreen = () => {
             <TouchableOpacity
               style={styles.changePassword}
               onPress={navigateToChangePasswordScreen}>
-              <Text style={[theme.textVariants.textLg, styles.text]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.text,
+                  {color: mode.white},
+                ]}>
                 {bilingual.PERSONAL.CHANGE_PWD}
               </Text>
             </TouchableOpacity>
@@ -607,7 +672,7 @@ const PersonalScreen = () => {
             {/* false là EN -> true là VI */}
             <GroupSettings
               label={bilingual.PERSONAL.LANGUAGUE}
-              isEnabled={user?.language === 'EN'}
+              isEnabled={user?.language === languageConstant.EN}
               activeText="EN"
               inActiveText="VI"
               toggleSwitch={() => handleToggle('language')}

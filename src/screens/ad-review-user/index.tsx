@@ -31,10 +31,13 @@ import {getDestinationTypes} from '@/services/destination-service';
 import {BASE_URL_AVATAR} from '@/services/config';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const ReviewUserScreen = () => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'ReviewUser'>>();
@@ -53,7 +56,7 @@ const ReviewUserScreen = () => {
   };
 
   const [loginHistory, setLoginHistory] = useState(true);
-  const [placeHistory, setPlaceHistory] = useState(true);
+  const [placeHistory, setPlaceHistory] = useState(false);
 
   const [person, setPerson] = useState<Person>(personInit);
   const [input, setInput] = useState<Person>(personInit);
@@ -90,7 +93,7 @@ const ReviewUserScreen = () => {
     getUserById(userId)
       .then(ru => {
         const data: ApiReturnPerson = ru.data.data;
-        console.log('data:', data);
+        // console.log('data:', data);
         const dataAssign = {
           id: data._id,
           email: data.email,
@@ -113,7 +116,7 @@ const ReviewUserScreen = () => {
                 isChoose: ru.data.data.hobby.includes(dtype._id),
               }),
             );
-            console.log(dataCustom.map(d => d.isChoose))
+            // console.log(dataCustom.map(d => d.isChoose));
             setTypes(dataCustom);
             setTypesModal(dataCustom);
           })
@@ -141,12 +144,12 @@ const ReviewUserScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Screen focused');
+      // console.log('Screen focused');
       fetchData();
 
       return () => {
         releaseMemory();
-        console.log('Screen blurred');
+        // console.log('Screen blurred');
       };
     }, []),
   );
@@ -157,8 +160,8 @@ const ReviewUserScreen = () => {
       hobbyChanged() ||
       person.firstName !== input.firstName ||
       person.lastName !== input.lastName;
-    console.log(hobbyChanged());
-    console.log(flag);
+    // console.log(hobbyChanged());
+    // console.log(flag);
     setInfoChanged(flag);
   }, [input, types]);
 
@@ -233,7 +236,7 @@ const ReviewUserScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -241,16 +244,33 @@ const ReviewUserScreen = () => {
         message={dialog.message}
         type={dialog.type}
         handleOk={dialog.handleOk}
-        handleCancel={dialog.handleCancel}
+        // handleCancel={dialog.handleCancel}
       />
       <Modal
         visible={isShowDialogFilter}
         animationType="fade"
         transparent={true}
         onRequestClose={() => setShowDialogFilter(false)}>
-        <View style={styles.containerModal}>
-          <View style={styles.containerModalDialog}>
-            <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+        <View
+          style={[
+            styles.containerModal,
+            {backgroundColor: mode.grey2},
+          ]}>
+          <View
+            style={[
+              styles.containerModalDialog,
+              {
+                backgroundColor: mode.blue1,
+                borderColor: mode.white,
+                shadowColor: mode.black,
+              },
+            ]}>
+            <Text
+              style={[
+                theme.textVariants.textXl,
+                styles.textTitleModal,
+                {color: mode.orange1},
+              ]}>
               {bilingual.REVIEW_USER.SELECT_TYPES}
             </Text>
             <View style={styles.bodyModal}>
@@ -259,11 +279,12 @@ const ReviewUserScreen = () => {
                   key={type.dest.id}
                   activeOpacity={0.5}
                   style={[
-                    styles.UpdateTypes,
+                    styles.updateTypes,
                     {
                       backgroundColor: type.isChoose
-                        ? theme.colors.grey
-                        : theme.colors.blue1,
+                        ? mode.grey
+                        : mode.blue1,
+                      borderColor: mode.grey,
                     },
                   ]}
                   onPress={() =>
@@ -275,7 +296,12 @@ const ReviewUserScreen = () => {
                       ),
                     )
                   }>
-                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                  <Text
+                    style={[
+                      theme.textVariants.textBase,
+                      styles.text,
+                      {color: mode.white},
+                    ]}>
                     {type.dest.label}
                   </Text>
                 </TouchableOpacity>
@@ -286,7 +312,7 @@ const ReviewUserScreen = () => {
               <Button01
                 height={60}
                 label={bilingual.REVIEW_USER.CHOOSE}
-                color={theme.colors.orange}
+                color={mode.orange}
                 onPress={() => {
                   setShowDialogFilter(false);
                   setTypes(typesModal);
@@ -297,13 +323,18 @@ const ReviewUserScreen = () => {
         </View>
       </Modal>
       <ScrollView
-        style={{backgroundColor: theme.colors.blue1}}
+        style={{backgroundColor: mode.blue1}}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.title]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.title,
+                  {color: mode.orange},
+                ]}>
                 {bilingual.REVIEW_USER.TITLE}
               </Text>
             </View>
@@ -311,7 +342,7 @@ const ReviewUserScreen = () => {
               <Button01
                 height={40}
                 label={bilingual.REVIEW_USER.CHANGE_BTN}
-                color={infoChanged ? theme.colors.orange : theme.colors.grey}
+                color={infoChanged ? mode.orange : mode.grey}
                 onPress={() => handleActionSave()}
               />
             </View>
@@ -325,7 +356,7 @@ const ReviewUserScreen = () => {
               }}>
               {/* get uri form person.image */}
               <Image
-                style={styles.image}
+                style={[styles.image, {borderColor: mode.grey}]}
                 source={
                   person.avatar
                     ? {uri: `${BASE_URL_AVATAR}/${person.avatar}`}
@@ -333,12 +364,21 @@ const ReviewUserScreen = () => {
                 }
               />
               <Text
-                style={[theme.textVariants.textBase, styles.text, {flex: 1}]}>
+                style={[
+                  theme.textVariants.textBase,
+                  styles.text,
+                  {color: mode.white, flex: 1},
+                ]}>
                 {person.email}
               </Text>
             </View>
 
-            <Text style={[theme.textVariants.textLg, styles.titleInfo]}>
+            <Text
+              style={[
+                theme.textVariants.textLg,
+                styles.titleInfo,
+                {color: mode.orange},
+              ]}>
               {bilingual.REVIEW_USER.INFORMATION}
             </Text>
 
@@ -364,24 +404,35 @@ const ReviewUserScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.85}
                 style={[
-                  styles.UpdateTypes,
+                  styles.updateTypes,
                   {
-                    backgroundColor: theme.colors.orange,
+                    backgroundColor: mode.orange,
                     marginStart: 0,
                     borderWidth: 0,
+                    borderColor: mode.grey,
                   },
                 ]}
                 onPress={() => {
                   setTypesModal(types);
                   setShowDialogFilter(true);
                 }}>
-                <Text style={[theme.textVariants.textBase, styles.text]}>
+                <Text
+                  style={[
+                    theme.textVariants.textBase,
+                    styles.text,
+                    {color: mode.white},
+                  ]}>
                   {bilingual.REVIEW_USER.SET_HOBBY}
                 </Text>
               </TouchableOpacity>
               {types?.map(type =>
                 type.isChoose ? (
-                  <View key={type.dest.id} style={styles.UpdateTypes}>
+                  <View
+                    key={type.dest.id}
+                    style={[
+                      styles.updateTypes,
+                      {borderColor: mode.grey},
+                    ]}>
                     <TouchableOpacity
                       activeOpacity={0.85}
                       style={styles.iconAdd}
@@ -396,7 +447,12 @@ const ReviewUserScreen = () => {
                       }}>
                       <Icons name="cancel" />
                     </TouchableOpacity>
-                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                    <Text
+                      style={[
+                        theme.textVariants.textBase,
+                        styles.text,
+                        {color: mode.white},
+                      ]}>
                       {type.dest.label}
                     </Text>
                   </View>

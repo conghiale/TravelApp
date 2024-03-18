@@ -3,13 +3,11 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     callout: {
         width: 120,
-        backgroundColor: "white",
         alignItems: "center",
         justifyContent: "center",
         padding: 4,
         borderRadius: 5,
 
-        shadowColor: "#000",
         shadowOffset: {
             width: 0,
             height: 2,

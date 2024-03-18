@@ -17,11 +17,14 @@ import {labelEn, labelVi} from '@/utils/label';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const DetailRequestPlaceScreen = () => {
   const route = useRoute<any>();
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
@@ -71,10 +74,11 @@ const DetailRequestPlaceScreen = () => {
           message: bilingual.DETAIL_REQUEST.ERROR.APPROVE,
           handleOk: () => setDialog(defaultDialog),
         });
-      }).finally(() => {
+      })
+      .finally(() => {
         setLoading(false);
       });
-  }
+  };
 
   const reject = () => {
     setLoading(true);
@@ -94,10 +98,11 @@ const DetailRequestPlaceScreen = () => {
           message: bilingual.DETAIL_REQUEST.ERROR.REJECT,
           handleOk: () => setDialog(defaultDialog),
         });
-      }).finally(() => {
+      })
+      .finally(() => {
         setLoading(false);
       });
-  }
+  };
 
   const handlePressApprove = () => {
     setDialog({
@@ -106,7 +111,7 @@ const DetailRequestPlaceScreen = () => {
       message: bilingual.DETAIL_REQUEST.CF_APPROVE,
       handleOk: () => approve(),
       handleCancel: () => setDialog(defaultDialog),
-    })
+    });
   };
 
   const handlePressReject = () => {
@@ -116,15 +121,15 @@ const DetailRequestPlaceScreen = () => {
       message: bilingual.DETAIL_REQUEST.CF_REJECT,
       handleOk: () => reject(),
       handleCancel: () => setDialog(defaultDialog),
-    })
+    });
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: theme.colors.blue1}}>
+    <View style={{flex: 1, backgroundColor: mode.blue1}}>
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -135,29 +140,54 @@ const DetailRequestPlaceScreen = () => {
         handleCancel={dialog.handleCancel}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.title]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.title,
+                  {color: mode.orange},
+                ]}>
                 {bilingual.DETAIL_REQUEST.TITLE}
               </Text>
             </View>
           </View>
           <View style={styles.containerInfo}>
             <View style={styles.containerinfoItem}>
-              <Text style={[theme.textVariants.textLg, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {bilingual.DETAIL_REQUEST.CREATED_BY}
               </Text>
-              <Text style={[theme.textVariants.textBase, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {place.createdBy}
               </Text>
             </View>
             <View style={styles.containerinfoItem}>
-              <Text style={[theme.textVariants.textLg, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {bilingual.DETAIL_REQUEST.CREATED_TIME}
               </Text>
-              <Text style={[theme.textVariants.textBase, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {parseTimestamp(place.createdAt ? place.createdAt : '')}
               </Text>
             </View>
@@ -176,27 +206,57 @@ const DetailRequestPlaceScreen = () => {
               inActiveText="VI"
               toggleSwitch={() => setIsVN(!isVN)}
             />
-            <Text style={[theme.textVariants.textLg, styles.textInfo]}>
+            <Text
+              style={[
+                theme.textVariants.textLg,
+                styles.textInfo,
+                {color: mode.white},
+              ]}>
               {isVN ? place.nameVi : place.nameEn}
             </Text>
           </View>
-          <Text style={[theme.textVariants.textBase, styles.content]}>
+          <Text
+            style={[
+              theme.textVariants.textBase,
+              styles.content,
+              {color: mode.white},
+            ]}>
             {isVN ? place.descriptionVi : place.descriptionEn}
           </Text>
           <View style={styles.containerInfo}>
             <View style={styles.containerinfoItem}>
-              <Text style={[theme.textVariants.textLg, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.LAT}
               </Text>
-              <Text style={[theme.textVariants.textBase, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {place.latitude}
               </Text>
             </View>
             <View style={styles.containerinfoItem}>
-              <Text style={[theme.textVariants.textLg, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.LON}
               </Text>
-              <Text style={[theme.textVariants.textBase, styles.textInfo]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.textInfo,
+                  {color: mode.white},
+                ]}>
                 {place.longitude}
               </Text>
             </View>
@@ -206,7 +266,7 @@ const DetailRequestPlaceScreen = () => {
               <Button01
                 height={60}
                 label={bilingual.DETAIL_REQUEST.REJECT}
-                color="#D52D2D"
+                color={mode.red1}
                 onPress={handlePressReject}
               />
             </View>
@@ -214,7 +274,7 @@ const DetailRequestPlaceScreen = () => {
               <Button01
                 height={60}
                 label={bilingual.DETAIL_REQUEST.APPROVE}
-                color="#63D52D"
+                color={mode.green2}
                 onPress={handlePressApprove}
               />
             </View>

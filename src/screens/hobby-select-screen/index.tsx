@@ -9,15 +9,17 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {getDestinationTypes} from '@/services/destination-service';
 import {defaultDialog, getErrorMessage} from '@/utils';
-import {languageConstant} from '@/API/src/utils/constant';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
 import Dialog from '@/components/dialog-handle-event';
 import {labelEn, labelVi} from '@/utils/label';
 import {updateUserById} from '@/services/user-service';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const HobbySelectScreen = () => {
   const {user, updateUser} = useUserGlobalStore();
   const [data, setData] = useState<TypesFilterProps[]>([]);
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'HobbySelect'>>();
@@ -44,7 +46,7 @@ const HobbySelectScreen = () => {
         );
       })
       .catch(e => {
-        console.error(getErrorMessage(e));
+        console.info(getErrorMessage(e));
       })
       .finally(() => {
         setLoading(false);
@@ -78,18 +80,21 @@ const HobbySelectScreen = () => {
         setLoading(true);
         updateUserById(user.id, {
           typesString: typeSelected.map(t => t.dest.id).join(','),
-        }).then(r => {
+        })
+          .then(r => {
             updateUser({
               ...user,
               hobby: typeSelected.map(t => t.dest.id),
               isFirstTime: r.data.data.isFirstTime,
             });
             navigateToMain();
-        }).catch(e => {
-            console.error(getErrorMessage(e));
-        }).finally(() => {
+          })
+          .catch(e => {
+            console.info(getErrorMessage(e));
+          })
+          .finally(() => {
             setLoading(false);
-        });
+          });
       }
     }
   };
@@ -105,16 +110,18 @@ const HobbySelectScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <View
         style={{
-          backgroundColor: theme.colors.blue1,
+          backgroundColor: mode.blue1,
           flex: 1,
           justifyContent: 'center',
         }}>
-        <Text style={styles.title}>{bilingual.ASK_HOBBY.TITLE}</Text>
+        <Text style={[styles.title, {color: mode.white}]}>
+          {bilingual.ASK_HOBBY.TITLE}
+        </Text>
         <View
           style={{
             flexDirection: 'row',
@@ -128,12 +135,28 @@ const HobbySelectScreen = () => {
             return (
               <TouchableOpacity key={index} onPress={() => changeData(index)}>
                 <View
-                  style={choice.isChoose ? styles.checked : styles.unchecked}>
+                  style={
+                    choice.isChoose
+                      ? [
+                          styles.checked,
+                          {
+                            borderColor: mode.white,
+                            backgroundColor: mode.white,
+                          },
+                        ]
+                      : [
+                          styles.unchecked,
+                          {
+                            borderColor: mode.white,
+                            backgroundColor: mode.transparent,
+                          },
+                        ]
+                  }>
                   <Text
                     style={
                       choice.isChoose
-                        ? styles.textChecked
-                        : styles.textUnchecked
+                        ? [styles.textChecked, {color: mode.black}]
+                        : [styles.textUnchecked, {color: mode.white}]
                     }>
                     {choice.dest.label}
                   </Text>
@@ -146,7 +169,7 @@ const HobbySelectScreen = () => {
         <TouchableOpacity
           style={{alignItems: 'center'}}
           onPress={handleContinue}>
-          <Text style={styles.textContinue}>
+          <Text style={[styles.textContinue, {color: mode.orange}]}>
             {bilingual.ASK_HOBBY.CONTINUE}
           </Text>
         </TouchableOpacity>

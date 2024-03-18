@@ -12,7 +12,7 @@ userRoutes.route('/login').put(userController.loginUser);
 userRoutes.route('/reset-password').put(userController.getLinkResetPassword);
 userRoutes.route('/reset-password').post(userController.resetPassword);
 
-// userRoutes.use(authenticationMiddleware);
+userRoutes.use(authenticationMiddleware);
 userRoutes.route('/change-password').post(userController.changePassword);
 userRoutes.route('/lock').post(userController.toggleLockUser);
 userRoutes.route('/get-all').get(userController.getAllUser);

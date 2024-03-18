@@ -1,5 +1,6 @@
 export const labelEn = {
   GENERAL: {
+    ABOUT: 'About',
     BTN_MAP: 'Map',
     BTN_DETAIL: 'Detail',
     BTN_EDIT: 'Edit',
@@ -12,6 +13,7 @@ export const labelEn = {
     SUCCESS_MESSAGE: 'Success message',
     WARNING_MESSAGE: 'Warning message',
     LOGOUT: 'Are you sure to log out?',
+    DEL_LOVED: 'Are you sure to delete this loved place',
   },
   CREATE_EDIT_DEST: {
     CREATE: 'Create destination',
@@ -185,6 +187,7 @@ export const labelEn = {
 
 export const labelVi = {
   GENERAL: {
+    ABOUT: 'Khoảng',
     BTN_MAP: 'Bản đồ',
     BTN_DETAIL: 'Chi tiết',
     BTN_EDIT: 'Sửa',
@@ -197,6 +200,7 @@ export const labelVi = {
     SUCCESS_MESSAGE: 'Thành công',
     WARNING_MESSAGE: 'Cảnh báo',
     LOGOUT: 'Bạn có chắc muốn đăng xuất?',
+    DEL_LOVED: 'Bạn có chắc muốn xóa địa điểm này khỏi danh sách yêu thích',
   },
   CREATE_EDIT_DEST: {
     CREATE: 'Tạo địa điểm',

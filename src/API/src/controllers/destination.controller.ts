@@ -291,7 +291,7 @@ class DestinationController {
           //disk delete
           fs.readdir(storedDir, (err, files) => {
             if (err) {
-              console.error('Error reading directory:', err);
+              console.info('Error reading directory:', err);
               return;
             }
 
@@ -300,7 +300,7 @@ class DestinationController {
               if (!listFileName.includes(file as string)) {
                 fs.unlink(filePath, err => {
                   if (err) {
-                    console.error('Error deleting file:', err);
+                    console.info('Error deleting file:', err);
                     return;
                   }
                   console.log(`Deleted file: ${filePath}`);

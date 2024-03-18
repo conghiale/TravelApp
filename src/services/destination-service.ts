@@ -46,3 +46,7 @@ export const waitingDestinationApproval = (id: string, accepted: boolean) => {
 export const getImagesByDestinationId = (id: string) => {
   return axiosInstance.get(`/dest/get-images/${id}`);
 };
+
+export const removeLoveDestination = (data: any) => {
+  return axiosInstance.delete(`/love/remove`, data);
+}

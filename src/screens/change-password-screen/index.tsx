@@ -51,7 +51,6 @@ const ChangePasswordScreen = () => {
     name: keyof InputChangePassword,
     value: string,
   ) => {
-    console.log(name, value);
     switch (name) {
       case 'currentPassword':
       case 'newPassword':

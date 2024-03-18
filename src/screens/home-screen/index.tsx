@@ -19,12 +19,14 @@ import Geolocation from '@react-native-community/geolocation';
 import {labelEn, labelVi} from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
 
 const HomeScreen = () => {
   const routes = useRoute<any>();
-  console.log(
-    'Home Screen(20): id: ' + (routes.params ? routes.params.id : '0'),
-  );
+  // console.log(
+  //   'Home Screen(20): id: ' + (routes.params ? routes.params.id : '0'),
+  // );
 
   const [region, setRegion] = useState<Region>({
     longitude: 107.35, // kinh độ
@@ -34,15 +36,12 @@ const HomeScreen = () => {
   });
 
   const {user, updateUser} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
   const [markerSelected, setMarketSelected] = useState(false);
-
-  const releaseMemory = () => {
-    setPlaces([]);
-  };
 
   const fetchDestPublic = () => {
     setLoading(true);
@@ -50,7 +49,7 @@ const HomeScreen = () => {
       .then(r => {
         setPlaces(
           r.data.data.map((place: ApiReturnDestination) =>
-            formatDestination(place, user),
+            formatDestination(place, user?.language as string),
           ),
         );
       })
@@ -80,10 +79,11 @@ const HomeScreen = () => {
               ...user,
               latitude,
               longitude,
+              data_loaded: false,
             });
             console.info('Got current pos:', latitude, longitude);
           },
-          (error: GeolocationError) => console.error(error),
+          (error: GeolocationError) => console.info(error),
           {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
         );
       } else {
@@ -96,22 +96,22 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Screen focused');
       requestLocationPermission();
       fetchDestPublic();
       return () => {
-        releaseMemory();
-        console.log('Screen blurred');
+        setPlaces([]);
       };
-    }, []),
+    }, [
+      user?.language,
+      user?.latitude,
+      user?.no_loading,
+      user?.theme,
+      user?.data_loaded,
+    ]),
   );
 
   const onRegionChange = (region: Region) => {
     setRegion(region);
-  };
-
-  const hanleButtonOKDialogError = () => {
-    setDialog(defaultDialog);
   };
 
   const goToGoogleMap = (lat: number, lon: number) => {
@@ -125,7 +125,7 @@ const HomeScreen = () => {
       <Spinner
         size={'large'}
         visible={loading}
-        color={theme.colors.orange1}
+        color={mode.orange1}
         animation={'fade'}
       />
       <Dialog
@@ -151,7 +151,13 @@ const HomeScreen = () => {
             onSelect={() => setMarketSelected(true)}>
             <MyCustomMarkerView selected={markerSelected} />
             <Callout
-              style={styles.callout}
+              style={[
+                styles.callout,
+                {
+                  backgroundColor: mode.white,
+                  shadowColor: mode.black,
+                },
+              ]}
               onPress={() => goToGoogleMap(place.latitude, place.longitude)}>
               <MyCustomCalloutView label={place.name.trim()} />
             </Callout>

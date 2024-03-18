@@ -73,7 +73,7 @@ class UserService {
       email,
       password: hashedPassword,
       role: roleConstant.USER,
-      language: languageConstant.VI,
+      language: languageConstant.EN,
       avatar: avatarConstant.DEFAULT,
       theme: themeConstant.DARK,
     });
@@ -96,6 +96,7 @@ class UserService {
           avatar: createdUser.avatar,
           isFirstTime: createdUser.isFirstTime,
           hobby: createdUser.hobby,
+          theme: createdUser.theme,
         },
       },
     };
@@ -141,6 +142,7 @@ class UserService {
             avatar: existingUser.avatar,
             isFirstTime: existingUser.isFirstTime,
             hobby: existingUser.hobby,
+            theme: existingUser.theme,
           },
         },
       };

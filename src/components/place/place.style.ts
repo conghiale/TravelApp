@@ -6,10 +6,9 @@ const styles = StyleSheet.create({
   place_container: {
     height: theme.placeItemInfo.PLACE_ITEM_HEIGHT,
     width: theme.placeItemInfo.PLACE_ITEM_WIDTH,
-    padding: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
     borderRadius: 5,
-    backgroundColor: '#2F3542',
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -20,7 +19,6 @@ const styles = StyleSheet.create({
   },
   place_image: {
     height: '40%',
-    // height: 100,
     width: 'auto',
   },
   place_header: {

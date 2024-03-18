@@ -24,9 +24,16 @@ import {
   createDestination,
   getDestinationTypes,
 } from '@/services/destination-service';
-import {defaultDialog, getRandomIntInclusive, randomNumberString} from '@/utils';
+import {
+  defaultDialog,
+  getErrorMessage,
+  getRandomIntInclusive,
+  randomNumberString,
+} from '@/utils';
 import Dialog from '@/components/dialog-handle-event';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 type ApiReturnType = {
   _id: string;
@@ -36,7 +43,8 @@ type ApiReturnType = {
 
 const CreatePlaceScreen = () => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
@@ -91,12 +99,12 @@ const CreatePlaceScreen = () => {
         setTypes(dataChosen);
       })
       .catch(e => {
-        console.log(e);
+        getErrorMessage(e);
       })
       .finally(() => {
         setLoading(false);
       });
-  }
+  };
   useEffect(() => {
     fetchDestTypes();
   }, []);
@@ -244,7 +252,7 @@ const CreatePlaceScreen = () => {
         .map(type => type.dest.id)
         .join(','),
       vote: 0,
-      types: []
+      types: [],
     };
 
     console.log('Create-Screen(228): ');
@@ -254,9 +262,9 @@ const CreatePlaceScreen = () => {
     let invalidMsg = '';
     newPlace.latitude = parseFloat(newPlace.latitude.toString());
     newPlace.longitude = parseFloat(newPlace.longitude.toString());
-    console.log(typeof newPlace.latitude);
-    console.log(types);
-    console.log(typesModal);
+    // console.log(typeof newPlace.latitude);
+    // console.log(types);
+    // console.log(typesModal);
 
     if (!newPlace.nameVi) {
       invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_DEST_NAME_VI;
@@ -352,11 +360,11 @@ const CreatePlaceScreen = () => {
 
   return (
     <SafeAreaWrapper>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
         <Spinner
           size={'large'}
           visible={loading}
-          color={theme.colors.orange1}
+          color={mode.orange1}
           animation={'fade'}
         />
         <Dialog
@@ -364,9 +372,6 @@ const CreatePlaceScreen = () => {
           message={dialog.message}
           type={dialog.type}
           handleOk={dialog.handleOk}
-          handleCancel={() => {
-            console.log('cancel');
-          }}
         />
 
         <DialogChooseImage
@@ -383,9 +388,26 @@ const CreatePlaceScreen = () => {
           animationType="fade"
           transparent={true}
           onRequestClose={() => setShowDialogFilter(false)}>
-          <View style={styles.containerModal}>
-            <View style={styles.containerModalDialog}>
-              <Text style={[theme.textVariants.textXl, styles.textTitleModal]}>
+          <View
+            style={[
+              styles.containerModal,
+              {backgroundColor: mode.grey2},
+            ]}>
+            <View
+              style={[
+                styles.containerModalDialog,
+                {
+                  backgroundColor: mode.blue1,
+                  borderColor: mode.white,
+                  shadowColor: mode.black,
+                },
+              ]}>
+              <Text
+                style={[
+                  theme.textVariants.textXl,
+                  styles.textTitleModal,
+                  {color: mode.orange1},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.SELECT_TYPES}
               </Text>
 
@@ -398,8 +420,9 @@ const CreatePlaceScreen = () => {
                       styles.filter,
                       {
                         backgroundColor: type.isChoose
-                          ? theme.colors.grey
-                          : theme.colors.blue1,
+                          ? mode.grey
+                          : mode.blue1,
+                        borderColor: mode.grey,
                       },
                     ]}
                     onPress={() =>
@@ -411,7 +434,12 @@ const CreatePlaceScreen = () => {
                         ),
                       )
                     }>
-                    <Text style={[theme.textVariants.textBase, styles.text]}>
+                    <Text
+                      style={[
+                        theme.textVariants.textBase,
+                        styles.text,
+                        {color: mode.white},
+                      ]}>
                       {type.dest.label}
                     </Text>
                   </TouchableOpacity>
@@ -422,7 +450,7 @@ const CreatePlaceScreen = () => {
                 <Button01
                   height={60}
                   label={bilingual.CREATE_EDIT_DEST.CHOOSE}
-                  color={theme.colors.orange}
+                  color={mode.orange}
                   onPress={() => {
                     setShowDialogFilter(false);
                     setTypes(typesModal);
@@ -442,8 +470,8 @@ const CreatePlaceScreen = () => {
               activeOpacity={0.85}
               style={styles.headerItem}
               onPress={handleRequestSubmitCreate}>
-              <Icons name={'createDestination'} color={theme.colors.orange} />
-              <Text style={styles.headerText}>
+              <Icons name={'createDestination'} color={mode.orange} />
+              <Text style={[styles.headerText, {color: mode.orange}]}>
                 {bilingual.CREATE_EDIT_DEST.CREATE}
               </Text>
             </TouchableOpacity>
@@ -451,8 +479,8 @@ const CreatePlaceScreen = () => {
               style={styles.headerItem}
               onPress={navigateToCreatedPlacesScreen}
               activeOpacity={0.85}>
-              <Icons name="list" />
-              <Text style={styles.headerText}>
+              <Icons name="list" color={mode.orange} />
+              <Text style={[styles.headerText, {color: mode.orange}]}>
                 {bilingual.CREATE_EDIT_DEST.LIST}
               </Text>
             </TouchableOpacity>
@@ -462,15 +490,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.viewInputDestination,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.nameVi ? 2 : 0,
-                borderColor: onFocus.nameVi ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.nameVi
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -495,15 +526,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.viewInputDestination,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.nameEn ? 2 : 0,
-                borderColor: onFocus.nameEn ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.nameEn
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -528,17 +562,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.destinationDescription,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.descriptionVi ? 2 : 0,
                 borderColor: onFocus.descriptionVi
-                  ? '#0be881'
-                  : theme.colors.white,
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -565,17 +600,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.destinationDescription,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.descriptionEn ? 2 : 0,
                 borderColor: onFocus.descriptionEn
-                  ? '#0be881'
-                  : theme.colors.white,
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -602,15 +638,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.viewInputDestination,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.latitude ? 2 : 0,
-                borderColor: onFocus.latitude ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.latitude
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -637,15 +676,18 @@ const CreatePlaceScreen = () => {
             style={[
               styles.viewInputDestination,
               {
+                backgroundColor: mode.white,
                 borderWidth: onFocus.longitude ? 2 : 0,
-                borderColor: onFocus.longitude ? '#0be881' : theme.colors.white,
+                borderColor: onFocus.longitude
+                  ? mode.green1
+                  : mode.white,
               },
             ]}>
             <Text
               style={[
                 theme.textVariants.textBase,
                 {
-                  color: theme.colors.orange,
+                  color: mode.orange,
                   marginStart: 8,
                   marginTop: 4,
                   paddingHorizontal: 4,
@@ -674,9 +716,10 @@ const CreatePlaceScreen = () => {
               style={[
                 styles.filter,
                 {
-                  backgroundColor: theme.colors.orange,
+                  backgroundColor: mode.orange,
                   marginStart: 0,
                   borderWidth: 0,
+                  borderColor: mode.grey,
                 },
               ]}
               onPress={() => {
@@ -684,13 +727,20 @@ const CreatePlaceScreen = () => {
                 // setTypeChosen(typesChosenRef);
                 setTypesModal(types);
               }}>
-              <Text style={[theme.textVariants.textBase, styles.text]}>
+              <Text
+                style={[
+                  theme.textVariants.textBase,
+                  styles.text,
+                  {color: mode.white},
+                ]}>
                 {bilingual.CREATE_EDIT_DEST.CHOOSE_TYPES}
               </Text>
             </TouchableOpacity>
             {types.map(type =>
               type.isChoose ? (
-                <View key={type.dest.id} style={styles.filter}>
+                <View
+                  key={type.dest.id}
+                  style={[styles.filter, {borderColor: mode.grey}]}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconRemove}
@@ -705,7 +755,12 @@ const CreatePlaceScreen = () => {
                     }}>
                     <Icons name="cancel" />
                   </TouchableOpacity>
-                  <Text style={[theme.textVariants.textBase, styles.text]}>
+                  <Text
+                    style={[
+                      theme.textVariants.textBase,
+                      styles.text,
+                      {color: mode.white},
+                    ]}>
                     {type.dest.label}
                   </Text>
                 </View>
@@ -720,7 +775,7 @@ const CreatePlaceScreen = () => {
             ]}>
             <TouchableOpacity
               activeOpacity={0.85}
-              style={styles.btnAdd}
+              style={[styles.btnAdd, {backgroundColor: mode.white}]}
               onPress={() => {
                 setIdImage(-1);
                 setShowTakeImage(true);
@@ -729,7 +784,7 @@ const CreatePlaceScreen = () => {
             </TouchableOpacity>
             {imageUploads.length > 0
               ? imageUploads?.map((imageUpload, index) => (
-                  <View key={imageUpload.id} style={{width: 100, height: 100}}>
+                  <View key={index} style={{width: 100, height: 100}}>
                     <ImageUpload
                       image={imageUpload.uri}
                       onHandleShowTakeImage={() => {

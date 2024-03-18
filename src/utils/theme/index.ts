@@ -27,7 +27,7 @@ const theme = createTheme({
         "rounded-7xl": 28,
     },
     placeItemInfo: {
-        PLACE_ITEM_HEIGHT: 265,
+        PLACE_ITEM_HEIGHT: 275,
         PLACE_ITEM_WIDTH: 360,
     },
     textVariants,

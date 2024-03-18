@@ -11,7 +11,6 @@ import {SelectList} from 'react-native-dropdown-select-list';
 import {font} from '@/utils/font';
 import {getWaitingDestination} from '@/services/destination-service';
 import {
-  defaultDialog,
   getErrorMessage,
   getItemPagination,
   isShowBtnPagination,
@@ -20,14 +19,18 @@ import {
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
 import Button01 from '@/components/button/button01/Button01';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 type FilterProps = 'all' | 'old_new' | 'new_old' | 'search';
 
 const ApprovePlacesScreen = () => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
+
   const [loading, setLoading] = useState<boolean>(true);
-  const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const navigation = useNavigation<AppScreenNavigationType<'ApprovePlaces'>>();
 
   const [selected, setSelected] = React.useState('All');
@@ -102,7 +105,7 @@ const ApprovePlacesScreen = () => {
         );
       })
       .catch(e => {
-        console.error(getErrorMessage(e));
+        console.info(getErrorMessage(e));
       })
       .finally(() => {
         setLoading(false);
@@ -111,12 +114,12 @@ const ApprovePlacesScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('Screen focused');
+      // console.log('Screen focused');
       fetchWaiting();
 
       return () => {
         releaseMemory();
-        console.log('Screen blurred');
+        // console.log('Screen blurred');
       };
     }, []),
   );
@@ -130,13 +133,24 @@ const ApprovePlacesScreen = () => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: theme.colors.blue1}}>
+    <View style={{flex: 1, backgroundColor: mode.blue1}}>
+      <Spinner
+        size={'large'}
+        visible={loading}
+        color={mode.orange1}
+        animation={'fade'}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
-              <Text style={[theme.textVariants.textLg, styles.title]}>
+              <Text
+                style={[
+                  theme.textVariants.textLg,
+                  styles.title,
+                  {color: mode.orange},
+                ]}>
                 {bilingual.DETAIL_REQUEST.APPROVE_LIST}
               </Text>
             </View>
@@ -164,12 +178,12 @@ const ApprovePlacesScreen = () => {
               fontFamily={font.semiBold}
               boxStyles={{
                 borderWidth: 2,
-                borderColor: theme.colors.white,
-                backgroundColor: theme.colors.grey,
+                borderColor: mode.white,
+                backgroundColor: mode.grey,
               }}
-              inputStyles={{color: theme.colors.blue1, fontSize: 16}}
-              dropdownStyles={{borderWidth: 2, borderColor: theme.colors.white}}
-              dropdownTextStyles={{color: theme.colors.white, fontSize: 16}}
+              inputStyles={{color: mode.blue1, fontSize: 16}}
+              dropdownStyles={{borderWidth: 2, borderColor: mode.white}}
+              dropdownTextStyles={{color: mode.white, fontSize: 16}}
             />
           </View>
 
@@ -192,7 +206,7 @@ const ApprovePlacesScreen = () => {
             <Text
               style={{
                 marginTop: '50%',
-                color: theme.colors.white,
+                color: mode.white,
                 textAlign: 'center',
                 fontFamily: font.bold,
                 fontSize: 20,
@@ -213,7 +227,7 @@ const ApprovePlacesScreen = () => {
                     ? bilingual.OUTSTANDING.SHOW_MORE
                     : bilingual.OUTSTANDING.COLLAPSE
                 }
-                color={isShowMore ? theme.colors.green : theme.colors.grey}
+                color={isShowMore ? mode.green : mode.grey}
                 onPress={() =>
                   isShowMore ? setPage(prePage => prePage + 1) : setPage(1)
                 }

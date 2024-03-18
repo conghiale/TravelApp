@@ -9,6 +9,8 @@ import {Rating} from 'react-native-ratings';
 import {BASE_URL_DESTINATION} from '@/services/config';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const Place = ({
   id,
@@ -20,7 +22,8 @@ const Place = ({
   distance,
 }: IPlace) => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
+  const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
 
   const navigation = useNavigation<AppScreenNavigationType<'General'>>();
 
@@ -33,7 +36,6 @@ const Place = ({
   const navigateToMainScreen = () => {
     navigation.navigate('Root', {
       screen: 'Home',
-      // initial: false,
       params: {id: id},
     });
   };
@@ -47,10 +49,10 @@ const Place = ({
             {
               color:
                 status === 1
-                  ? theme.colors.yellow
+                  ? mode.yellow
                   : status === 3
-                  ? '#20BF6B'
-                  : '#FF3F34',
+                  ? mode.green3
+                  : mode.red,
             },
           ]}>
           {Status[status]}
@@ -63,7 +65,7 @@ const Place = ({
           ratingCount={5}
           startingValue={vote}
           readonly
-          tintColor={theme.colors.blue1}
+          tintColor={mode.blue2}
           imageSize={25}
           fractions={1}
           // jumpValue={0.5}
@@ -74,7 +76,8 @@ const Place = ({
   };
 
   return (
-    <View style={styles.place_container}>
+    <View style={[styles.place_container, {backgroundColor: mode.blue2, shadowColor: mode.black, 
+      borderColor: mode.orange, borderWidth: 1}]}>
       {/* thay bằng uri đầu tiên */}
       <Image
         style={styles.place_image}
@@ -94,10 +97,10 @@ const Place = ({
           </Text>
           {distance ? (
             <Text
-              style={[theme.textVariants.textBase, styles.place_text_title, {color: theme.colors.orange1}]}
+              style={[theme.textVariants.textBase, styles.place_text_title, {color: theme.colors.orange1, fontSize: 13, lineHeight: 18}]}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {`About ${distance.toFixed(2)} km`}
+              {`${bilingual.GENERAL.ABOUT} ${distance.toFixed(2)} km`}
             </Text>
           ) : (
             <></>

@@ -9,11 +9,12 @@ import {font} from '@/utils/font';
 import Icons from '@/components/shared/icon';
 import styles from './style';
 import {getLinkResetPassword} from '@/services/user-service';
-import GlobalDialog from '@/components/dialogs';
+import {defaultDialog, getErrorMessage} from '@/utils';
+import Dialog from '@/components/dialog-handle-event';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState<string>('');
-  const [dialog, setDialog] = useState<Dialog>({type: '', message: ''});
+  const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
 
   const navigation =
     useNavigation<AuthScreenNavigationType<'ForgotPassword'>>();
@@ -26,25 +27,41 @@ const ForgotPasswordScreen = () => {
   };
 
   const handleResetPassword = async () => {
-    if (!email) setDialog({type: 'error', message: 'Please input email field'});
+    if (!email)
+      setDialog({
+        visible: true,
+        type: 'error',
+        message: 'Please input email field',
+        handleOk: () => setDialog(defaultDialog),
+      });
     getLinkResetPassword({email})
       .then(r => {
         setDialog({
+          visible: true,
           type: 'success',
           message: r.data.message,
+          handleOk: () => setDialog(defaultDialog),
         });
       })
       .catch(e => {
-        if (e.response && e.response.data && e.response.data.message) {
-          setDialog({type: 'error', message: e.response.data.message});
-        } else {
-          setDialog({type: 'error', message: 'Error happened'});
-        }
+        setDialog({
+          visible: true,
+          type: 'error',
+          message: getErrorMessage(e),
+          handleOk: () => setDialog(defaultDialog),
+        });
       });
   };
 
   return (
     <SafeAreaWrapper>
+      <Dialog
+        isVisible={dialog.visible}
+        message={dialog.message}
+        type={dialog.type}
+        handleOk={dialog.handleOk}
+        // handleCancel={dialog.handleCancel}
+      />
       <Box
         style={{
           backgroundColor: theme.colors.brown,
@@ -87,11 +104,6 @@ const ForgotPasswordScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
-        <GlobalDialog
-          dialog={dialog}
-          handleOk={() => setDialog({type: '', message: ''})}
-          handleClose={() => setDialog({type: '', message: ''})}
-        />
       </Box>
     </SafeAreaWrapper>
   );

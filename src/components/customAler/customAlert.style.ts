@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     btnCancel: {
         flex: 1,
         height: 60,
-        backgroundColor: theme.colors.orange,
+        backgroundColor: theme.colors.grey,
         marginEnd: 4,
         alignItems: 'center',
         justifyContent: 'center',
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     btnOk: {
         flex: 1,
         height: 60,
-        backgroundColor: theme.colors.grey,
+        backgroundColor: theme.colors.orange,
         marginStart: 4,
         alignItems: 'center',
         justifyContent: 'center',
