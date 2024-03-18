@@ -70,7 +70,6 @@ const PersonalScreen = () => {
   //call API
   useEffect(() => {
     setLoading(true);
-    console.log('personal fetch api');
     if (user && user.id)
       getUserById(user.id)
         .then(ru => {

@@ -237,26 +237,26 @@ const CreatePlaceScreen = () => {
   };
 
   const handleRequestSubmitCreate = () => {
-    const infoPlaceChange: PlaceProps = {
-      nameVi: newPlace.nameVi,
-      nameEn: newPlace.nameEn,
-      descriptionVi: newPlace.descriptionVi,
-      descriptionEn: newPlace.descriptionEn,
-      latitude: newPlace.latitude,
-      longitude: newPlace.longitude,
-      images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
-      createdBy: user?.id,
-      role: user?.role,
-      typesString: types
-        ?.filter(type => type.isChoose)
-        .map(type => type.dest.id)
-        .join(','),
-      vote: 0,
-      types: [],
-    };
+    // const infoPlaceChange: PlaceProps = {
+    //   nameVi: newPlace.nameVi,
+    //   nameEn: newPlace.nameEn,
+    //   descriptionVi: newPlace.descriptionVi,
+    //   descriptionEn: newPlace.descriptionEn,
+    //   latitude: newPlace.latitude,
+    //   longitude: newPlace.longitude,
+    //   images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
+    //   createdBy: user?.id,
+    //   role: user?.role,
+    //   typesString: types
+    //     ?.filter(type => type.isChoose)
+    //     .map(type => type.dest.id)
+    //     .join(','),
+    //   vote: 0,
+    //   types: [],
+    // };
 
-    console.log('Create-Screen(228): ');
-    console.log(JSON.stringify(infoPlaceChange));
+    // console.log('Create-Screen(228): ');
+    // console.log(JSON.stringify(infoPlaceChange));
 
     //create
     let invalidMsg = '';

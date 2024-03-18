@@ -155,8 +155,7 @@ const ViewUsersScreen = () => {
       fetchUsers();
 
       return () => {
-        // releaseMemory();
-        console.log('Screen blurred');
+        // console.log('Screen blurred');
       };
     }, []),
   );

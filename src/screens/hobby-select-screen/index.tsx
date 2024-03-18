@@ -46,7 +46,7 @@ const HobbySelectScreen = () => {
         );
       })
       .catch(e => {
-        console.info(getErrorMessage(e));
+        getErrorMessage(e);
       })
       .finally(() => {
         setLoading(false);
@@ -90,7 +90,7 @@ const HobbySelectScreen = () => {
             navigateToMain();
           })
           .catch(e => {
-            console.info(getErrorMessage(e));
+            getErrorMessage(e);
           })
           .finally(() => {
             setLoading(false);

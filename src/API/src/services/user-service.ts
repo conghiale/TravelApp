@@ -183,7 +183,6 @@ class UserService {
           };
         }
       }
-      console.log(typesString);
       user.hobby = types;
     }
     if (language) {

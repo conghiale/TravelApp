@@ -244,10 +244,6 @@ class DestinationController {
           return res.status(400).send({ message: 'Destination does not exist' });
         }
 
-        console.log('DESTINATION-CONTROLLER - role:', role)
-        console.log('DESTINATION-CONTROLLER - status:', status)
-        console.log('DESTINATION-CONTROLLER - create by:', data.createdBy.toString(), createdBy)
-
         if (
           (role === roleConstant.ADMIN &&
             data.status !== statusDestinationConstant.ACCEPTED) ||

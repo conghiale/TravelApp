@@ -61,7 +61,6 @@ class UserController {
       }
       return res.status(400).send({message: result.message});
     } catch (error) {
-      console.log(error);
       return res.status(500).send({message: 'Internal error in createUser'});
     }
   };
@@ -87,7 +86,6 @@ class UserController {
   editUserById = async (req: Request, res: Response) => {
     try {
       const {id} = req.params;
-      console.log('id:', id);
       if (!id) return res.status(400).send({message: 'Missing parameter(s)'});
       const {firstName, lastName, typesString, language, theme}: IUser =
         req.body;
@@ -105,7 +103,6 @@ class UserController {
         return res.send({message: result.message, data: result.data});
       return res.status(400).send({message: result.message});
     } catch (error) {
-      console.log('Internal error in updateUser:', error);
       return res.status(500).send({message: 'Internal error in editUserById'});
     }
   };
@@ -169,12 +166,10 @@ class UserController {
 
   uploadAvatar = async (req: Request, res: Response) => {
     const {id} = req.params;
-    console.log('upload id:', id);
     const storedDir = `src/resources/avatar/${id}`;
 
     if (!fs.existsSync(storedDir)) {
       fs.mkdirSync(storedDir, {recursive: true});
-      console.log(`Directory ${storedDir} created.`);
     }
 
     uploadFile(storedDir)(req, res, async (err: any) => {

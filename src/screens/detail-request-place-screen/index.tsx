@@ -44,7 +44,7 @@ const DetailRequestPlaceScreen = () => {
     types: [],
     vote: 0,
   });
-  console.log('DetaileRequestScreen(28) - id:' + route.params.id);
+  // console.log('DetaileRequestScreen(28) - id:' + route.params.id);
 
   useEffect(() => {
     getDestinationById(route.params.id).then(r => {

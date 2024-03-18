@@ -78,10 +78,6 @@ const ApprovePlacesScreen = () => {
   const isShowMore = isShowMoreUtil(dataRender(), page);
   //end filter data
 
-  const releaseMemory = () => {
-    setPlaces([]);
-  };
-
   const fetchWaiting = () => {
     setLoading(true);
     getWaitingDestination()
@@ -114,12 +110,10 @@ const ApprovePlacesScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // console.log('Screen focused');
       fetchWaiting();
 
       return () => {
-        releaseMemory();
-        // console.log('Screen blurred');
+        setPlaces([]);
       };
     }, []),
   );

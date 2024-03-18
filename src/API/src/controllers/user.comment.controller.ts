@@ -26,7 +26,6 @@ class UserCommentController {
         data: result.data,
       });
     } catch (error) {
-      console.log('Error in createComment:', error);
       return res.status(500).send({
         message: 'Error in createComment',
         data: [],
@@ -51,9 +50,8 @@ class UserCommentController {
         data: result.data,
       });
     } catch (error) {
-      console.log('user.comment.controller:: ERROR: ' + error);
       return res.status(500).send({
-        message: 'Error in createComment',
+        message: 'Error in updateComment',
         data: [],
       });
     }
@@ -70,7 +68,6 @@ class UserCommentController {
       );
       return res.send({message: result.message, data: result.data});
     } catch (error) {
-      console.log('Error in getCommentsByDestinationId:', error);
       return res.status(500).send({
         message: 'Error in getCommentsByDestinationId',
       });

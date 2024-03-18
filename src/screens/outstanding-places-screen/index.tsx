@@ -116,7 +116,7 @@ const OutstandingPlacesScreen = () => {
         ),
       );
     }).catch(e => {
-      console.info(e);
+      getErrorMessage(e);
     }).finally(() => {
       setLoading(false);
     });

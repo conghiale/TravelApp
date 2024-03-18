@@ -49,7 +49,7 @@ const EditPlaceScreen = () => {
 
   const routes = useRoute<any>();
   const idPlace = routes.params ? routes.params.id : '-1';
-  console.log('EditPlaceScreen(32): idPlace: ' + idPlace);
+  // console.log('EditPlaceScreen(32): idPlace: ' + idPlace);
 
   const [placeUpdate, setPlaceUpdate] = useState<PlaceProps>({
     id: idPlace,
@@ -309,8 +309,8 @@ const EditPlaceScreen = () => {
           .map(typeItem => typeItem.dest.id) || [],
     };
 
-    console.log('Edit-Screen(228): ');
-    console.log(JSON.stringify(infoPlaceChange));
+    // console.log('Edit-Screen(228): ');
+    // console.log(JSON.stringify(infoPlaceChange));
 
     //create
     placeUpdate.latitude = parseFloat(placeUpdate.latitude.toString());
@@ -394,7 +394,7 @@ const EditPlaceScreen = () => {
           });
         })
         .catch(e => {
-          console.log(e);
+          getErrorMessage(e);
           setDialog({
             visible: true,
             type: 'error',

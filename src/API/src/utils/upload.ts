@@ -27,7 +27,6 @@ export const uploadFiles = (destination: string) =>
 export const handleUpload = (req: Request, res: Response) => {
   const file = req.file;
   const files = req.files;
-  console.log('body:', req.body)
   if (files) {
     res.send({message: 'Upload files successfully', data: files});
   } else if (file) {

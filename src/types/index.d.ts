@@ -62,6 +62,7 @@ interface IAuthenticatedUser {
   hobby?: string[];
   no_loading?: boolean;
   data_loaded?: boolean;
+  destId?: string;
 }
 
 interface IPlace {
@@ -75,6 +76,7 @@ interface IPlace {
   status?: number;
   images: string[];
   distance?: number;
+  selected?: boolean;
 }
 
 interface PlaceProps {

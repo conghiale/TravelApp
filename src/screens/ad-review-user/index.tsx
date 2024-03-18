@@ -93,7 +93,6 @@ const ReviewUserScreen = () => {
     getUserById(userId)
       .then(ru => {
         const data: ApiReturnPerson = ru.data.data;
-        // console.log('data:', data);
         const dataAssign = {
           id: data._id,
           email: data.email,

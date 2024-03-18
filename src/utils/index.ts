@@ -45,6 +45,26 @@ export const formatDestination = (
   distance: place.distance,
 });
 
+export const formatDestinationWithSelect = (
+  place: ApiReturnDestination,
+  language: string,
+): IPlace => ({
+  id: place._id,
+  name: language === languageConstant.VI ? place.nameVi : place.nameEn,
+  description:
+    language === languageConstant.VI
+      ? place.descriptionVi
+      : place.descriptionEn,
+  latitude: place.latitude,
+  longitude: place.longitude,
+  images: place.images,
+  types: place.types,
+  status: place.status,
+  vote: place.vote,
+  distance: place.distance,
+  selected: false,
+});
+
 const ITEM_PER_PAGE = 5;
 export const getItemPagination = (page: number) => {
   return ITEM_PER_PAGE * page;
@@ -67,7 +87,6 @@ export const defaultDialog: DialogHandleEvent = {
 
 export const parseTimestamp = (timestamp: string) => {
   const parsedDate = new Date(timestamp);
-  console.log(parsedDate);
 
   const day = parsedDate.getDate();
   const month = parsedDate.getMonth() + 1;

@@ -104,7 +104,7 @@ const LovedScreen = () => {
       //focused
       setLoading(true);
       fetchLoveList();
-      console.log('test now:', user?.data_loaded ? true : false);
+      // console.log('test now:', user?.data_loaded ? true : false);
       updateUser({
         ...user,
         no_loading: user?.data_loaded ? true : false,

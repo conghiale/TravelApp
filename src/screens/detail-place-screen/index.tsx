@@ -142,14 +142,13 @@ const DetailPlaceScreen = () => {
   }, []);
 
   const navigateToMainScreen = () => {
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'Root',
-          params: {id: idPlace},
-        },
-      ],
+    navigation.navigate('Root', {
+      screen: 'Home',
+      params: {
+        id: idPlace,
+        latitude: destination?.latitude,
+        longitude: destination?.longitude,
+      },
     });
   };
 
