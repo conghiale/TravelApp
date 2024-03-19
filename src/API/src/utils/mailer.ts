@@ -1,4 +1,5 @@
 const nodeMailer = require('nodemailer')
+require('dotenv').config();
 
 export const sendMail = (to, subject, htmlText) => {
     const transport = nodeMailer.createTransport({
@@ -6,13 +7,16 @@ export const sendMail = (to, subject, htmlText) => {
         port: 587,
         secure: false,
         auth: {
-            user: 'tdq1711@gmail.com',
-            pass: 'ovjlqlogfjshaeyr',
+            user: process.env.USER_EMAIL,
+            pass: process.env.PWD_EMAIL,
+        },
+        tls: {
+            rejectUnauthorized: false,
         }
     })
 
     const options = {
-        from: 'tdq1711@gmail.com',
+        from: process.env.USER_EMAIL,
         to: to,
         subject: subject,
         html: htmlText

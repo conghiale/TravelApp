@@ -15,7 +15,6 @@ class DestinationService {
     types: mongoose.Types.ObjectId[],
     status: string,
     createdBy: mongoose.Types.ObjectId,
-    role: string,
   ) => {
     return await Destination.create({
       nameVi,

@@ -45,7 +45,8 @@ export const labelEn = {
       MT_LON: 'Please provide longitude of destination',
       LAT_NUMBER: 'Latitude must be type of number',
       LON_NUMBER: 'Longitude must be type of number',
-      CREATE: 'Create destination failed',
+      CREATE_DEST: 'Create destination failed',
+      UPDATE_DEST: 'Edit destination failed',
     },
     SUCCESS: {
       CREATE_DEST: 'Create destination successfully',
@@ -232,7 +233,8 @@ export const labelVi = {
       MT_LON: 'Thiếu kinh độ của địa điểm',
       LAT_NUMBER: 'Vĩ độ phải là dạng số',
       LON_NUMBER: 'Kinh độ phải là dạng số',
-      CREATE: 'Tạo địa điểm thất bại',
+      CREATE_DEST: 'Tạo địa điểm thất bại',
+      UPDATE_DEST: 'Cập nhật địa điểm thất bại',
     },
     SUCCESS: {
       CREATE_DEST: 'Tạo địa điểm thành công',

@@ -389,7 +389,7 @@ const EditPlaceScreen = () => {
           setDialog({
             visible: true,
             type: 'success',
-            message: bilingual.CREATE_EDIT_DEST.SUCCESS.CREATE_DEST,
+            message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
             handleOk: () => setDialog(defaultDialog),
           });
         })
@@ -398,7 +398,7 @@ const EditPlaceScreen = () => {
           setDialog({
             visible: true,
             type: 'error',
-            message: getErrorMessage(e),
+            message: bilingual.CREATE_EDIT_DEST.ERROR.UPDATE_DEST,
             handleOk: () => setDialog(defaultDialog),
           });
         })

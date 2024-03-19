@@ -5,7 +5,7 @@ import {authenticationMiddleware} from '../middleware';
 const destController = new DestinationController();
 const destinationRoutes = express.Router();
 
-// destinationRoutes.use(authenticationMiddleware)
+destinationRoutes.use(authenticationMiddleware)
 destinationRoutes
   .route('/get-all/:role/:uid')
   .get(destController.getAllPlacesByRole);

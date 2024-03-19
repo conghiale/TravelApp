@@ -176,7 +176,6 @@ class DestinationController {
           typesObject,
           status,
           createdByOI,
-          role,
         );
 
         //add images
