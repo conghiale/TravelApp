@@ -1,7 +1,7 @@
-import theme, {Box, Text} from '@/utils/theme';
-import React, {useEffect, useRef, useState} from 'react';
+import theme, { Box, Text } from '@/utils/theme';
+import React, { useEffect, useRef, useState } from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
-import {Search} from '@/components';
+import { Search } from '@/components';
 import styles from './places.style';
 import Icons from '@/components/shared/icon';
 import {
@@ -22,7 +22,7 @@ import {
   getTopDestination,
 } from '@/services/destination-service';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
-import {labelEn, labelVi} from '@/utils/label';
+import { labelEn, labelVi } from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {
@@ -33,14 +33,14 @@ import {
   isShowBtnPagination,
   isShowMoreUtil,
 } from '@/utils';
-import {useFocusEffect} from '@react-navigation/native';
-import {languageConstant, themeConstant} from '@/API/src/utils/constant';
-import {DarkMode, LightMode} from '@/utils/mode';
+import { useFocusEffect } from '@react-navigation/native';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 type FilterProps = 'all' | 'search' | 'type';
 
 const OutstandingPlacesScreen = () => {
-  const {user, updateUser} = useUserGlobalStore();
+  const { user, updateUser } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,9 +95,9 @@ const OutstandingPlacesScreen = () => {
   const fetchOutstandingPlaces = () => {
     setLoading(true);
     Promise.all([
-      getDestinationPublic().catch(e => {getErrorMessage(e); return Promise.reject(e);}),
-      getTopDestination().catch(e => {getErrorMessage(e); return Promise.reject(e);}),
-      getNearDestination(user?.latitude as number, user?.longitude as number).catch(e => {getErrorMessage(e); return Promise.reject(e);}),
+      getDestinationPublic().catch(e => { getErrorMessage(e); return Promise.reject(e); }),
+      getTopDestination().catch(e => { getErrorMessage(e); return Promise.reject(e); }),
+      getNearDestination(user?.latitude as number, user?.longitude as number).catch(e => { getErrorMessage(e); return Promise.reject(e); }),
     ]).then(([rDestPulbic, rTopDest, rNearDest]) => {
       setPlaces(rDestPulbic.data.data.map(
         (place: ApiReturnDestination) =>
@@ -240,13 +240,13 @@ const OutstandingPlacesScreen = () => {
         type={dialog.type}
         handleOk={dialog.handleOk}
       />
-      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
+      <View style={[styles.container, { backgroundColor: mode.blue1 }]}>
         <Modal
           visible={isShowDialogFilter}
           animationType="fade"
           transparent={true}
           onRequestClose={() => setShowDialogFilter(false)}>
-          <View style={[styles.containerModal, {backgroundColor: mode.grey2}]}>
+          <View style={[styles.containerModal, { backgroundColor: mode.grey2 }]}>
             <View
               style={[
                 styles.containerModalDialog,
@@ -260,7 +260,7 @@ const OutstandingPlacesScreen = () => {
                 style={[
                   theme.textVariants.textXl,
                   styles.textTitleModal,
-                  {color: mode.orange1},
+                  { color: mode.orange1 },
                 ]}>
                 {bilingual.OUTSTANDING.FILTER_LABEL}
               </Text>
@@ -280,7 +280,7 @@ const OutstandingPlacesScreen = () => {
                       setTypesModal(types =>
                         types?.map(typeSelected =>
                           typeSelected.dest.id === type.dest.id
-                            ? {...type, isChoose: !typeSelected.isChoose}
+                            ? { ...type, isChoose: !typeSelected.isChoose }
                             : typeSelected,
                         ),
                       )
@@ -289,7 +289,7 @@ const OutstandingPlacesScreen = () => {
                       style={[
                         theme.textVariants.textBase,
                         styles.text,
-                        {color: mode.white},
+                        { color: mode.white },
                       ]}>
                       {type.dest.label}
                     </Text>
@@ -312,7 +312,7 @@ const OutstandingPlacesScreen = () => {
           </View>
         </Modal>
         <ScrollView
-          style={{marginBottom: isKeyboardVisible ? 5 : 135}}
+          style={{ marginBottom: isKeyboardVisible ? 5 : 135 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.containerSearch}>
             <Search
@@ -342,7 +342,7 @@ const OutstandingPlacesScreen = () => {
                 style={[
                   theme.textVariants.textBase,
                   styles.text,
-                  {color: mode.white},
+                  { color: mode.white },
                 ]}>
                 {bilingual.OUTSTANDING.FILTER_BTN}
               </Text>
@@ -351,15 +351,16 @@ const OutstandingPlacesScreen = () => {
               type.isChoose ? (
                 <View
                   key={index}
-                  style={[styles.filter, {borderColor: mode.grey}]}>
+                  style={[styles.filter, { borderColor: mode.grey }]}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconAdd}
                     onPress={() => {
+                      // setFilter('type');
                       setTypes(prevType =>
                         prevType?.map(typeSelected =>
                           typeSelected.dest.id === type.dest.id
-                            ? {...type, isChoose: !type.isChoose}
+                            ? { ...type, isChoose: !type.isChoose }
                             : typeSelected,
                         ),
                       );
@@ -370,7 +371,7 @@ const OutstandingPlacesScreen = () => {
                     style={[
                       theme.textVariants.textBase,
                       styles.text,
-                      {color: mode.white},
+                      { color: mode.white },
                     ]}>
                     {type.dest.label}
                   </Text>
@@ -380,8 +381,8 @@ const OutstandingPlacesScreen = () => {
           </View>
 
           {filter === 'all' &&
-          searchText.length === 0 &&
-          types.filter(t => t.isChoose).length === 0 ? (
+            searchText.length === 0 &&
+            types.filter(t => t.isChoose).length === 0 ? (
             <>
               {/* Top Places */}
               <View style={styles.title_container}>
@@ -390,7 +391,7 @@ const OutstandingPlacesScreen = () => {
                   title={bilingual.OUTSTANDING.TOP_PLACES}
                 />
               </View>
-              <View style={{marginVertical: 8}}>
+              <View style={{ marginVertical: 8 }}>
                 <FlatlistHorizontal data={topPlaces} />
               </View>
               {/* Nearest Places */}
@@ -400,7 +401,7 @@ const OutstandingPlacesScreen = () => {
                   title={bilingual.OUTSTANDING.NEAREST_PLACE}
                 />
               </View>
-              <View style={{marginVertical: 8}}>
+              <View style={{ marginVertical: 8 }}>
                 <FlatlistHorizontal data={nearPlaces} />
               </View>
             </>
@@ -417,12 +418,12 @@ const OutstandingPlacesScreen = () => {
           </View>
           <FlatListPlaceVertical
             data={dataRender().slice(0, getItemPagination(page))}
-            // onRefresh={() => setPage(prePage => prePage + 1)}
+          // onRefresh={() => setPage(prePage => prePage + 1)}
           />
           {isShowBtnPagination(dataRender()) ? (
             <View
               pointerEvents={'auto'}
-              style={{marginTop: 32, marginHorizontal: 90}}>
+              style={{ marginTop: 32, marginHorizontal: 90 }}>
               <Button01
                 height={40}
                 label={

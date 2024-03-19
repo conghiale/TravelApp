@@ -1,16 +1,16 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
-import {ScrollView, Text, View} from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import styles from './loved.style';
 import ListPlaceItem from '@/components/listPlaceItem/ListPlaceItem';
 import LabelScreen from '@/components/labelScreen/LabelScreen';
 import Button01 from '@/components/button/button01/Button01';
-import {getAllLoveListByUser} from '@/services/user-service';
+import { getAllLoveListByUser } from '@/services/user-service';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
-import {labelEn, labelVi} from '@/utils/label';
+import { labelEn, labelVi } from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
 import {
   defaultDialog,
   getErrorMessage,
@@ -18,10 +18,10 @@ import {
   isShowBtnPagination,
   isShowMoreUtil,
 } from '@/utils';
-import {font} from '@/utils/font';
-import {useFocusEffect} from '@react-navigation/native';
-import {DarkMode, LightMode} from '@/utils/mode';
-import {removeLoveDestination} from '@/services/destination-service';
+import { font } from '@/utils/font';
+import { useFocusEffect } from '@react-navigation/native';
+import { DarkMode, LightMode } from '@/utils/mode';
+import { removeLoveDestination } from '@/services/destination-service';
 
 type ApiReturn = {
   _id: string;
@@ -48,7 +48,7 @@ type ApiReturn = {
 
 const LovedScreen = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const {user, updateUser} = useUserGlobalStore();
+  const { user, updateUser } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
@@ -83,7 +83,7 @@ const LovedScreen = () => {
         setDialog({
           visible: true,
           type: 'error',
-          message: e.response.data.message,
+          message: getErrorMessage(e),
           handleOk: () => setDialog(defaultDialog),
         });
       })
@@ -125,7 +125,7 @@ const LovedScreen = () => {
 
   const onDimiss = useCallback((place: IPlace) => {
     setLoading(true);
-    removeLoveDestination({userId: user?.id, destId: place.id})
+    removeLoveDestination({ userId: user?.id, destId: place.id })
       .then(r => {
         setPlaces(places => places.filter(item => item.id !== place.id));
       })
@@ -135,7 +135,7 @@ const LovedScreen = () => {
 
   return (
     <SafeAreaWrapper>
-      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
+      <View style={[styles.container, { backgroundColor: mode.blue1 }]}>
         <Spinner
           size={'large'}
           visible={loading}
@@ -149,7 +149,7 @@ const LovedScreen = () => {
           handleOk={dialog.handleOk}
         />
         <ScrollView
-          style={{marginBottom: 135, width: '100%', paddingHorizontal: 24}}
+          style={{ marginBottom: 135, width: '100%', paddingHorizontal: 24 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.title_container}>
             <LabelScreen
@@ -188,7 +188,7 @@ const LovedScreen = () => {
           {isShowBtnPagination(places) ? (
             <View
               pointerEvents={'auto'}
-              style={{marginTop: 32, marginHorizontal: 50}}>
+              style={{ marginTop: 32, marginHorizontal: 50 }}>
               <Button01
                 height={60}
                 label={

@@ -1,8 +1,10 @@
 const Places: PlaceProps[] = [
     {
         id: "1",
-        destination_VI: "Mekong Delta",
-        content_VI: "The Mekong Delta, often referred to as the 'Rice Bowl' of Vietnam, is a vast network of rivers, swamps, and islands in southern Vietnam. Known for its floating markets, traditional villages, and lush landscapes, it offers a unique and authentic experience of rural life.",
+        nameVi:"",
+        nameEn:"Mekong Delta",
+        descriptionVi: "",
+        descriptionEn: "The Mekong Delta, often referred to as the 'Rice Bowl' of Vietnam, is a vast network of rivers, swamps, and islands in southern Vietnam. Known for its floating markets, traditional villages, and lush landscapes, it offers a unique and authentic experience of rural life.",
         star: 2.5,
         status: 1,
         longitude: 105.9869,

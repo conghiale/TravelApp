@@ -1,10 +1,10 @@
-import {AppScreenNavigationType} from '@/navigation/types';
+import { AppScreenNavigationType } from '@/navigation/types';
 import {
   useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   Modal,
@@ -19,23 +19,46 @@ import theme from '@/utils/theme';
 import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser';
 import LabelScreenReverse from '@/components/labelScreen/LabelScreenReverse';
 import Icons from '@/components/shared/icon';
-import {DestTypes, LoginHistory, Places} from '@/assets/data';
+import { DestTypes, LoginHistory, Places } from '@/assets/data';
 import LoginHistoryItem from '@/components/loginHistoryItem/LoginHistoryItem';
 import Place from '@/components/place/Place';
 import Button01 from '@/components/button/button01/Button01';
-import {getUserById, updateUserById} from '@/services/user-service';
+import { getAllLoveListByUser, getUserById, updateUserById } from '@/services/user-service';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
-import {labelEn, labelVi} from '@/utils/label';
-import {defaultDialog, getErrorMessage} from '@/utils';
-import {getDestinationTypes} from '@/services/destination-service';
-import {BASE_URL_AVATAR} from '@/services/config';
+import { labelEn, labelVi } from '@/utils/label';
+import { defaultDialog, getErrorMessage } from '@/utils';
+import { getDestinationTypes } from '@/services/destination-service';
+import { BASE_URL_AVATAR } from '@/services/config';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import { languageConstant, themeConstant } from '@/API/src/utils/constant';
 import { DarkMode, LightMode } from '@/utils/mode';
 
+type ApiReturn = {
+  _id: string;
+  userId: string;
+  destinationId: string;
+  createdAt: string;
+  updatedAt: string;
+  lovedDest: {
+    nameVi: string;
+    nameEn: string;
+    descriptionVi: string;
+    descriptionEn: string;
+    latitude: number;
+    longitude: number;
+    types: string[];
+    vote: number;
+    status: number;
+    createdBy: string;
+    createdAt: string;
+    updatedAt: string;
+    images: string[];
+  };
+};
+
 const ReviewUserScreen = () => {
-  const {user} = useUserGlobalStore();
+  const { user } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
@@ -64,6 +87,7 @@ const ReviewUserScreen = () => {
   const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]);
   const [infoChanged, setInfoChanged] = useState(false);
   const [isShowDialogFilter, setShowDialogFilter] = useState(false);
+  const [places, setPlaces] = useState<IPlace[]>([]);
 
   const goBack = () => {
     navigation.goBack();
@@ -75,6 +99,40 @@ const ReviewUserScreen = () => {
       [name]: value,
     });
   };
+
+  useEffect(() => {
+    getAllLoveListByUser(userId as string, false)
+      .then(r => {
+        const customData: IPlace[] = r.data.data.map((d: ApiReturn) => ({
+          id: d.destinationId,
+          name:
+            user?.language === languageConstant.VI
+              ? d.lovedDest.nameVi
+              : d.lovedDest.nameEn,
+          description:
+            user?.language === languageConstant.VI
+              ? d.lovedDest.descriptionVi
+              : d.lovedDest.descriptionEn,
+          latitude: d.lovedDest.latitude,
+          longitude: d.lovedDest.longitude,
+          images: d.lovedDest.images,
+          types: d.lovedDest.types,
+          vote: d.lovedDest.vote,
+        }));
+        setPlaces(customData);
+      })
+      .catch(e => {
+        setDialog({
+          visible: true,
+          type: 'error',
+          message: e.response.data.message,
+          handleOk: () => setDialog(defaultDialog),
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [router])
 
   const handleLoginHistory = () => {
     setLoginHistory(!loginHistory);
@@ -159,8 +217,6 @@ const ReviewUserScreen = () => {
       hobbyChanged() ||
       person.firstName !== input.firstName ||
       person.lastName !== input.lastName;
-    // console.log(hobbyChanged());
-    // console.log(flag);
     setInfoChanged(flag);
   }, [input, types]);
 
@@ -179,8 +235,6 @@ const ReviewUserScreen = () => {
   };
 
   const handleActionSave = () => {
-    // console.log('review-user-Screen(145): ');
-    // console.log(JSON.stringify(infoUserChange));
     if (types.filter(t => t.isChoose).length === 0) {
       setDialog({
         visible: true,
@@ -231,7 +285,7 @@ const ReviewUserScreen = () => {
   };
 
   return (
-    <View style={{width: '100%', height: '100%'}}>
+    <View style={{ width: '100%', height: '100%' }}>
       <Spinner
         size={'large'}
         visible={loading}
@@ -243,7 +297,7 @@ const ReviewUserScreen = () => {
         message={dialog.message}
         type={dialog.type}
         handleOk={dialog.handleOk}
-        // handleCancel={dialog.handleCancel}
+      // handleCancel={dialog.handleCancel}
       />
       <Modal
         visible={isShowDialogFilter}
@@ -253,7 +307,7 @@ const ReviewUserScreen = () => {
         <View
           style={[
             styles.containerModal,
-            {backgroundColor: mode.grey2},
+            { backgroundColor: mode.grey2 },
           ]}>
           <View
             style={[
@@ -268,7 +322,7 @@ const ReviewUserScreen = () => {
               style={[
                 theme.textVariants.textXl,
                 styles.textTitleModal,
-                {color: mode.orange1},
+                { color: mode.orange1 },
               ]}>
               {bilingual.REVIEW_USER.SELECT_TYPES}
             </Text>
@@ -290,7 +344,7 @@ const ReviewUserScreen = () => {
                     setTypesModal(types =>
                       types?.map(typeSelected =>
                         typeSelected.dest.id === type.dest.id
-                          ? {...type, isChoose: !typeSelected.isChoose}
+                          ? { ...type, isChoose: !typeSelected.isChoose }
                           : typeSelected,
                       ),
                     )
@@ -299,7 +353,7 @@ const ReviewUserScreen = () => {
                     style={[
                       theme.textVariants.textBase,
                       styles.text,
-                      {color: mode.white},
+                      { color: mode.white },
                     ]}>
                     {type.dest.label}
                   </Text>
@@ -322,9 +376,9 @@ const ReviewUserScreen = () => {
         </View>
       </Modal>
       <ScrollView
-        style={{backgroundColor: mode.blue1}}
+        style={{ backgroundColor: mode.blue1 }}
         showsVerticalScrollIndicator={false}>
-        <View style={[styles.container, {backgroundColor: mode.blue1}]}>
+        <View style={[styles.container, { backgroundColor: mode.blue1 }]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
             <View style={styles.containerTitle}>
@@ -332,7 +386,7 @@ const ReviewUserScreen = () => {
                 style={[
                   theme.textVariants.textLg,
                   styles.title,
-                  {color: mode.orange},
+                  { color: mode.orange },
                 ]}>
                 {bilingual.REVIEW_USER.TITLE}
               </Text>
@@ -355,10 +409,10 @@ const ReviewUserScreen = () => {
               }}>
               {/* get uri form person.image */}
               <Image
-                style={[styles.image, {borderColor: mode.grey}]}
+                style={[styles.image, { borderColor: mode.grey }]}
                 source={
                   person.avatar
-                    ? {uri: `${BASE_URL_AVATAR}/${person.avatar}`}
+                    ? { uri: `${BASE_URL_AVATAR}/${person.avatar}` }
                     : require('../../assets/images/avatarDefault.jpg')
                 }
               />
@@ -366,7 +420,7 @@ const ReviewUserScreen = () => {
                 style={[
                   theme.textVariants.textBase,
                   styles.text,
-                  {color: mode.white, flex: 1},
+                  { color: mode.white, flex: 1 },
                 ]}>
                 {person.email}
               </Text>
@@ -376,7 +430,7 @@ const ReviewUserScreen = () => {
               style={[
                 theme.textVariants.textLg,
                 styles.titleInfo,
-                {color: mode.orange},
+                { color: mode.orange },
               ]}>
               {bilingual.REVIEW_USER.INFORMATION}
             </Text>
@@ -419,7 +473,7 @@ const ReviewUserScreen = () => {
                   style={[
                     theme.textVariants.textBase,
                     styles.text,
-                    {color: mode.white},
+                    { color: mode.white },
                   ]}>
                   {bilingual.REVIEW_USER.SET_HOBBY}
                 </Text>
@@ -430,7 +484,7 @@ const ReviewUserScreen = () => {
                     key={type.dest.id}
                     style={[
                       styles.updateTypes,
-                      {borderColor: mode.grey},
+                      { borderColor: mode.grey },
                     ]}>
                     <TouchableOpacity
                       activeOpacity={0.85}
@@ -439,7 +493,7 @@ const ReviewUserScreen = () => {
                         setTypes(prevType =>
                           prevType?.map(typeSelected =>
                             typeSelected.dest.id === type.dest.id
-                              ? {...type, isChoose: !type.isChoose}
+                              ? { ...type, isChoose: !type.isChoose }
                               : typeSelected,
                           ),
                         );
@@ -450,7 +504,7 @@ const ReviewUserScreen = () => {
                       style={[
                         theme.textVariants.textBase,
                         styles.text,
-                        {color: mode.white},
+                        { color: mode.white },
                       ]}>
                       {type.dest.label}
                     </Text>
@@ -467,7 +521,7 @@ const ReviewUserScreen = () => {
               />
             </TouchableOpacity>
             <View
-              style={[styles.content, {height: loginHistory ? undefined : 0}]}>
+              style={[styles.content, { height: loginHistory ? undefined : 0 }]}>
               {LoginHistory.map(loginHistory => (
                 <LoginHistoryItem
                   key={loginHistory.id}
@@ -482,22 +536,22 @@ const ReviewUserScreen = () => {
           <View
             style={[
               styles.containerContent,
-              {marginBottom: placeHistory ? 16 : 0},
+              { marginBottom: placeHistory ? 16 : 0 },
             ]}>
             <TouchableOpacity activeOpacity={0.9} onPress={handlePlaceHistory}>
               <LabelScreenReverse
                 nameIcon={placeHistory === true ? 'sub' : 'add'}
-                title={bilingual.REVIEW_USER.PLACE_HISTORY}
+                title={bilingual.REVIEW_USER.PLACE_LOVE_HISTORY}
               />
             </TouchableOpacity>
             <View
-              style={[styles.content, {height: placeHistory ? undefined : 0}]}>
-              {Places.map((place, index) => (
+              style={[styles.content, { height: placeHistory ? undefined : 0 }]}>
+              {places.map((place, index) => (
                 <Place
                   id={place.id ? place.id : ''}
                   key={index}
-                  description={place.descriptionVi}
-                  name={place.nameVi}
+                  description={place.description}
+                  name={place.name}
                   images={place.images}
                   types={place.types}
                   vote={place.vote}

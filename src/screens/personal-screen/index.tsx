@@ -1,5 +1,5 @@
-import theme, {Text} from '@/utils/theme';
-import React, {useEffect, useState} from 'react';
+import theme, { Text } from '@/utils/theme';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   Keyboard,
@@ -11,22 +11,22 @@ import {
 import styles from './personal.style';
 import Icons from '@/components/shared/icon';
 import GroupSettings from '@/components/group_settings';
-import {useNavigation} from '@react-navigation/native';
-import {AppScreenNavigationType} from '@/navigation/types';
+import { useNavigation } from '@react-navigation/native';
+import { AppScreenNavigationType } from '@/navigation/types';
 import BorderButton from '@/components/button/borderButton/BorderButton';
 import LabelScreen from '@/components/labelScreen/LabelScreen';
 import * as ImagePicker from 'react-native-image-picker';
 // import * as ImagePicker from 'react-native-image-crop-picker';
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
-import {BASE_URL_AVATAR} from '@/services/config';
+import { BASE_URL_AVATAR } from '@/services/config';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import CustomInputInfoUser from '@/components/input/customInputInfoUser/CustomInputInfoUser';
 import Button01 from '@/components/button/button01/Button01';
-import {labelEn, labelVi} from '@/utils/label';
+import { labelEn, labelVi } from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {getDestinationTypes} from '@/services/destination-service';
-import {defaultDialog, getErrorMessage, randomNumberString} from '@/utils';
+import { getDestinationTypes } from '@/services/destination-service';
+import { defaultDialog, getErrorMessage, randomNumberString } from '@/utils';
 import {
   getUserById,
   updateUserById,
@@ -37,10 +37,10 @@ import {
   roleConstant,
   themeConstant,
 } from '@/API/src/utils/constant';
-import {DarkMode, LightMode} from '@/utils/mode';
+import { DarkMode, LightMode } from '@/utils/mode';
 
 const PersonalScreen = () => {
-  const {user, updateUser} = useUserGlobalStore();
+  const { user, updateUser } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
@@ -116,7 +116,7 @@ const PersonalScreen = () => {
           });
         })
         .finally(() => setLoading(false));
-  }, [user?.firstName, user?.lastName, user?.avatar, user?.hobby]);
+  }, [user?.firstName, user?.lastName, user?.avatar, user?.hobby, user?.language]);
 
   const handleToggle = (key: keyof IAuthenticatedUser) => {
     if (user && user.id) {
@@ -126,7 +126,7 @@ const PersonalScreen = () => {
             user?.language === languageConstant.VI
               ? languageConstant.EN
               : languageConstant.VI;
-          updateUserById(user.id, {language: langValue})
+          updateUserById(user.id, { language: langValue })
             .then(r => {
               console.log('Switch lang OK');
             })
@@ -148,7 +148,7 @@ const PersonalScreen = () => {
             user?.theme === themeConstant.DARK
               ? themeConstant.LIGHT
               : themeConstant.DARK;
-          updateUserById(user.id, {theme: themeValue})
+          updateUserById(user.id, { theme: themeValue })
             .then(r => {
               console.log('Switch lang OK');
             })
@@ -212,7 +212,7 @@ const PersonalScreen = () => {
     setInfoChanged(flag);
   }, [person, types]);
 
-  const uploadImage = async ({type, options}: any) => {
+  const uploadImage = async ({ type, options }: any) => {
     if (type === 'capture') {
       /*ImagePicker.openCamera({
         width: 160,
@@ -414,7 +414,7 @@ const PersonalScreen = () => {
   };
 
   return (
-    <View style={[styles.container, {backgroundColor: mode.blue1}]}>
+    <View style={[styles.container, { backgroundColor: mode.blue1 }]}>
       <DialogChooseImage
         visible={showTakeImage}
         onDimissAlert={setShowTakeImage}
@@ -442,7 +442,7 @@ const PersonalScreen = () => {
         animationType="fade"
         transparent={true}
         onRequestClose={() => setShowDialogFilter(false)}>
-        <View style={[styles.containerModal, {backgroundColor: mode.grey2}]}>
+        <View style={[styles.containerModal, { backgroundColor: mode.grey2 }]}>
           <View
             style={[
               styles.containerModalDialog,
@@ -456,7 +456,7 @@ const PersonalScreen = () => {
               style={[
                 theme.textVariants.textXl,
                 styles.textTitleModal,
-                {color: mode.orange1},
+                { color: mode.orange1 },
               ]}>
               {bilingual.PERSONAL.FILTER_LABEL}
             </Text>
@@ -477,7 +477,7 @@ const PersonalScreen = () => {
                     setTypesModal(types =>
                       types?.map(typeItem =>
                         typeItem.dest.id === type.dest.id
-                          ? {...typeItem, isChoose: !typeItem.isChoose}
+                          ? { ...typeItem, isChoose: !typeItem.isChoose }
                           : typeItem,
                       ),
                     )
@@ -486,7 +486,7 @@ const PersonalScreen = () => {
                     style={[
                       theme.textVariants.textBase,
                       styles.text,
-                      {color: mode.white},
+                      { color: mode.white },
                     ]}>
                     {type.dest.label}
                   </Text>
@@ -511,31 +511,31 @@ const PersonalScreen = () => {
       {/* end modal pick types */}
 
       <ScrollView
-        style={{marginBottom: isKeyboardVisible ? 5 : 135}}
+        style={{ marginBottom: isKeyboardVisible ? 5 : 135 }}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text
             style={[
               theme.textVariants.textXl,
               styles.text,
-              {color: mode.white},
+              { color: mode.white },
             ]}>
-            {}
+            { }
           </Text>
           <View style={styles.containerAvatar}>
             <Image
               source={
                 user?.avatar
-                  ? {uri: `${BASE_URL_AVATAR}/${user.avatar}`}
+                  ? { uri: `${BASE_URL_AVATAR}/${user.avatar}` }
                   : require(IMAGE)
               }
-              style={[styles.imageAvatar, {borderColor: mode.grey}]}
+              style={[styles.imageAvatar, { borderColor: mode.grey }]}
             />
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={() => setShowTakeImage(true)}>
               <View
-                style={[styles.containerCamera, {backgroundColor: mode.grey}]}>
+                style={[styles.containerCamera, { backgroundColor: mode.grey }]}>
                 <Icons name="camera" />
               </View>
             </TouchableOpacity>
@@ -547,7 +547,7 @@ const PersonalScreen = () => {
               style={[
                 theme.textVariants.textBase,
                 styles.text,
-                {textAlign: 'center', color: mode.white},
+                { textAlign: 'center', color: mode.white },
               ]}>
               {person.email}
             </Text>
@@ -594,7 +594,7 @@ const PersonalScreen = () => {
                   style={[
                     theme.textVariants.textBase,
                     styles.text,
-                    {color: mode.white},
+                    { color: mode.white },
                   ]}>
                   {bilingual.PERSONAL.SET_HOBBY}
                 </Text>
@@ -603,7 +603,7 @@ const PersonalScreen = () => {
                 type.isChoose ? (
                   <View
                     key={index}
-                    style={[styles.updateTypes, {borderColor: mode.grey}]}>
+                    style={[styles.updateTypes, { borderColor: mode.grey }]}>
                     <TouchableOpacity
                       activeOpacity={0.85}
                       style={styles.iconAdd}
@@ -611,7 +611,7 @@ const PersonalScreen = () => {
                         setTypes(prevType =>
                           prevType.map(typeSelected =>
                             typeSelected.dest.id === type.dest.id
-                              ? {...type, isChoose: !type.isChoose}
+                              ? { ...type, isChoose: !type.isChoose }
                               : typeSelected,
                           ),
                         );
@@ -622,7 +622,7 @@ const PersonalScreen = () => {
                       style={[
                         theme.textVariants.textBase,
                         styles.text,
-                        {color: mode.white},
+                        { color: mode.white },
                       ]}>
                       {type.dest.label}
                     </Text>
@@ -653,14 +653,14 @@ const PersonalScreen = () => {
                 style={[
                   theme.textVariants.textLg,
                   styles.text,
-                  {color: mode.white},
+                  { color: mode.white },
                 ]}>
                 {bilingual.PERSONAL.CHANGE_PWD}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View style={[styles.settings, {marginBottom: 20}]}>
+          <View style={[styles.settings, { marginBottom: 20 }]}>
             <View style={styles.heading}>
               <LabelScreen
                 nameIcon="setting"

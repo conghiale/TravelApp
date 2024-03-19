@@ -277,7 +277,7 @@ const DetailPlaceScreen = () => {
       />
       {/* //lor */}
       <DialogNotification
-        status="error"
+        status="warning"
         displayMode="REMOVE COMMENT"
         displayMsg={bilingual.DETAIL_PLACE.CF_DEL_CMT}
         visible={showDialogRemoveComment}
@@ -339,7 +339,7 @@ const DetailPlaceScreen = () => {
                 styles.content,
                 {color: mode.white},
               ]}>
-              {destination?.nameVi}
+              {user?.language === languageConstant.VI ? destination?.nameVi : destination?.nameEn}
             </Text>
             <View style={styles.ratingContainer}>
               <View style={styles.rating}>
@@ -374,7 +374,7 @@ const DetailPlaceScreen = () => {
                 styles.content,
                 {color: mode.white},
               ]}>
-              {destination?.descriptionVi}
+              {user?.language === languageConstant.VI ? destination?.descriptionVi : destination?.descriptionEn}
             </Text>
           </View>
           <View style={styles.commentContainer}>

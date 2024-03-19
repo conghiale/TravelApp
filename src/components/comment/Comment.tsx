@@ -61,7 +61,7 @@ const Comment = ({ _id, avatar, email, star, content, createdAt, updatedAt, onAc
                         updated: {updatedAt}
                     </Text> : <View style={{flex: 1}}></View>
                 }
-                {user?.email === email ? (
+                {user?.email === email || user?.role === 'ADMIN' ? (
                     <View style={{flexDirection: 'row', gap: 10}}>
                         <TouchableOpacity 
                         activeOpacity={0.85}
