@@ -34,6 +34,7 @@ import Dialog from '@/components/dialog-handle-event';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { languageConstant, themeConstant } from '@/API/src/utils/constant';
 import { DarkMode, LightMode } from '@/utils/mode';
+import BorderButton from '@/components/button/borderButton/BorderButton';
 
 type ApiReturnType = {
   _id: string;
@@ -347,7 +348,7 @@ const CreatePlaceScreen = () => {
           setDialog({
             visible: true,
             type: 'error',
-            message: bilingual.CREATE_EDIT_DEST.ERROR.CREATE,
+            message: bilingual.CREATE_EDIT_DEST.ERROR.CREATE_DEST,
             handleOk: () => setDialog(defaultDialog),
           });
         })
@@ -795,6 +796,14 @@ const CreatePlaceScreen = () => {
                   </View>
                 ))
               : null}
+          </View>
+          <View style={styles.containerButtonEdit}>
+            <BorderButton
+              height={60}
+              label={bilingual.CREATE_EDIT_DEST.CREATE_LABEL}
+              nameIcon="createDestination"
+              onPress={handleRequestSubmitCreate}
+            />
           </View>
         </ScrollView>
       </View>

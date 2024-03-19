@@ -17,6 +17,7 @@ export const labelEn = {
   },
   CREATE_EDIT_DEST: {
     CREATE: 'Create destination',
+    CREATE_LABEL: 'Create',
     EDIT_LABEL: 'Edit place',
     UPDATE_LABEL: 'Update',
     LIST: 'List',
@@ -205,6 +206,7 @@ export const labelVi = {
   },
   CREATE_EDIT_DEST: {
     CREATE: 'Tạo địa điểm',
+    CREATE_LABEL: 'Tạo',
     EDIT_LABEL: 'Sửa địa điểm',
     UPDATE_LABEL: 'Cập nhật',
     LIST: 'Danh sách',

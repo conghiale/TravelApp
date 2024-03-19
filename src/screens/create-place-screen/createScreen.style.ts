@@ -125,6 +125,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  containerButtonEdit: {
+    marginHorizontal: 36,
+    marginTop: 32,
+    marginBottom: 16,
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export default styles;

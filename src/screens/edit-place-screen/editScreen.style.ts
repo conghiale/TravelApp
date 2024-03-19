@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
     fontFamily: font.semiBold,
   },
   containerButtonEdit: {
-    marginHorizontal: 30,
+    marginHorizontal: 36,
     marginTop: 32,
-    marginBottom: 10,
+    marginBottom: 16,
     alignContent: 'center',
     justifyContent: 'center',
   },
