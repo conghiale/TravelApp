@@ -1,6 +1,6 @@
 import {AppScreenNavigationType} from '@/navigation/types';
 import theme from '@/utils/theme';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
 import styles from './createdPlaces.style';
@@ -84,7 +84,7 @@ const CreatedPlacesScreen = () => {
     navigation.goBack();
   };
 
-  useEffect(() => {
+  const fetchDests = () => {
     if (user && user.role) {
       getAllDestinationByRole(user.role, user.id)
         .then(r => {
@@ -120,7 +120,25 @@ const CreatedPlacesScreen = () => {
           setLoading(false);
         });
     }
-  }, [router]);
+  }
+
+  // useEffect(() => {
+  //   fetchDests();
+  // }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchDests();
+
+      return () => {
+        // setPlaces([]);
+      };
+    }, [
+      user?.language,
+      user?.id,
+      user?.role,
+    ]),
+  );
 
   return (
     <View style={{flex: 1, backgroundColor: mode.blue1}}>

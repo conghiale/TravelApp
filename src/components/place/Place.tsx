@@ -11,6 +11,8 @@ import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {labelEn, labelVi} from '@/utils/label';
 import { languageConstant, themeConstant } from '@/API/src/utils/constant';
 import { DarkMode, LightMode } from '@/utils/mode';
+import { font } from '@/utils/font';
+import { backgroundColor } from '@shopify/restyle';
 
 const Place = ({
   id,
@@ -47,11 +49,13 @@ const Place = ({
           style={[
             theme.textVariants.textSm,
             {
+              fontFamily: font.regular,
+              fontSize: 16,
               color:
                 status === 1
                   ? mode.yellow
                   : status === 3
-                  ? mode.green3
+                  ? mode.green2
                   : mode.red,
             },
           ]}>
@@ -110,6 +114,7 @@ const Place = ({
           <Button01
             label={bilingual.GENERAL.BTN_MAP}
             onPress={navigateToMainScreen}
+            destStatus={status}
           />
         </View>
       </View>

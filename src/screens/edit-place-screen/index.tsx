@@ -23,6 +23,7 @@ import BorderButton from '@/components/button/borderButton/BorderButton';
 import {
   getDestinationById,
   getDestinationTypes,
+  resubmitDestination,
   updateDestination,
 } from '@/services/destination-service';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
@@ -36,8 +37,10 @@ import {
   randomNumberString,
 } from '@/utils';
 import {BASE_URL_DESTINATION} from '@/services/config';
-import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { languageConstant, statusDestinationConstant, themeConstant } from '@/API/src/utils/constant';
 import { DarkMode, LightMode } from '@/utils/mode';
+import Place from '@/components/place/Place';
+import { font } from '@/utils/font';
 
 const EditPlaceScreen = () => {
   const {user} = useUserGlobalStore();
@@ -49,7 +52,7 @@ const EditPlaceScreen = () => {
 
   const routes = useRoute<any>();
   const idPlace = routes.params ? routes.params.id : '-1';
-  // console.log('EditPlaceScreen(32): idPlace: ' + idPlace);
+  console.log('EditPlaceScreen(32): idPlace: ' + idPlace);
 
   const [placeUpdate, setPlaceUpdate] = useState<PlaceProps>({
     id: idPlace,
@@ -87,11 +90,12 @@ const EditPlaceScreen = () => {
     navigation.goBack();
   };
 
-  // Get places by id
-  useEffect(() => {
+  const fetchPlace = () => {
+    setLoading(true);
     getDestinationById(routes?.params?.id)
       .then((r: any) => {
         const d: ApiReturnDestination = r.data.data;
+        console.log(d.status)
         setPlaceUpdate({
           id: d._id,
           nameVi: d.nameVi,
@@ -105,6 +109,7 @@ const EditPlaceScreen = () => {
           images: d.images,
           vote: d.vote,
           status: d.status,
+          reasonReject: d.reasonReject,
         });
 
         setImageUploads(
@@ -149,6 +154,10 @@ const EditPlaceScreen = () => {
           handleOk: () => goBack(),
         });
       });
+  }
+  // Get places by id
+  useEffect(() => {
+    fetchPlace();
   }, []);
 
   // keyboard
@@ -292,23 +301,6 @@ const EditPlaceScreen = () => {
   };
 
   const handleRequestSubmitEdit = () => {
-    const infoPlaceChange: PlaceProps = {
-      id: placeUpdate.id,
-      nameVi: placeUpdate.nameVi,
-      nameEn: placeUpdate.nameEn,
-      descriptionVi: placeUpdate.descriptionVi,
-      descriptionEn: placeUpdate.descriptionEn,
-      latitude: placeUpdate.latitude,
-      longitude: placeUpdate.longitude,
-      vote: placeUpdate.vote,
-      images: imageUploads.map(imageUploadsItem => imageUploadsItem.uri),
-      status: placeUpdate.status,
-      types:
-        types
-          ?.filter(typeItem => typeItem.isChoose)
-          .map(typeItem => typeItem.dest.id) || [],
-    };
-
     // console.log('Edit-Screen(228): ');
     // console.log(JSON.stringify(infoPlaceChange));
 
@@ -357,22 +349,24 @@ const EditPlaceScreen = () => {
       );
       formData.append('createdBy', user?.email);
       formData.append('role', user?.role);
-
+      
       setLoading(true);
-      updateDestination(placeUpdate.id as string, formData)
+      updateDestination(idPlace, formData)
         .then(r => {
           const data: ApiReturnDestination = r.data.data;
-          setPlaceUpdate({
-            nameVi: data.nameVi,
-            nameEn: data.nameEn,
-            descriptionVi: data.descriptionVi,
-            descriptionEn: data.descriptionEn,
-            longitude: data.longitude,
-            latitude: data.latitude,
-            vote: data.vote,
-            images: data.images,
-            types: data.types,
-          });
+          // setPlaceUpdate({
+          //   id: data._id,
+          //   nameVi: data.nameVi,
+          //   nameEn: data.nameEn,
+          //   descriptionVi: data.descriptionVi,
+          //   descriptionEn: data.descriptionEn,
+          //   longitude: data.longitude,
+          //   latitude: data.latitude,
+          //   vote: data.vote,
+          //   images: data.images,
+          //   types: data.types,
+          //   status: data.status,
+          // });
 
           setTypes(prevTypes =>
             prevTypes.map(prevType => ({
@@ -392,6 +386,7 @@ const EditPlaceScreen = () => {
             message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
             handleOk: () => setDialog(defaultDialog),
           });
+          fetchPlace();
         })
         .catch(e => {
           getErrorMessage(e);
@@ -408,6 +403,39 @@ const EditPlaceScreen = () => {
     }
   };
 
+  const resubmit = () => {
+    setDialog(defaultDialog);
+    setLoading(true);
+    resubmitDestination({destinationId: idPlace})
+      .then(r => {
+        setDialog({
+          visible: true,
+          type: 'success',
+          message: bilingual.CREATE_EDIT_DEST.SUCCESS.RESUBMIT,
+          handleOk: () => goBack(),
+        });
+      })
+      .catch(e => {
+        getErrorMessage(e);
+        setDialog({
+          visible: true,
+          type: 'error',
+          message: bilingual.CREATE_EDIT_DEST.ERROR.RESUBMIT,
+          handleOk: () => setDialog(defaultDialog),
+        });
+      }).finally(() => setLoading(false));
+  };
+
+  const handleRequestReSubmitEdit = () => {
+    setDialog({
+      visible: true,
+      type: 'warning',
+      message: bilingual.CREATE_EDIT_DEST.CF_RESUBMIT,
+      handleOk: () => resubmit(),
+      handleCancel: () => setDialog(defaultDialog),
+    });
+  };
+
   return (
     <SafeAreaWrapper>
       <View style={[styles.container, {backgroundColor: mode.blue1}]}>
@@ -422,6 +450,7 @@ const EditPlaceScreen = () => {
           message={dialog.message}
           type={dialog.type}
           handleOk={dialog.handleOk}
+          handleCancel={dialog.handleCancel}
         />
         <DialogChooseImage
           visible={showTakeImage}
@@ -437,11 +466,7 @@ const EditPlaceScreen = () => {
           animationType="fade"
           transparent={true}
           onRequestClose={() => setShowDialogFilter(false)}>
-          <View
-            style={[
-              styles.containerModal,
-              {backgroundColor: mode.grey2},
-            ]}>
+          <View style={[styles.containerModal, {backgroundColor: mode.grey2}]}>
             <View
               style={[
                 styles.containerModalDialog,
@@ -468,9 +493,7 @@ const EditPlaceScreen = () => {
                     style={[
                       styles.filter,
                       {
-                        backgroundColor: type.isChoose
-                          ? mode.grey
-                          : mode.blue1,
+                        backgroundColor: type.isChoose ? mode.grey : mode.blue1,
                         borderColor: mode.grey,
                       },
                     ]}
@@ -527,15 +550,34 @@ const EditPlaceScreen = () => {
               </Text>
             </View>
           </View>
+          <View>
+            {/* <Text style={{fontFamily: font.semiBold, marginTop: 20, fontSize: 16, color: theme.colors.orange}}>Status:</Text> */}
+            {placeUpdate.status === statusDestinationConstant.ACCEPTED ? (
+              <Text style={{color: theme.colors.green2, marginTop: 20, fontSize: 16, fontFamily: font.bold}}>ACCEPTED</Text>
+            ) : (
+              <></>
+            )}
+            {placeUpdate.status === statusDestinationConstant.WAITING ? (
+              <Text style={{color: theme.colors.yellow, marginTop: 20, fontSize: 16, fontFamily: font.bold}}>WAITING</Text>
+            ) : (
+              <></>
+            )}
+            {placeUpdate.status === statusDestinationConstant.REJECTED ? (
+              <>
+              <Text style={{color: theme.colors.red, marginTop: 20, fontSize: 16, fontFamily: font.bold}}>REJECTED</Text>
+              <Text style={{color: theme.colors.red, fontSize: 16}}>Reason: {placeUpdate.reasonReject}</Text>
+              </>
+            ) : (
+              <></>
+            )}
+          </View>
 
           <View
             style={[
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.nameVi ? 2 : 0,
-                borderColor: onFocus.nameVi
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.nameVi ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -567,9 +609,7 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.nameEn ? 2 : 0,
-                borderColor: onFocus.nameEn
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.nameEn ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -601,9 +641,7 @@ const EditPlaceScreen = () => {
               styles.destinationDescription,
               {
                 borderWidth: onFocus.descriptionVi ? 2 : 0,
-                borderColor: onFocus.descriptionVi
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.descriptionVi ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -637,9 +675,7 @@ const EditPlaceScreen = () => {
               styles.destinationDescription,
               {
                 borderWidth: onFocus.descriptionEn ? 2 : 0,
-                borderColor: onFocus.descriptionEn
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.descriptionEn ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -673,9 +709,7 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.latitude ? 2 : 0,
-                borderColor: onFocus.latitude
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.latitude ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -707,9 +741,7 @@ const EditPlaceScreen = () => {
               styles.viewInputDestination,
               {
                 borderWidth: onFocus.longitude ? 2 : 0,
-                borderColor: onFocus.longitude
-                  ? mode.green1
-                  : mode.white,
+                borderColor: onFocus.longitude ? mode.green1 : mode.white,
                 backgroundColor: mode.white,
               },
             ]}>
@@ -830,6 +862,19 @@ const EditPlaceScreen = () => {
               onPress={handleRequestSubmitEdit}
             />
           </View>
+
+          {placeUpdate.status === statusDestinationConstant.REJECTED ? (
+            <View style={[styles.containerButtonEdit, {marginTop: 8}]}>
+              <BorderButton
+                height={60}
+                label={bilingual.CREATE_EDIT_DEST.RESUBMIT}
+                nameIcon="send"
+                onPress={handleRequestReSubmitEdit}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
         </ScrollView>
       </View>
     </SafeAreaWrapper>

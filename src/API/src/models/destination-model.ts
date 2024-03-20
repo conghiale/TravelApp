@@ -44,6 +44,11 @@ const destinationSchema = new mongoose.Schema(
       ref: 'User',
       require: true,
     },
+    reasonReject: {
+      type: String,
+      require: false,
+      default: '',
+    },
   },
   {
     timestamps: true,

@@ -5,6 +5,7 @@ export const labelEn = {
     BTN_DETAIL: 'Detail',
     BTN_EDIT: 'Edit',
     NO_DATA: 'No data',
+    REJECT_REASON: 'Type reason of rejection',
   },
   DIALOG: {
     OK: 'OK',
@@ -20,6 +21,7 @@ export const labelEn = {
     CREATE_LABEL: 'Create',
     EDIT_LABEL: 'Edit place',
     UPDATE_LABEL: 'Update',
+    RESUBMIT: 'Resubmit',
     LIST: 'List',
     NAME_VI: 'Destination name (VI)',
     NAME_EN: 'Destination name (EN)',
@@ -35,6 +37,7 @@ export const labelEn = {
     SELECT_TYPES: 'Select the type of place',
     CHOOSE: 'Choose',
     ERROR_MESSAGE: 'Error message',
+    CF_RESUBMIT: 'Are you sure to resubmit this request to admin?',
     ERROR: {
       MT_IMAGE: 'Please provide at least one image',
       MT_TYPES: 'Please provide at least one destination type',
@@ -48,10 +51,12 @@ export const labelEn = {
       LON_NUMBER: 'Longitude must be type of number',
       CREATE_DEST: 'Create destination failed',
       UPDATE_DEST: 'Edit destination failed',
+      RESUBMIT: 'Resubmit request failed',
     },
     SUCCESS: {
       CREATE_DEST: 'Create destination successfully',
       UPDATE_DEST: 'Edit destination successfully',
+      RESUBMIT: 'Resubmit request successfully',
     }
   },
   CREATED_PLACES: {
@@ -160,7 +165,8 @@ export const labelEn = {
     },
     ERROR: {
       APPROVE: 'Approve failed',
-      REJECT: 'Reject failed'
+      REJECT: 'Reject failed',
+      MISSING_REASON: 'Please type reason of rejection',
     },
   },
   DETAIL_PLACE: {
@@ -194,6 +200,7 @@ export const labelVi = {
     BTN_DETAIL: 'Chi tiết',
     BTN_EDIT: 'Sửa',
     NO_DATA: 'Không có dữ liệu',
+    REJECT_REASON: 'Nhập lý do từ chối',
   },
   DIALOG: {
     OK: 'Đồng ý',
@@ -209,6 +216,7 @@ export const labelVi = {
     CREATE_LABEL: 'Tạo',
     EDIT_LABEL: 'Sửa địa điểm',
     UPDATE_LABEL: 'Cập nhật',
+    RESUBMIT: 'Gửi lại',
     LIST: 'Danh sách',
     NAME_VI: 'Tên địa điểm (VI)',
     NAME_EN: 'Tên địa điểm (EN)',
@@ -224,6 +232,7 @@ export const labelVi = {
     SELECT_TYPES: 'Chọn loại hình du lịch',
     CHOOSE: 'Chọn',
     ERROR_MESSAGE: 'Thông báo lỗi',
+    CF_RESUBMIT: 'Bạn có chắc muốn gửi lại yêu cầu cho quản trị viên?',
     ERROR: {
       MT_IMAGE: 'Cần ít nhất một hình ảnh',
       MT_TYPES: 'Cần ít nhất một loại hình du lịch',
@@ -237,10 +246,12 @@ export const labelVi = {
       LON_NUMBER: 'Kinh độ phải là dạng số',
       CREATE_DEST: 'Tạo địa điểm thất bại',
       UPDATE_DEST: 'Cập nhật địa điểm thất bại',
+      RESUBMIT: 'Gửi lại yêu cầu thất bại',
     },
     SUCCESS: {
       CREATE_DEST: 'Tạo địa điểm thành công',
       UPDATE_DEST: 'Cập nhật địa điểm thành công',
+      RESUBMIT: 'Gửi lại yêu cầu thành công',
     }
   },
   CREATED_PLACES: {
@@ -349,7 +360,8 @@ export const labelVi = {
     },
     ERROR: {
       APPROVE: 'Duyệt thất bại',
-      REJECT: 'Từ chối thất bại'
+      REJECT: 'Từ chối thất bại',
+      MISSING_REASON: 'Vui lòng nhập lý do từ chối',
     },
   },
   DETAIL_PLACE: {

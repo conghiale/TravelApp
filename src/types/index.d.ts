@@ -95,6 +95,7 @@ interface PlaceProps {
   typesString?: string;
   types: string[];
   createdAt?: string;
+  reasonReject?: string;
 }
 
 interface PaginationProps {
@@ -382,6 +383,7 @@ type ApiReturnDestination = {
   createdAt?: string;
   createdBy?: string;
   distance?: number;
+  reasonReject?: string;
 };
 
 type ApiReturnDestType = {

@@ -23,6 +23,10 @@ export const updateDestination = (id: string, formData: FormData) => {
   return axiosInstance.putForm(`/dest/edit/${id}`, formData);
 };
 
+export const resubmitDestination = (data: any) => {
+  return axiosInstance.put(`/dest/resubmit`, data);
+};
+
 export const getTopDestination = () => {
   return axiosInstance.get(`/dest/top`);
 };
@@ -39,8 +43,8 @@ export const getWaitingDestination = () => {
   return axiosInstance.get(`/dest/waiting`);
 };
 
-export const waitingDestinationApproval = (id: string, accepted: boolean) => {
-  return axiosInstance.post(`/dest/approval`, {id, accepted});
+export const waitingDestinationApproval = (id: string, accepted: boolean, reason?: string) => {
+  return axiosInstance.post(`/dest/approval`, {id, accepted, reason});
 };
 
 export const getImagesByDestinationId = (id: string) => {

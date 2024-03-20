@@ -1,9 +1,10 @@
+import { languageConstant } from '@/API/src/utils/constant';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import {font} from '@/utils/font';
 import {labelEn, labelVi} from '@/utils/label';
 import theme from '@/utils/theme';
 import React from 'react';
-import {Modal, View, Text, Button, TouchableOpacity} from 'react-native';
+import {Modal, View, Text, TouchableOpacity} from 'react-native';
 
 type DialogType = 'success' | 'error' | 'warning' | '';
 
@@ -23,7 +24,7 @@ const Dialog: React.FC<DialogProps> = ({
   handleCancel,
 }) => {
   const {user} = useUserGlobalStore();
-  const bilingual = user?.language === 'EN' ? labelEn : labelVi;
+  const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   return (
     <Modal visible={isVisible} animationType="fade" transparent>
       <View

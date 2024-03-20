@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     width: '100%',
-
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: '5%',
@@ -68,6 +67,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
     gap: 12,
+  },
+  reasonReject: {
+    backgroundColor: theme.colors.grey3,
+    flex: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+  },
+  rejectContainer: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.grey3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginHorizontal: '10%',
+    paddingHorizontal: 8,
+    marginBottom: 16,
   },
 });
 

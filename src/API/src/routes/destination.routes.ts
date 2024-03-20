@@ -21,6 +21,7 @@ destinationRoutes.route('/get/:id').get(destController.getDestinationById);
 destinationRoutes.route('/get-images/:id').get(destController.getImagesByDestinationId);
 destinationRoutes.route('/create').post(destController.createDestination);
 destinationRoutes.route('/edit/:id').put(destController.updateDestination);
+destinationRoutes.route('/resubmit').put(destController.resubmitRequest);
 destinationRoutes.route('/delete').delete(destController.deleteDestination);
 destinationRoutes.route('/approval').post(destController.approvalDestination);
 

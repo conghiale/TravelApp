@@ -60,6 +60,7 @@ class DestinationService {
     types: mongoose.Types.ObjectId[],
     vote: number,
     status: number,
+    reason?: string,
   ) => {
     const dest = await Destination.findById(id, {__v: 0});
     if (nameVi) dest.nameVi = nameVi;
@@ -71,6 +72,7 @@ class DestinationService {
     if (types && types.length > 0) dest.types = types;
     if (vote) dest.vote = vote;
     if (status) dest.status = status;
+    if (reason) dest.reasonReject = reason;
     dest.save();
     return {
       success: true,
@@ -97,7 +99,10 @@ class DestinationService {
   };
 
   getTopPlaces = async () => {
-    return await Destination.find({status: statusDestinationConstant.ACCEPTED}, {__v: 0})
+    return await Destination.find(
+      {status: statusDestinationConstant.ACCEPTED},
+      {__v: 0},
+    )
       .sort({vote: -1})
       .limit(10);
   };
@@ -129,10 +134,10 @@ class DestinationService {
   getNearestPlaces = async (userLatitude: number, userLongitude: number) => {
     // Function to calculate distance between two points using Haversine formula
     const placesOnMap = await this.getAllDestinationOnMap();
-    if(!placesOnMap || placesOnMap.length === 0) {
+    if (!placesOnMap || placesOnMap.length === 0) {
       return [];
     }
-    
+
     const placesWithDistances = placesOnMap.map(place => ({
       ...place,
       distance: this.getDistanceFromLatLonInKm(
@@ -189,6 +194,16 @@ class DestinationService {
       {createdAt: 0, updatedAt: 0, __v: 0, _id: 0, destinationId: 0},
     );
     return data.map(d => d.path);
+  };
+
+  resubmitRequest = async destinationId => {
+    return await Destination.findByIdAndUpdate(destinationId, {
+      status: statusDestinationConstant.WAITING,
+    });
+  };
+
+  checkDestinationById = async destinationId => {
+    return await Destination.findById(destinationId);
   };
 }
 

@@ -1,12 +1,12 @@
 import {AppScreenNavigationType, AppStackParamList} from '@/navigation/types';
 import theme from '@/utils/theme';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {Alert, ScrollView, Text, View} from 'react-native';
+import {Alert, Button, ScrollView, Text, TextInput, View} from 'react-native';
 import styles from './detailRequest.style';
 import ButtonArrowLeft from '@/components/button/buttonArrowLeft/ButtonArrowLeft';
 import Button01 from '@/components/button/button01/Button01';
 import FlatlistImagesHorizontal from '@/components/flatList/flasListImagesHorizontal/FlatlistImagesHorizontal';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
   getDestinationById,
   waitingDestinationApproval,
@@ -17,8 +17,8 @@ import {labelEn, labelVi} from '@/utils/label';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import { languageConstant, themeConstant } from '@/API/src/utils/constant';
-import { DarkMode, LightMode } from '@/utils/mode';
+import {languageConstant, themeConstant} from '@/API/src/utils/constant';
+import {DarkMode, LightMode} from '@/utils/mode';
 
 const DetailRequestPlaceScreen = () => {
   const route = useRoute<any>();
@@ -27,6 +27,12 @@ const DetailRequestPlaceScreen = () => {
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
+
+  //reject
+  const [rejectReason, setRejectReason] = useState('');
+  const inputReasonRef = useRef<any>(null);
+  const scrollViewRef = useRef<any>(null);
+  const [showInputReject, setShowInputReject] = useState(false);
 
   const navigation =
     useNavigation<AppScreenNavigationType<'DetailRequestPlace'>>();
@@ -56,6 +62,16 @@ const DetailRequestPlaceScreen = () => {
     navigation.goBack();
   };
 
+  useEffect(() => {
+    if (showInputReject) {
+      scrollViewRef?.current?.scrollToEnd({animated: true});
+    }
+  }, [showInputReject]);
+
+  const handleChangeReason = (text: string) => {
+    setRejectReason(text);
+  };
+
   const approve = () => {
     setLoading(true);
     waitingDestinationApproval(place._id, true)
@@ -81,30 +97,40 @@ const DetailRequestPlaceScreen = () => {
   };
 
   const reject = () => {
-    setLoading(true);
-    waitingDestinationApproval(place._id, false)
-      .then(r => {
-        setDialog({
-          visible: true,
-          type: 'success',
-          message: bilingual.DETAIL_REQUEST.SUCCESS.REJECT,
-          handleOk: () => goBack(),
-        });
-      })
-      .catch(e => {
-        setDialog({
-          visible: true,
-          type: 'error',
-          message: bilingual.DETAIL_REQUEST.ERROR.REJECT,
-          handleOk: () => setDialog(defaultDialog),
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+    if (!rejectReason) {
+      setDialog({
+        visible: true,
+        type: 'error',
+        message: bilingual.DETAIL_REQUEST.ERROR.MISSING_REASON,
+        handleOk: () => setDialog(defaultDialog),
       });
+    } else {
+      setLoading(true);
+      waitingDestinationApproval(place._id, false, rejectReason)
+        .then(r => {
+          setDialog({
+            visible: true,
+            type: 'success',
+            message: bilingual.DETAIL_REQUEST.SUCCESS.REJECT,
+            handleOk: () => goBack(),
+          });
+        })
+        .catch(e => {
+          setDialog({
+            visible: true,
+            type: 'error',
+            message: bilingual.DETAIL_REQUEST.ERROR.REJECT,
+            handleOk: () => setDialog(defaultDialog),
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   };
 
   const handlePressApprove = () => {
+    setShowInputReject(showInputReject => !showInputReject);
     setDialog({
       visible: true,
       type: 'warning',
@@ -115,13 +141,15 @@ const DetailRequestPlaceScreen = () => {
   };
 
   const handlePressReject = () => {
-    setDialog({
-      visible: true,
-      type: 'warning',
-      message: bilingual.DETAIL_REQUEST.CF_REJECT,
-      handleOk: () => reject(),
-      handleCancel: () => setDialog(defaultDialog),
-    });
+    if (inputReasonRef?.current && showInputReject) inputReasonRef.current.focus();
+    setShowInputReject(showInputReject => !showInputReject);
+    // setDialog({
+    //   visible: true,
+    //   type: 'warning',
+    //   message: bilingual.DETAIL_REQUEST.CF_REJECT,
+    //   handleOk: () => reject(),
+    //   handleCancel: () => setDialog(defaultDialog),
+    // });
   };
 
   return (
@@ -139,7 +167,10 @@ const DetailRequestPlaceScreen = () => {
         handleOk={dialog.handleOk}
         handleCancel={dialog.handleCancel}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        style={{marginBottom: 16}}>
         <View style={[styles.container, {backgroundColor: mode.blue1}]}>
           <View style={styles.containerHeader}>
             <ButtonArrowLeft onPress={goBack} />
@@ -279,6 +310,19 @@ const DetailRequestPlaceScreen = () => {
               />
             </View>
           </View>
+          {showInputReject ? (
+            <View style={styles.rejectContainer}>
+              <TextInput
+                ref={inputReasonRef}
+                placeholder={bilingual.GENERAL.REJECT_REASON}
+                style={styles.reasonReject}
+                onChangeText={handleChangeReason}
+              />
+              <Button title={bilingual.DIALOG.OK} onPress={reject}></Button>
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </ScrollView>
     </View>

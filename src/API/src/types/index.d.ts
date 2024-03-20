@@ -27,6 +27,7 @@ export interface IDestination {
   createdBy: string
   role?: string
   accepted?: boolean
+  reason?: string
 }
 
 export interface IUserLove {
