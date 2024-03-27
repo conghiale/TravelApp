@@ -7,21 +7,22 @@ import {
   Keyboard,
   Modal,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
 import Icons from '@/components/shared/icon';
 import styles from './createScreen.style';
 import theme from '@/utils/theme';
-import {AppScreenNavigationType} from '@/navigation/types';
-import {useNavigation} from '@react-navigation/native';
+import { AppScreenNavigationType } from '@/navigation/types';
+import { useNavigation } from '@react-navigation/native';
 import ImageUpload from '@/components/imageUpload/ImageUpload';
 import DialogChooseImage from '@/components/customAler/dialogChooseImage/DialogChooseImage';
 import * as ImagePicker from 'react-native-image-picker';
 import Button01 from '@/components/button/button01/Button01';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
-import {labelVi, labelEn} from '@/utils/label';
+import { labelVi, labelEn } from '@/utils/label';
 import {
   createDestination,
+  getDestinationById,
   getDestinationTypes,
 } from '@/services/destination-service';
 import {
@@ -35,6 +36,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { languageConstant, themeConstant } from '@/API/src/utils/constant';
 import { DarkMode, LightMode } from '@/utils/mode';
 import BorderButton from '@/components/button/borderButton/BorderButton';
+import CreateNotification from '../../../CreateNotification';
 
 type ApiReturnType = {
   _id: string;
@@ -43,7 +45,7 @@ type ApiReturnType = {
 };
 
 const CreatePlaceScreen = () => {
-  const {user} = useUserGlobalStore();
+  const { user } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(true);
@@ -131,7 +133,7 @@ const CreatePlaceScreen = () => {
     };
   }, []);
 
-  const uploadImage = async ({type, options1, options2}: any) => {
+  const uploadImage = async ({ type, options1, options2 }: any) => {
     if (type === 'capture') {
       await ImagePicker.launchCamera(options1, response => {
         if (response.didCancel) {
@@ -154,7 +156,7 @@ const CreatePlaceScreen = () => {
           let imageUri = response.assets?.[0]?.uri;
           setImageUploads(prevUploads => [
             ...prevUploads,
-            {id: getRandomIntInclusive(5, 100), uri: imageUri},
+            { id: getRandomIntInclusive(5, 100), uri: imageUri },
           ]);
           // sendBackend
         }
@@ -182,7 +184,7 @@ const CreatePlaceScreen = () => {
             let imageUri = response.assets?.[0]?.uri;
             setImageUploads(prevUploads =>
               prevUploads.map(upload =>
-                upload.id === idImage ? {...upload, uri: imageUri} : upload,
+                upload.id === idImage ? { ...upload, uri: imageUri } : upload,
               ),
             );
             // sendBackend
@@ -210,7 +212,7 @@ const CreatePlaceScreen = () => {
             response.assets?.map(asset => {
               setImageUploads(prevUploads => [
                 ...prevUploads,
-                {id: getRandomIntInclusive(5, 20), uri: asset.uri},
+                { id: getRandomIntInclusive(5, 20), uri: asset.uri },
               ]);
             });
             // sendBackend
@@ -230,11 +232,11 @@ const CreatePlaceScreen = () => {
     name: keyof PlaceProps,
     value: string,
   ) => {
-    setNewPlace(prevPlace => ({...prevPlace, [name]: value}));
+    setNewPlace(prevPlace => ({ ...prevPlace, [name]: value }));
   };
 
   const onHandleFocusInput = (name: keyof FocusInfoUser, value: boolean) => {
-    setOnFoCus(prevOnFocus => ({...prevOnFocus, [name]: value}));
+    setOnFoCus(prevOnFocus => ({ ...prevOnFocus, [name]: value }));
   };
 
   const handleRequestSubmitCreate = () => {
@@ -323,8 +325,11 @@ const CreatePlaceScreen = () => {
       formData.append('role', user?.role);
 
       setLoading(true);
+
+      // Notification
       createDestination(formData)
         .then(r => {
+          console.log("Create-place(332): " + JSON.stringify(r.data.data._id))
           setNewPlace({
             nameVi: '',
             nameEn: '',
@@ -343,6 +348,19 @@ const CreatePlaceScreen = () => {
             message: bilingual.CREATE_EDIT_DEST.SUCCESS.CREATE_DEST,
             handleOk: () => setDialog(defaultDialog),
           });
+
+          getDestinationById(r.data.data._id)
+          .then((r) => {
+            // Notification
+            CreateNotification(
+              r.data.data._id,
+              1,
+              "APPROVE PLACES",
+              `Tourist destination ${r.data.data.nameEn} just created by user. Awaiting approval.`,
+              r.data.data.images[0]
+            )
+
+          })
         })
         .catch(e => {
           setDialog({
@@ -359,9 +377,25 @@ const CreatePlaceScreen = () => {
     }
   };
 
+  const handleActionResetCreate = () => {
+    //reset
+    setNewPlace({
+      nameVi: '',
+      nameEn: '',
+      descriptionVi: '',
+      descriptionEn: '',
+      longitude: 0,
+      latitude: 0,
+      images: [],
+      types: [],
+      vote: 0,
+    });
+    setImageUploads([]);    
+  };
+
   return (
     <SafeAreaWrapper>
-      <View style={[styles.container, {backgroundColor: mode.blue1}]}>
+      <View style={[styles.container, { backgroundColor: mode.blue1 }]}>
         <Spinner
           size={'large'}
           visible={loading}
@@ -392,7 +426,7 @@ const CreatePlaceScreen = () => {
           <View
             style={[
               styles.containerModal,
-              {backgroundColor: mode.grey2},
+              { backgroundColor: mode.grey2 },
             ]}>
             <View
               style={[
@@ -407,7 +441,7 @@ const CreatePlaceScreen = () => {
                 style={[
                   theme.textVariants.textXl,
                   styles.textTitleModal,
-                  {color: mode.orange1},
+                  { color: mode.orange1 },
                 ]}>
                 {bilingual.CREATE_EDIT_DEST.SELECT_TYPES}
               </Text>
@@ -430,7 +464,7 @@ const CreatePlaceScreen = () => {
                       setTypesModal(types =>
                         types?.map(typeItem =>
                           typeItem.dest.id === type.dest.id
-                            ? {...typeItem, isChoose: !typeItem.isChoose}
+                            ? { ...typeItem, isChoose: !typeItem.isChoose }
                             : typeItem,
                         ),
                       )
@@ -439,7 +473,7 @@ const CreatePlaceScreen = () => {
                       style={[
                         theme.textVariants.textBase,
                         styles.text,
-                        {color: mode.white},
+                        { color: mode.white },
                       ]}>
                       {type.dest.label}
                     </Text>
@@ -464,7 +498,7 @@ const CreatePlaceScreen = () => {
         {/* End modal dest types */}
 
         <ScrollView
-          style={{marginBottom: isKeyboardVisible ? 5 : 135}}
+          style={{ marginBottom: isKeyboardVisible ? 5 : 135 }}
           showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <TouchableOpacity
@@ -472,7 +506,7 @@ const CreatePlaceScreen = () => {
               style={styles.headerItem}
               onPress={handleRequestSubmitCreate}>
               <Icons name={'createDestination'} color={mode.orange} />
-              <Text style={[styles.headerText, {color: mode.orange}]}>
+              <Text style={[styles.headerText, { color: mode.orange }]}>
                 {bilingual.CREATE_EDIT_DEST.CREATE}
               </Text>
             </TouchableOpacity>
@@ -481,7 +515,7 @@ const CreatePlaceScreen = () => {
               onPress={navigateToCreatedPlacesScreen}
               activeOpacity={0.85}>
               <Icons name="list" color={mode.orange} />
-              <Text style={[styles.headerText, {color: mode.orange}]}>
+              <Text style={[styles.headerText, { color: mode.orange }]}>
                 {bilingual.CREATE_EDIT_DEST.LIST}
               </Text>
             </TouchableOpacity>
@@ -732,7 +766,7 @@ const CreatePlaceScreen = () => {
                 style={[
                   theme.textVariants.textBase,
                   styles.text,
-                  {color: mode.white},
+                  { color: mode.white },
                 ]}>
                 {bilingual.CREATE_EDIT_DEST.CHOOSE_TYPES}
               </Text>
@@ -741,7 +775,7 @@ const CreatePlaceScreen = () => {
               type.isChoose ? (
                 <View
                   key={type.dest.id}
-                  style={[styles.filter, {borderColor: mode.grey}]}>
+                  style={[styles.filter, { borderColor: mode.grey }]}>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.iconRemove}
@@ -749,7 +783,7 @@ const CreatePlaceScreen = () => {
                       setTypes(prevType =>
                         prevType?.map(typeItem =>
                           typeItem.dest.id === type.dest.id
-                            ? {...type, isChoose: !type.isChoose}
+                            ? { ...type, isChoose: !type.isChoose }
                             : typeItem,
                         ),
                       );
@@ -760,7 +794,7 @@ const CreatePlaceScreen = () => {
                     style={[
                       theme.textVariants.textBase,
                       styles.text,
-                      {color: mode.white},
+                      { color: mode.white },
                     ]}>
                     {type.dest.label}
                   </Text>
@@ -772,11 +806,11 @@ const CreatePlaceScreen = () => {
           <View
             style={[
               styles.containerFooter,
-              {flexWrap: 'wrap', rowGap: 10, columnGap: 30},
+              { flexWrap: 'wrap', rowGap: 10, columnGap: 30 },
             ]}>
             <TouchableOpacity
               activeOpacity={0.85}
-              style={[styles.btnAdd, {backgroundColor: mode.white}]}
+              style={[styles.btnAdd, { backgroundColor: mode.white }]}
               onPress={() => {
                 setIdImage(-1);
                 setShowTakeImage(true);
@@ -785,25 +819,36 @@ const CreatePlaceScreen = () => {
             </TouchableOpacity>
             {imageUploads.length > 0
               ? imageUploads?.map((imageUpload, index) => (
-                  <View key={index} style={{width: 100, height: 100}}>
-                    <ImageUpload
-                      image={imageUpload.uri}
-                      onHandleShowTakeImage={() => {
-                        setIdImage(imageUpload.id);
-                        setShowTakeImage(true);
-                      }}
-                    />
-                  </View>
-                ))
+                <View key={index} style={{ width: 100, height: 100 }}>
+                  <ImageUpload
+                    image={imageUpload.uri}
+                    onHandleShowTakeImage={() => {
+                      setIdImage(imageUpload.id);
+                      setShowTakeImage(true);
+                    }}
+                  />
+                </View>
+              ))
               : null}
           </View>
           <View style={styles.containerButtonEdit}>
-            <BorderButton
-              height={60}
-              label={bilingual.CREATE_EDIT_DEST.CREATE_LABEL}
-              nameIcon="createDestination"
-              onPress={handleRequestSubmitCreate}
-            />
+            <View style={{ flex: 1 }}>
+              <BorderButton
+                height={60}
+                label={bilingual.CREATE_EDIT_DEST.CREATE_LABEL}
+                nameIcon="createDestination"
+                onPress={handleRequestSubmitCreate}
+              />
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <BorderButton
+                height={60}
+                label={bilingual.CREATE_EDIT_DEST.RESSET_LABEL}
+                nameIcon="cancel"
+                onPress={handleActionResetCreate}
+              />
+            </View>
           </View>
         </ScrollView>
       </View>

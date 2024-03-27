@@ -41,30 +41,6 @@ const SignUpScreen = () => {
     password: defaultErrorProps,
   });
 
-  /*useEffect(() => {
-        GoogleSignin.configure({
-            webClientId: '606295247603-pi9htgv2csa8kfb9oscup0hli3loq3nd.apps.googleusercontent.com',
-        });
-    }, [])
-
-    async function onGoogleButtonPress() {
-        try {
-            // Check if your device supports Google Play
-            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-            // Get the users ID token
-            const { idToken, user } = await GoogleSignin.signIn();
-            console.log('user:', user)
-    
-            // Create a Google credential with the token
-            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    
-            // Sign-in the user with the credential
-            return auth().signInWithCredential(googleCredential);
-        } catch(e) {
-            console.log(e)
-        }
-    }*/
-
   const handleChangeInput = (key: keyof IUserLogin, text: string) => {
     setUser(prevUser => ({
       ...prevUser,
@@ -156,7 +132,6 @@ const SignUpScreen = () => {
         message={dialog.message}
         type={dialog.type}
         handleOk={dialog.handleOk}
-        // handleCancel={dialog.handleCancel}
       />
       <Box
         style={{

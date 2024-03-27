@@ -19,6 +19,7 @@ export const labelEn = {
   CREATE_EDIT_DEST: {
     CREATE: 'Create destination',
     CREATE_LABEL: 'Create',
+    RESSET_LABEL: 'Reset',
     EDIT_LABEL: 'Edit place',
     UPDATE_LABEL: 'Update',
     RESUBMIT: 'Resubmit',
@@ -214,6 +215,7 @@ export const labelVi = {
   CREATE_EDIT_DEST: {
     CREATE: 'Tạo địa điểm',
     CREATE_LABEL: 'Tạo',
+    RESSET_LABEL: 'Đặt lại',
     EDIT_LABEL: 'Sửa địa điểm',
     UPDATE_LABEL: 'Cập nhật',
     RESUBMIT: 'Gửi lại',

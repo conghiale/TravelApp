@@ -7,6 +7,7 @@ import userCommentRoutes from "./routes/user.comment.routes"
 import cors from 'cors'
 import destinationTypeRoutes from "./routes/destination.type.routes"
 import userLoveRoutes from "./routes/user.love.routes"
+import approvePlaceRoutes from "./routes/approve.place.routes"
 
 const app = express()
 const PORT = 1702
@@ -23,6 +24,7 @@ app.get('/reset-password/:email/:code', (req: Request, res: Response) => {
 app.use("/user", userRoutes)
 app.use("/dest", destinationRoutes)
 app.use("/comment", userCommentRoutes)
+app.use("/approvePlace", approvePlaceRoutes)
 app.use("/dtype", destinationTypeRoutes)
 app.use("/love", userLoveRoutes)
 

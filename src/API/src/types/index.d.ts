@@ -13,7 +13,7 @@ export interface IUser {
   theme: string
 }
 
-export interface IDestination {
+export interface  IDestination {
   id: string
   nameVi: string
   nameEn: string
@@ -41,6 +41,12 @@ export interface IUserComment {
   destinationId: string
   content: string
   star: number
+}
+
+export interface IApprovePlace {
+  userId: string[]
+  destinationId: string
+  status: number
 }
 
 export interface IUserHobby {}

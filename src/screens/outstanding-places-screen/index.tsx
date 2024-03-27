@@ -391,7 +391,7 @@ const OutstandingPlacesScreen = () => {
                   title={bilingual.OUTSTANDING.TOP_PLACES}
                 />
               </View>
-              <View style={{ marginVertical: 8 }}>
+              <View style={{ marginVertical: 0 }}>
                 <FlatlistHorizontal data={topPlaces} />
               </View>
               {/* Nearest Places */}
@@ -401,7 +401,7 @@ const OutstandingPlacesScreen = () => {
                   title={bilingual.OUTSTANDING.NEAREST_PLACE}
                 />
               </View>
-              <View style={{ marginVertical: 8 }}>
+              <View style={{ marginVertical: 0 }}>
                 <FlatlistHorizontal data={nearPlaces} />
               </View>
             </>

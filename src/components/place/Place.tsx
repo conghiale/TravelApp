@@ -80,8 +80,7 @@ const Place = ({
   };
 
   return (
-    <View style={[styles.place_container, {backgroundColor: mode.blue2, shadowColor: mode.black, 
-      borderColor: mode.orange, borderWidth: 1}]}>
+    <View style={[styles.place_container, {backgroundColor: mode.blue2, shadowColor: mode.black}]}>
       {/* thay bằng uri đầu tiên */}
       <Image
         style={styles.place_image}

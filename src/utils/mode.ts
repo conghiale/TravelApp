@@ -25,7 +25,7 @@ export const DarkMode = {
 
 export const LightMode = {
   white: '#5c758c',
-  black: '#000000',
+  black: '#218c74',
   transparent: 'transparent',
   orange: '#ffb142',
   orange1: '#783f04',

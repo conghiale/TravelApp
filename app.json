@@ -1,4 +1,7 @@
 {
   "name": "TravelApp",
-  "displayName": "TravelApp"
+  "displayName": "TravelApp",
+  "plugins": [
+    "@notifee/react-native"
+  ]
 }

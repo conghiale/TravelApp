@@ -15,7 +15,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const TRANSLATE_X_THRESHOLD = -SCREEN_WIDTH * 0.2
 
 const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
-    const {user} = useUserGlobalStore();
+    const { user } = useUserGlobalStore();
     const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
     const translateX = useSharedValue(0)
     const itemHeight = useSharedValue(theme.placeItemInfo.PLACE_ITEM_HEIGHT)
@@ -89,16 +89,18 @@ const ListPlaceItem = ({ placeItem, onDismiss }: ListPlaceItemProps) => {
                 <GestureHandlerRootView>
                     <GestureDetector gesture={panGesture}>
                         <Animated.View style={[rStyle]}>
-                            <Place
-                                id={placeItem.id}
-                                name={placeItem.name}
-                                description={placeItem.description}
-                                vote={placeItem.vote}
-                                types={placeItem.types}
-                                images={placeItem.images}
-                                status={placeItem.status}
-                                longitude={placeItem.longitude}
-                                latitude={placeItem.latitude} />
+                            <View style={{ paddingHorizontal: 2, borderRadius: 10 }}>
+                                <Place
+                                    id={placeItem.id}
+                                    name={placeItem.name}
+                                    description={placeItem.description}
+                                    vote={placeItem.vote}
+                                    types={placeItem.types}
+                                    images={placeItem.images}
+                                    status={placeItem.status}
+                                    longitude={placeItem.longitude}
+                                    latitude={placeItem.latitude} />
+                            </View>
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>

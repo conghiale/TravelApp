@@ -1,5 +1,5 @@
-import {font} from '@/utils/font';
-import {StyleSheet} from 'react-native';
+import { font } from '@/utils/font';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -126,11 +126,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerButtonEdit: {
-    marginHorizontal: 36,
+    width: '100%',
+    flexDirection: 'row',
+    gap: 20,
+    // marginHorizontal: 36,
     marginTop: 32,
     marginBottom: 16,
     alignContent: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
   },
 });
 

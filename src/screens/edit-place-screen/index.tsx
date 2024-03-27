@@ -41,6 +41,8 @@ import { languageConstant, statusDestinationConstant, themeConstant } from '@/AP
 import { DarkMode, LightMode } from '@/utils/mode';
 import Place from '@/components/place/Place';
 import { font } from '@/utils/font';
+import { deleteApprovedPlaceByDestinationId } from '@/services/approve-place-service';
+import CreateNotification from '../../../CreateNotification';
 
 const EditPlaceScreen = () => {
   const {user} = useUserGlobalStore();
@@ -301,9 +303,6 @@ const EditPlaceScreen = () => {
   };
 
   const handleRequestSubmitEdit = () => {
-    // console.log('Edit-Screen(228): ');
-    // console.log(JSON.stringify(infoPlaceChange));
-
     //create
     placeUpdate.latitude = parseFloat(placeUpdate.latitude.toString());
     placeUpdate.longitude = parseFloat(placeUpdate.longitude.toString());
@@ -339,7 +338,8 @@ const EditPlaceScreen = () => {
       formData.append('descriptionEn', placeUpdate.descriptionEn);
       formData.append('latitude', placeUpdate.latitude);
       formData.append('longitude', placeUpdate.longitude);
-      formData.append('status', placeUpdate.status);
+      // formData.append('status', placeUpdate.status);
+      formData.append('status', placeUpdate.status === 2 ? 2 : 1);
       formData.append(
         'typesString',
         types
@@ -368,25 +368,74 @@ const EditPlaceScreen = () => {
           //   status: data.status,
           // });
 
-          setTypes(prevTypes =>
-            prevTypes.map(prevType => ({
-              ...prevType,
-              isChoose: data.types.includes(prevType.dest.id),
-            })),
-          );
-          setImageUploads(
-            data.images.map((img, index) => ({
-              id: index,
-              uri: `${BASE_URL_DESTINATION}/${img}`,
-            })),
-          );
-          setDialog({
-            visible: true,
-            type: 'success',
-            message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
-            handleOk: () => setDialog(defaultDialog),
-          });
-          fetchPlace();
+          if (data.status === 1) {
+            setDialog({
+              visible: true,
+              type: 'success',
+              message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
+              handleOk: () => {
+                goBack()
+    
+                // delelte approve place
+                deleteApprovedPlaceByDestinationId(idPlace)
+                .then(r => {
+                  console.log(`Edit-place(483): approve palce ${idPlace} deleted successfully`)
+                })
+                .catch(err => {
+                  console.log(`Edit-place(486): approve palce ${idPlace} deleted failed -- ` + err)
+                })
+    
+                // Notification
+                CreateNotification(
+                  r.data.data._id,
+                  1,
+                  "APPROVE PLACES",
+                  `Tourist destination ${r.data.data.nameEn} just UPDATED by user. Awaiting approval.`,
+                  r.data.data.images[0]
+                )
+              },
+            });
+          } else {
+            setTypes(prevTypes =>
+              prevTypes.map(prevType => ({
+                ...prevType,
+                isChoose: data.types.includes(prevType.dest.id),
+              })),
+            );
+            setImageUploads(
+              data.images.map((img, index) => ({
+                id: index,
+                uri: `${BASE_URL_DESTINATION}/${img}`,
+              })),
+            );
+            setDialog({
+              visible: true,
+              type: 'success',
+              message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
+              handleOk: () => setDialog(defaultDialog),
+            });
+            fetchPlace();
+          }
+
+          // setTypes(prevTypes =>
+          //   prevTypes.map(prevType => ({
+          //     ...prevType,
+          //     isChoose: data.types.includes(prevType.dest.id),
+          //   })),
+          // );
+          // setImageUploads(
+          //   data.images.map((img, index) => ({
+          //     id: index,
+          //     uri: `${BASE_URL_DESTINATION}/${img}`,
+          //   })),
+          // );
+          // setDialog({
+          //   visible: true,
+          //   type: 'success',
+          //   message: bilingual.CREATE_EDIT_DEST.SUCCESS.UPDATE_DEST,
+          //   handleOk: () => setDialog(defaultDialog),
+          // });
+          // fetchPlace();
         })
         .catch(e => {
           getErrorMessage(e);
@@ -406,24 +455,187 @@ const EditPlaceScreen = () => {
   const resubmit = () => {
     setDialog(defaultDialog);
     setLoading(true);
-    resubmitDestination({destinationId: idPlace})
+
+    // update
+    placeUpdate.latitude = parseFloat(placeUpdate.latitude.toString());
+    placeUpdate.longitude = parseFloat(placeUpdate.longitude.toString());
+
+    let invalidMsg = '';
+    if (types.length === 0 || typesModal.length === 0) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_TYPES;
+    } else if (imageUploads.length === 0) {
+      invalidMsg = bilingual.CREATE_EDIT_DEST.ERROR.MT_IMAGE;
+    }
+
+    if (invalidMsg.length !== 0) {
+      setDialog({
+        visible: true,
+        type: 'error',
+        message: invalidMsg,
+        handleOk: () => setDialog(defaultDialog),
+      });
+    } else {
+      const formData = new FormData();
+      imageUploads.forEach(img => {
+        formData.append('files', {
+          uri: img.uri,
+          type: 'image/jpeg',
+          name: `${Date.now()}${randomNumberString()}.jpg`,
+        });
+      });
+
+      formData.append('nameVi', placeUpdate.nameVi);
+      formData.append('nameEn', placeUpdate.nameEn);
+      formData.append('descriptionVi', placeUpdate.descriptionVi);
+      formData.append('descriptionEn', placeUpdate.descriptionEn);
+      formData.append('latitude', placeUpdate.latitude);
+      formData.append('longitude', placeUpdate.longitude);
+      formData.append('status', 1); // resubmit
+      formData.append(
+        'typesString',
+        types
+          .filter(type => type.isChoose)
+          .map(type => type.dest.id)
+          .join(','),
+      );
+      formData.append('createdBy', user?.email);
+      formData.append('role', user?.role);
+      
+      setLoading(true);
+      updateDestination(idPlace, formData)
       .then(r => {
+        const data: ApiReturnDestination = r.data.data;
+
         setDialog({
           visible: true,
           type: 'success',
           message: bilingual.CREATE_EDIT_DEST.SUCCESS.RESUBMIT,
-          handleOk: () => goBack(),
+          handleOk: () => {
+            goBack()
+
+            // delelte approve place
+            deleteApprovedPlaceByDestinationId(idPlace)
+            .then(r => {
+              console.log(`Edit-place(520): approve palce ${idPlace} deleted successfully`)
+            })
+            .catch(err => {
+              console.log(`Edit-place(523): approve palce ${idPlace} deleted failed -- ` + err)
+            })
+
+            // Notification
+            getDestinationById(idPlace)
+            .then((r) => {
+              CreateNotification(
+                r.data.data._id,
+                1,
+                "APPROVE PLACES",
+                `Tourist destination ${r.data.data.nameEn} just RECREATED by user. Awaiting approval.`,
+                r.data.data.images[0]
+              )
+
+            })
+          },
         });
+        // resubmit
+        // resubmitDestination({destinationId: idPlace})
+        // .then(r => {
+        //   setDialog({
+        //     visible: true,
+        //     type: 'success',
+        //     message: bilingual.CREATE_EDIT_DEST.SUCCESS.RESUBMIT,
+        //     handleOk: () => {
+        //       goBack()
+
+        //       deleteApprovedPlaceByDestinationId(idPlace)
+        //       .then(r => {
+        //         console.log(`Edit-place(487): approve palce ${idPlace} deleted successfully`)
+        //       })
+        //       .catch(err => {
+        //         console.log(`Edit-place(490): approve palce ${idPlace} deleted failed -- ` + err)
+        //       })
+
+        //       // Notification
+        //       getDestinationById(idPlace)
+        //       .then((r) => {
+        //         CreateNotification(
+        //           r.data.data._id,
+        //           1,
+        //           "APPROVE PLACES",
+        //           `Tourist destination ${r.data.data.nameEn} just created by user. Awaiting approval.`,
+        //           r.data.data.images[0]
+        //         )
+
+        //       })
+        //     },
+        //   });
+        // })
+        // .catch(e => {
+        //   getErrorMessage(e);
+        //   setDialog({
+        //     visible: true,
+        //     type: 'error',
+        //     message: bilingual.CREATE_EDIT_DEST.ERROR.RESUBMIT,
+        //     handleOk: () => setDialog(defaultDialog),
+        //   });
+        // }).finally(() => setLoading(false));
+        
       })
       .catch(e => {
         getErrorMessage(e);
         setDialog({
           visible: true,
           type: 'error',
-          message: bilingual.CREATE_EDIT_DEST.ERROR.RESUBMIT,
+          message: bilingual.CREATE_EDIT_DEST.ERROR.UPDATE_DEST,
           handleOk: () => setDialog(defaultDialog),
         });
-      }).finally(() => setLoading(false));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    }
+
+    // resubmitDestination({destinationId: idPlace})
+    // .then(r => {
+    //   setDialog({
+    //     visible: true,
+    //     type: 'success',
+    //     message: bilingual.CREATE_EDIT_DEST.SUCCESS.RESUBMIT,
+    //     handleOk: () => {
+    //       goBack()
+
+    //       deleteApprovedPlaceByDestinationId(idPlace)
+    //       .then(r => {
+    //         console.log(`Edit-place(421): approve palce ${idPlace} deleted successfully`)
+    //       })
+    //       .catch(err => {
+    //         console.log(`Edit-place(421): approve palce ${idPlace} deleted failed -- ` + err)
+    //       })
+
+    //       // Notification
+    //       getDestinationById(idPlace)
+    //       .then((r) => {
+    //         // Notification
+    //         CreateNotification(
+    //           r.data.data._id,
+    //           1,
+    //           "APPROVE PLACES",
+    //           `Tourist destination ${r.data.data.nameEn} just created by user. Awaiting approval.`,
+    //           r.data.data.images[0]
+    //         )
+
+    //       })
+    //     },
+    //   });
+    // })
+    // .catch(e => {
+    //   getErrorMessage(e);
+    //   setDialog({
+    //     visible: true,
+    //     type: 'error',
+    //     message: bilingual.CREATE_EDIT_DEST.ERROR.RESUBMIT,
+    //     handleOk: () => setDialog(defaultDialog),
+    //   });
+    // }).finally(() => setLoading(false));
   };
 
   const handleRequestReSubmitEdit = () => {

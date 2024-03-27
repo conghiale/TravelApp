@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import SafeAreaWrapper from '@/components/shared/safe-area-wrapper';
-import {Linking, PermissionsAndroid} from 'react-native';
+import { Linking, PermissionsAndroid } from 'react-native';
 import MapView, {
   Callout,
   Marker,
@@ -10,8 +10,8 @@ import MapView, {
 import MyCustomMarkerView from '@/components/maps/MyCustomMarkerView';
 import MyCustomCalloutView from '@/components/maps/MyCustomCalloutView';
 import styles from './homeScreen.style';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
-import {getDestinationPublic} from '@/services/destination-service';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { getDestinationById, getDestinationPublic } from '@/services/destination-service';
 import {
   defaultDialog,
   formatDestinationWithSelect,
@@ -19,14 +19,27 @@ import {
 } from '@/utils';
 import useUserGlobalStore from '@/store/useUserGlobalStore';
 import Geolocation from '@react-native-community/geolocation';
-import {labelEn, labelVi} from '@/utils/label';
+import { labelEn, labelVi } from '@/utils/label';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
-import {languageConstant, themeConstant} from '@/API/src/utils/constant';
-import {DarkMode, LightMode} from '@/utils/mode';
+import { languageConstant, themeConstant } from '@/API/src/utils/constant';
+import { DarkMode, LightMode } from '@/utils/mode';
+
+// Notification
+
+import CreateNotification from '../../../CreateNotification';
+import { getWaitingDestination } from '@/services/destination-service';
+import { useNavigation } from '@react-navigation/native';
+import { AppScreenNavigationType } from '@/navigation/types';
+import notifee, { AndroidImportance, AndroidStyle, DisplayedNotification, EventType } from '@notifee/react-native';
+import { createApprovePlace, getAllApprovePlace, updateUsersByDestinationId } from '@/services/approve-place-service';
+import { IApprovePlace, IDestination } from '@/API/src/types';
+
 
 const HomeScreen = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<AppScreenNavigationType<'General'>>();
+
   // console.log('Home Screen(20):', route.params ? route.params.id : '0');
   const initRegion: Region = {
     latitude: 16.27,
@@ -37,12 +50,15 @@ const HomeScreen = () => {
 
   const [region, setRegion] = useState<Region>(initRegion);
 
-  const {user, updateUser} = useUserGlobalStore();
+  const { user, updateUser } = useUserGlobalStore();
   const bilingual = user?.language === languageConstant.VI ? labelVi : labelEn;
   const mode = user?.theme === themeConstant.LIGHT ? LightMode : DarkMode;
   const [loading, setLoading] = useState<boolean>(false);
   const [dialog, setDialog] = useState<DialogHandleEvent>(defaultDialog);
   const [places, setPlaces] = useState<IPlace[]>([]);
+  // const [approvePlace, setApprovePlace] = useState<IApprovePlace[]>([]);
+  let approvePlaces : IApprovePlace[] = [];
+
 
   const genMarker = (latitude: number, longitude: number): IPlace => {
     return {
@@ -90,7 +106,7 @@ const HomeScreen = () => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         Geolocation.getCurrentPosition(
           (position: Position) => {
-            const {latitude, longitude} = position.coords;
+            const { latitude, longitude } = position.coords;
             updateUser({
               ...user,
               latitude,
@@ -106,13 +122,13 @@ const HomeScreen = () => {
 
             if (!route?.params?.latitude) {
               setPlaces(dp);
-              setRegion(region => ({...region, latitude, longitude}));
+              setRegion(region => ({ ...region, latitude, longitude }));
             } else {
-              const {id, latitude, longitude} = route.params;
+              const { id, latitude, longitude } = route.params;
               if (id && latitude && longitude) {
                 const found = dp.find(p => p.id === id);
                 if (found) {
-                  setPlaces(dp.map(p => ({...p, selected: p.id === id || p.id === 'current_position'})));
+                  setPlaces(dp.map(p => ({ ...p, selected: p.id === id || p.id === 'current_position' })));
                   setRegion(region => ({
                     ...region,
                     latitude,
@@ -124,7 +140,7 @@ const HomeScreen = () => {
             console.info('Got current pos:', latitude, longitude);
           },
           (error: GeolocationError) => console.info(error),
-          {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
         );
       } else {
         console.log('Location permission denied');
@@ -163,6 +179,150 @@ const HomeScreen = () => {
     );
   };
 
+  useEffect(() => {
+    getAllApprovePlace()
+    .then(async r => {
+      const dataApprovePlace : IApprovePlace[] = r.data.data
+      approvePlaces = dataApprovePlace
+
+      getWaitingDestination()
+      .then(async r => {
+        const destinations: [ApiReturnDestination] = r.data.data
+  
+        if (destinations.length > 0) {
+          // const notifications: DisplayedNotification[] = await notifee.getDisplayedNotifications()
+          // console.log('HOME(188): ' + notifications.filter((notification) => notification.notification.data?.id === d._id).length)
+  
+          destinations.forEach(d => {
+            if (user?.role === 'ADMIN' ) {
+              if (approvePlaces.length === 0 || // approve có data không
+                approvePlaces.filter((a) => a.destinationId === d._id).length === 0) { // approve có dest này không
+              
+                CreateNotification(
+                  d._id,
+                  1,
+                  "APPROVE PLACES",
+                  `Tourist destination ${d.nameEn} just created by user. Awaiting approval.`,
+                  d.images[0]
+                )
+    
+                createApprovePlace([user?.id??''], d._id, 1)
+                .then(r => {
+                  console.log("HOME(211): createApprovePlace successfully")
+                })
+                .catch(err => {
+                  console.log("HOME(214): createApprovePlace failed: " + err)
+                })
+              } else if (approvePlaces.filter((a) => a.destinationId === d._id &&
+                                                    a.userId.includes(user?.id??'')).length === 0) {
+                CreateNotification(
+                  d._id,
+                  d.status,
+                  "APPROVE PLACES",
+                  `Tourist destination ${d.nameEn} just created by user. Awaiting approval.`,
+                  d.images[0]
+                )
+
+                updateUsersByDestinationId(d._id, user?.id??'')
+                .then(() => {
+                  console.log('Home(228): UpdateUsersByDestination successfully updated')
+                })
+                .catch(err => {
+                  console.log('Home(231): UpdateUsersByDestination error: ' + err)
+                })
+              }
+            } 
+          });
+        }
+      })
+      .catch(e => {
+        console.info(getErrorMessage(e));
+      })
+
+      if (user?.role === 'USER') {
+        approvePlaces.forEach(a => {
+          if (approvePlaces.filter((a) => a.userId.includes(user?.id??'')).length === 0) {
+            getDestinationById(a.destinationId)
+            .then((res) => {
+              const destination : ApiReturnDestination = res.data.data
+
+              switch (a.status) {
+                case 2:
+                  if (user?.email  === destination.createdBy) {
+                    CreateNotification(
+                      a.destinationId,
+                      a.status,
+                      "RESPONE APPROVE PLACES",
+                      `This tourist destination ${destination.nameEn} has been rejected by Admin. Click on view to see the reason for the response.`,
+                      destination.images[0]
+                    )
+
+                    updateUsersByDestinationId(a.destinationId, user?.id??'')
+                    .then(() => {
+                      console.log('Home(263): UpdateUsersByDestination successfully updated')
+                    })
+                    .catch(err => {
+                      console.log('Home(266): UpdateUsersByDestination error: ' + err)
+                    })
+                  }
+                  break;
+  
+                case 3:
+                  CreateNotification(
+                    a.destinationId,
+                    a.status,
+                    "RESPONE APPROVE PLACES",
+                    `Tourist destination ${destination.nameEn} just created. Click view to display details of this location`,
+                    destination.images[0]
+                  )
+    
+                  updateUsersByDestinationId(a.destinationId, user?.id??'')
+                  .then(() => {
+                    console.log('Home(282): UpdateUsersByDestination successfully updated')
+                  })
+                  .catch(err => {
+                    console.log('Home(285): UpdateUsersByDestination error: ' + err)
+                  })
+                  break;
+              }
+            })
+          }
+        });
+      }
+    })
+    
+    
+    return notifee.onForegroundEvent(async ({ type, detail }) => {
+      switch (type) {
+        case EventType.DISMISSED:
+          console.log("HOME(299): Notification dismissed by user");
+          break;
+        case EventType.PRESS:
+          console.log("HOME(302): Notification clicked by user");
+          if (user?.role === 'ADMIN') 
+            navigation.navigate('ApprovePlaces')
+          else if (detail.notification?.data?.status === 1 || detail.notification?.data?.status === 2)
+            navigation.navigate('CreatedPlaces')
+          else if (detail.notification?.data?.status === 3)
+            navigation.navigate('DetailPlace', {id: detail.notification?.data?.id})
+          break;
+        case EventType.ACTION_PRESS:
+          if (detail.pressAction?.id === 'close') {
+            // notifee.cancelNotification(detail.notification?.id ?? '')
+            console.log('HOME(313): PRESSED ACTION CLOSE')
+          } else if (detail.pressAction?.id === 'view') {
+            if (user?.role === 'ADMIN') 
+              navigation.navigate('ApprovePlaces')
+            else if (detail.notification?.data?.status === 1 || detail.notification?.data?.status === 2)
+              navigation.navigate('CreatedPlaces')
+            else if (detail.notification?.data?.status === 3)
+              navigation.navigate('DetailPlace', {id: detail.notification?.data?.id})
+          }
+          break
+      }
+    })
+  }, [])
+
   return (
     <SafeAreaWrapper>
       <Spinner
@@ -180,12 +340,12 @@ const HomeScreen = () => {
       <MapView
         // onRegionChange={onRegionChange}
         provider={PROVIDER_GOOGLE}
-        style={{width: '100%', height: '100%'}}
+        style={{ width: '100%', height: '100%' }}
         region={region}>
         {places.map((place, index) => (
           <Marker
             key={index}
-            coordinate={{latitude: place.latitude, longitude: place.longitude}}>
+            coordinate={{ latitude: place.latitude, longitude: place.longitude }}>
             <MyCustomMarkerView selected={place.selected as boolean} />
             <Callout
               style={[

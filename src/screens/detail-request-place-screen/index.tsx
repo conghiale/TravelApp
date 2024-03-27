@@ -19,6 +19,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import Dialog from '@/components/dialog-handle-event';
 import {languageConstant, themeConstant} from '@/API/src/utils/constant';
 import {DarkMode, LightMode} from '@/utils/mode';
+import { updateStatusByDestinationId } from '@/services/approve-place-service';
 
 const DetailRequestPlaceScreen = () => {
   const route = useRoute<any>();
@@ -76,6 +77,15 @@ const DetailRequestPlaceScreen = () => {
     setLoading(true);
     waitingDestinationApproval(place._id, true)
       .then(r => {
+        // notification
+        updateStatusByDestinationId(route.params.id, 3)
+        .then(() => {
+          console.log('DETAIL_REQUEST(83): UpdateStatusByDestination successfully')
+        })
+        .catch((err) => {
+          console.log('DETAIL_REQUEST(86): UpdateStatusByDestination failed: ' + err)
+        })
+
         setDialog({
           visible: true,
           type: 'success',
@@ -108,6 +118,9 @@ const DetailRequestPlaceScreen = () => {
       setLoading(true);
       waitingDestinationApproval(place._id, false, rejectReason)
         .then(r => {
+          // notification
+          updateStatusByDestinationId(route.params.id, 2)
+
           setDialog({
             visible: true,
             type: 'success',

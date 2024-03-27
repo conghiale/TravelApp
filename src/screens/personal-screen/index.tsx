@@ -67,14 +67,12 @@ const PersonalScreen = () => {
   const [types, setTypes] = useState<TypesFilterProps[]>([]);
   const [typesModal, setTypesModal] = useState<TypesFilterProps[]>([]);
 
-  //call API
   useEffect(() => {
     setLoading(true);
     if (user && user.id)
       getUserById(user.id)
         .then(ru => {
           const data: ApiReturnPerson = ru.data.data;
-          // console.log('data:', data);
           setPerson({
             id: data._id,
             email: data.email,
@@ -133,15 +131,12 @@ const PersonalScreen = () => {
             .catch(e => {
               console.info('Switch lang failed');
             });
-          // setLanguageToggle(langValue);
           updateUser({
             ...user,
             language: langValue,
             no_loading: true,
             data_loaded: false,
           });
-          // setTimeout(() => {
-          // }, 300);
           break;
         case 'theme':
           const themeValue =
@@ -214,26 +209,6 @@ const PersonalScreen = () => {
 
   const uploadImage = async ({ type, options }: any) => {
     if (type === 'capture') {
-      /*ImagePicker.openCamera({
-        width: 160,
-        height: 160,
-        cropperCircleOverlay: true,
-        cropping: true,
-      })
-        .then(image => {
-          setImage(image.path);
-          // send Backend
-          console.log(image);
-          const formData = new FormData();
-          formData.append('file', {
-            uri: image.path,
-            type: 'image/jpeg',
-            name: Date.now().toString(),
-          });
-        })
-        .catch(error => {
-          setDialogNotification({displayMsg: error.message, isShow: true});
-        });*/
 
       await ImagePicker.launchCamera(options, async response => {
         if (response.didCancel) {
@@ -260,17 +235,6 @@ const PersonalScreen = () => {
         }
       });
     } else {
-      /*ImagePicker.openPicker({
-        width: 200,
-        height: 200,
-        cropperCircleOverlay: true,
-        cropping: true
-      }).then(image => {
-        setImage(image.path)
-        // send Backend
-      }).catch((error) => {
-        setDialogNotification({ displayMsg: error.message, isShow: true });
-      });*/
 
       await ImagePicker.launchImageLibrary(options, response => {
         if (response.didCancel) {
@@ -292,7 +256,6 @@ const PersonalScreen = () => {
         } else {
           let imageUri = response.assets?.[0]?.uri;
           setImage(imageUri);
-          // sendBackend
           uploadAvatarUser(imageUri);
         }
       });

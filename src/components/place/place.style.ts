@@ -1,6 +1,6 @@
-import {font} from '@/utils/font';
+import { font } from '@/utils/font';
 import theme from '@/utils/theme';
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   place_container: {
@@ -8,14 +8,16 @@ const styles = StyleSheet.create({
     width: theme.placeItemInfo.PLACE_ITEM_WIDTH,
     paddingVertical: 6,
     paddingHorizontal: 6,
-    borderRadius: 5,
+    borderRadius: 10,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.32,
+    shadowRadius: 5.46,
+
+    elevation: 9,
+
   },
   place_image: {
     height: '40%',

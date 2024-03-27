@@ -11,7 +11,7 @@ const FlatListPlaceVertical: React.FC<ListPlacePropsOutstanding> = ({ data, onRe
                 scrollEnabled={false}
                 data={data}
                 renderItem={({ item }) => (
-                    <View style={{ margin: 8 }}>
+                    <View style={{ marginHorizontal: 4, marginVertical: 10, borderRadius: 10 }}>
                         <Place
                             id={item.id}
                             types={item.types}

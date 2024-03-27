@@ -392,6 +392,14 @@ type ApiReturnDestType = {
   labelEn: string;
 };
 
+type ApiReturnApprovePlace = {
+  _id: string;
+  userId: string[];
+  destinationId: string;
+  createdAt?: string;
+  createdBy?: string;
+};
+
 type ApiReturnUserComment = {
   _id: string
   userId: string

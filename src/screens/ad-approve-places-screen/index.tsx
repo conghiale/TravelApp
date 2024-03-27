@@ -105,7 +105,7 @@ const ApprovePlacesScreen = () => {
       })
       .finally(() => {
         setLoading(false);
-      });
+    });
   };
 
   useFocusEffect(
