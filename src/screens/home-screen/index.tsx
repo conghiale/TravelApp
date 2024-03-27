@@ -200,7 +200,7 @@ const HomeScreen = () => {
       }
 
       return () => {
-        // setPlaces([]);
+        setPlaces([]);
       };
     }, [
       user?.language,
