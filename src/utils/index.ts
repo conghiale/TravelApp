@@ -48,6 +48,7 @@ export const formatDestination = (
 export const formatDestinationWithSelect = (
   place: ApiReturnDestination,
   language: string,
+  id = '',
 ): IPlace => ({
   id: place._id,
   name: language === languageConstant.VI ? place.nameVi : place.nameEn,
@@ -62,7 +63,7 @@ export const formatDestinationWithSelect = (
   status: place.status,
   vote: place.vote,
   distance: place.distance,
-  selected: false,
+  selected: place._id === id,
 });
 
 const ITEM_PER_PAGE = 5;
